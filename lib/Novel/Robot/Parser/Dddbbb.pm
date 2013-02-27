@@ -1,13 +1,12 @@
-#===============================================================================
-#  DESCRIPTION:  豆豆小说阅读网
-#       AUTHOR:  AbbyPan (USTC), <abbypan@gmail.com>
-#===============================================================================
+#ABSTRACT: 豆豆小说阅读网
 package Novel::Robot::Parser::Dddbbb;
 use strict;
 use warnings;
 use utf8;
+
 use Moo;
 extends 'Novel::Robot::Parser::Base';
+
 use HTML::TableExtract qw/tree/;
 use Web::Scraper;
 use Encode;
@@ -41,7 +40,7 @@ sub parse_chapter {
             return [ $book, $writer ];
         };
         process_first '.mytitle', 'chapter' => sub { $_[0]->as_trimmed_text };
-        process_first '#content', 'content' => sub { $self->get_elem_html( $_[0] ) };
+        process_first '#content', 'content' => sub { $self->get_inner_html( $_[0] ) };
         result 'book_info', 'chapter', 'content';
 
     };
@@ -70,7 +69,7 @@ sub parse_index {
                 $book->as_trimmed_text,   $book->attr('href')
             ];
         };
-        process_first '.bookintro', 'intro' => sub { $self->get_elem_html( $_[0] ) };
+        process_first '.bookintro', 'intro' => sub { $self->get_inner_html( $_[0] ) };
         process_first '.bookimage', 'book_img' => sub {
             my $url = $_[0]->look_down( '_tag', 'img' )->attr('src');
             return if ( $url =~ /default.gif/ );
@@ -90,7 +89,7 @@ sub parse_index {
         };
         process_first '//table[@width="95%"]//td[2]', 'intro' => sub {
             $_[0]->look_down( '_tag', 'script' )->delete;
-            $self->get_elem_html( $_[0] );
+            $self->get_inner_html( $_[0] );
         };
         process_first '//td[@width="120"]', 'book_img' => sub {
             my $url = $_[0]->look_down( '_tag', 'img' )->attr('src');

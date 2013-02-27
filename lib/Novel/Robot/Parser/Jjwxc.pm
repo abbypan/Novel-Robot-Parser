@@ -1,13 +1,12 @@
-#===============================================================================
-#  DESCRIPTION:  绿晋江的解析模块
-#       AUTHOR:  AbbyPan (USTC), <abbypan@gmail.com>
-#===============================================================================
+#ABSTRACT: 绿晋江的解析模块
 package Novel::Robot::Parser::Jjwxc;
 use strict;
 use warnings;
 use utf8;
+
 use Moo;
 extends 'Novel::Robot::Parser::Base';
+
 use HTML::TableExtract qw/tree/;
 use Web::Scraper;
 use Encode;
@@ -53,12 +52,12 @@ sub parse_chapter {
             $_[0]->as_trimmed_text;
         };
         process_first '.readsmall', 'writer_say' => sub {
-            my $_ = $self->get_elem_html( $_[0] );
+            my $_ = $self->get_inner_html( $_[0] );
             s/.*?<hr size="1" \/>//;
             $_;
         };
         process_first '#content', 'content' => sub {
-            $self->get_elem_html( $_[0] );
+            $self->get_inner_html( $_[0] );
         };
         result 'book_info', 'chapter', 'writer_say', 'content';
 
@@ -116,7 +115,7 @@ sub parse_index {
                 || $_[0]->look_down( '_tag', 'div' )
                 || $_[0];
 
-            my $_ = $self->get_elem_html($intro);
+            my $_ = $self->get_inner_html($intro);
             s#</?font[^<]*>\s*##gis;
             return $_;
         };
@@ -158,6 +157,7 @@ sub parse_index {
             process_first '//td[@class="noveltitle"]/a',
                 'writer'     => 'TEXT',
                 'writer_url' => '@href';
+
             #process_first '//div[@class="noveltext"]/div', 'chap_title' => 'TEXT';
             process_first '//h2', 'chap_title' => 'TEXT';
             result 'book', 'writer', 'writer_url', 'chap_title', 'index_url';
