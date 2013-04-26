@@ -172,7 +172,7 @@ sub parse_index {
         $chap{title}                        = $temp_ref->{chap_title};
         $chap{abstract}                     = $chap{title};
         $chap{num}                          = $ref->{word_num};
-        $ref->{chapter_urls}->[ $chap{id} ] = $ref->{index_url} . '&chapterid=1';
+        $ref->{chapter_info}[ $chap{id} ]{url} = $ref->{index_url} . '&chapterid=1';
         push @{ $ref->{chapter_info} }, \%chap;
         return $ref;
 
@@ -206,7 +206,7 @@ sub parse_index {
             $chap_info{id} = $first->as_trimmed_text;
             $chap_info{title} = $table_tree->cell( $i, 1 )->as_trimmed_text;
             my $url = $table_tree->cell( $i, 1 )->extract_links()->[0]->[0];
-            $ref->{chapter_urls}->[ $chap_info{id} ] = $url;
+            $ref->{chapter_info}[ $chap_info{id} ]{url} = $url;
 
             $chap_info{type} =
                   $chap_info{title} =~ /\[VIP\]$/ ? 'vip'

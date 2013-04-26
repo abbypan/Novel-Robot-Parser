@@ -120,10 +120,11 @@ sub parse_chapter_info {
             my @urls = $_[0]->look_down( '_tag', 'a' );
             unshift @urls, undef;
             for my $i ( 1 .. $#urls ) {
-
-                $ref->{chapter_urls}->[$i] = $self->{domain} . $urls[$i]->attr('href');
-                push @{ $ref->{chapter_info} },
-                    { 'id' => $i, 'title' => $urls[$i]->as_trimmed_text, };
+                $ref->{chapter_info}[$i] = { 
+                    url =>  $self->{domain} . $urls[$i]->attr('href'),
+                    'id' => $i, 
+                    'title' => $urls[$i]->as_trimmed_text,
+                };
             } ## end for my $i ( 1 .. $#urls)
             return \@urls;
         };
@@ -131,7 +132,7 @@ sub parse_chapter_info {
     };
 
     $refine_engine->scrape($html_ref);
-    $ref->{chapter_num} = $#{ $ref->{chapter_urls} };
+    $ref->{chapter_num} = $#{ $ref->{chapter_info} };
     return;
 } ## end sub parse_chapter_info
 
