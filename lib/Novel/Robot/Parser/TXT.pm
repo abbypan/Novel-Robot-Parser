@@ -75,6 +75,8 @@ sub parse_index {
                 ++$i;
                 $t->{chapter_id} = $i;
                 $t->{chapter_url} = $txt_file;
+                $t->{writer} = $data{writer};
+                $t->{book} = $data{book};
 
                 $data{chapter_info}[$i] = $t;
             }

@@ -5,7 +5,7 @@ use Novel::Robot::Parser::Jjwxc;
 use Novel::Robot::Parser::Dddbbb;
 use Novel::Robot::Parser::TXT;
 
-our $VERSION = 0.06;
+our $VERSION = 0.07;
 
 sub init_parser {
     my ( $self, $site ) = @_;
