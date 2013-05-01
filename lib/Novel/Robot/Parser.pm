@@ -1,11 +1,12 @@
 # ABSTRACT: 小说站点解析引擎
 package  Novel::Robot::Parser;
 use Moo;
-use Novel::Robot::Parser::Jjwxc;
 use Novel::Robot::Parser::Dddbbb;
+use Novel::Robot::Parser::Jjwxc;
+use Novel::Robot::Parser::Shunong;
 use Novel::Robot::Parser::TXT;
 
-our $VERSION = 0.07;
+our $VERSION = 0.08;
 
 sub init_parser {
     my ( $self, $site ) = @_;
@@ -21,6 +22,7 @@ sub detect_site {
     my $site =
           ( $url =~ m#^http://www\.jjwxc\.net/# )  ? 'Jjwxc'
         : ( $url =~ m#^http://www\.dddbbb\.net/# ) ? 'Dddbbb'
+        : ( $url =~ m#^http://www\.shunong\.com/# ) ? 'Shunong'
         :                                            'Base';
 
     return $site;
