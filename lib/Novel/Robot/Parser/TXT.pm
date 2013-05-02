@@ -8,6 +8,7 @@ use File::Find::Rule;
 use Encode;
 use Encode::Locale;
 use Encode::Detect::CJK qw/detect/;
+
 use Moo;
 extends 'Novel::Robot::Parser::Base';
 
@@ -15,7 +16,9 @@ extends 'Novel::Robot::Parser::Base';
 has '+site'    => ( default => sub {'TXT'} );
 has 'chapter_regex'    => ( 
     is => 'rw', 
-    default => sub { 
+    default =>  \&get_default_chapter_regex);
+
+sub get_default_chapter_regex { 
     #指定分割章节的正则表达式
 
     #序号
@@ -53,7 +56,8 @@ qr/[\d０１２３４５６７８９零○〇一二三四五六七八九十百�
     my $chap_r = qr/^\s*($regex_a|$regex_b|$regex_c|$regex_d|$regex_e)\s*$/m;
 
     return $chap_r;
- } );
+ }
+
 
 sub parse_index {
     my ($self, $r) = @_;
@@ -73,8 +77,8 @@ sub parse_index {
             my $txt_file = decode(locale => $txt);
             for my $t (@$txt_data_ref){
                 ++$i;
-                $t->{chapter_id} = $i;
-                $t->{chapter_url} = $txt_file;
+                $t->{id} = $i;
+                $t->{url} = $txt_file;
                 $t->{writer} = $data{writer};
                 $t->{book} = $data{book};
 
@@ -113,7 +117,7 @@ sub read_single_txt {
         next unless /\S/;
         if ( my ($new_single_toc) = /$self->{chapter_regex}/ ) {
             if ( $single_toc =~ /\S/ and $single_content =~ /\S/s ) {
-                push @data, { chapter => $single_toc, content => $single_content };
+                push @data, { title => $single_toc, content => $single_content };
                 $single_toc = '';
             } ## end if ( $single_toc =~ /\S/...)
             $single_toc .= $new_single_toc . "\n";
@@ -123,19 +127,24 @@ sub read_single_txt {
             $single_content .= $_;
         } ## end else [ if ( my ($new_single_toc...))]
     } ## end while (<$sh>)
-    push @data, { chapter => $single_toc, content => $single_content };
 
-    #变换TXT->html
-    for my $r (@data){
-        for ($r->{content}) {
-            s#<br\s*/?\s*>#\n#gi;
-            s#\s*(.*\S)\s*#<p>$1</p>\n#gm;
-            s#<p>\s*</p>##g;
-        } ## end for ($chap_c)
-    }
+    push @data, { title => $single_toc, content => $single_content };
+    $self->format_chapter_content($_) for @data;
 
     return \@data;
 } ## end sub read_single_TXT
+
+sub format_chapter_content {
+    my ($self, $r) = @_;
+    for ($r->{content}) {
+        s#<br\s*/?\s*>#\n#gi;
+        s#\s*(.*\S)\s*#<p>$1</p>\n#gm;
+        s#<p>\s*</p>##g;
+    } ## end for ($chap_c)
+
+    return $self;
+}
+
 
 sub detect_file_charset {
     my ($self, $file) = @_;

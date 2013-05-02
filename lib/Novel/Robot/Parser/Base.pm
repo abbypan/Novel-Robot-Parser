@@ -3,7 +3,7 @@ package  Novel::Robot::Parser::Base;
 use Moo;
 
 #网站基地址
-has domain => ( is => 'rw' );
+has base_url => ( is => 'rw' );
 
 #网站名称
 has site => ( is => 'rw' );
@@ -11,8 +11,8 @@ has site => ( is => 'rw' );
 #网站编码
 has charset => ( is => 'rw' );
 
-#元素内置HTML
 sub get_inner_html {
+#元素内置HTML
     my ( $self, $elem ) = @_;
 
     my $_ = $elem->as_HTML('<>&');
@@ -26,21 +26,21 @@ sub get_inner_html {
     return $_;
 } ## end sub get_inner_html
 
-sub generate_index_url { my ($self, $url) = @_; return $url; }
+sub make_index_url { my ($self, $url) = @_; return $url; }
+sub parse_index { }
 
-#解析index内容之前，先做一些简单文本处理
-sub alter_index_before_parse { }
+sub make_chapter_url { my ($self, $url) = @_; return $url; }
+sub parse_chapter { }
 
-sub generate_chapter_url { my ($self, $url) = @_; return $url; }
+sub make_writer_url { my ($self, $url) = @_; return $url; }
+sub parse_writer { }
 
-#解析chapter内容之前，先做一些简单文本处理
-sub alter_chapter_before_parse { }
+sub make_query_url { my ($self, $url) = @_; return $url; }
+sub parse_query { }
 
+sub get_query_result_urls {
 #查询结果为多页时，取得除第1页之外的其他结果页面的url
-sub get_query_result_urls { }
-
-
-
+}
 
 no Moo;
 1;

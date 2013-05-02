@@ -9,7 +9,7 @@ extends 'Novel::Robot::Parser::Base';
 
 use Web::Scraper;
 
-has '+domain'  => ( default => sub {'http://www.shunong.com'} );
+has '+base_url'  => ( default => sub {'http://www.shunong.com'} );
 has '+site'    => ( default => sub {'Shunong'} );
 has '+charset' => ( default => sub {'cp936'} );
 
@@ -20,7 +20,7 @@ sub parse_index {
     my $parse_index = scraper {
         process_first '.author', 'writer' => 'TEXT';
         process_first 'h1', 'book' => 'TEXT';
-        process_first '.redbutt', 'book_url' => '@href';
+        process_first '.redbutt', 'index_url' => '@href';
         process '//div[@class="booklist clearfix"]//a', 'chapter_info[]' => {
             'title' => 'TEXT', 'url' => '@href'
         };
@@ -35,10 +35,11 @@ sub parse_index {
     $ref->{chapter_num} = scalar(@{ $ref->{chapter_info} });
     unshift @{$ref->{chapter_info}}, undef;
 
-    my ($id) = $ref->{book_url}=~m#/(\d+).html$#;
+    my ($id) = $ref->{index_url}=~m#/(\d+)\D+$#;
+    my $mid = int($id/1000);
     for my $i (1 .. $ref->{chapter_num}){
         my $r = $ref->{chapter_info}[$i];
-        $r->{url}="$self->{domain}/yuedu/2/$id/$r->{url}";
+        $r->{url}="$self->{base_url}/yuedu/$mid/$id/$r->{url}";
         $r->{id} = $i;
     }
 
@@ -60,9 +61,11 @@ sub parse_chapter {
 
     return unless ( defined $ref->{book} );
     $ref->{writer}=~s/作者：//;
-    @{$ref}{'book', 'chapter'} = $ref->{book}=~/(.+?)最新章节：(.+)/;
+    @{$ref}{'book', 'title'} = $ref->{book}=~/(.+?)最新章节：(.+)/;
     $ref->{content}=~s#<div[^>]+></div>##sg;
     $ref->{content}=~s#<script[^>]+></script>##sg;
+    $ref->{content}=~s#<a href="http://www.jidubook.com/".+?</a>##sg;
+    $ref->{content}=~s#<a href="http://www.shunong.com/".+?</a>##sg;
     return $ref;
 } ## end sub parse_chapter
 
