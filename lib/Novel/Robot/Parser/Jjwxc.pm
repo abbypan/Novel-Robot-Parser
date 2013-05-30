@@ -92,13 +92,11 @@ sub format_chapter_before_parse {
 } ## end sub format_chapter_before_parse
 
 sub make_index_url {
-
     my ( $self, $book_id ) = @_;
     return $book_id if ( $book_id =~ /^http:/ );
     my $url = $self->{base_url} . "/onebook.php?novelid=" . $book_id;
     return $url;
 } ## end sub make_index_url
-
 
 sub parse_index {
 
