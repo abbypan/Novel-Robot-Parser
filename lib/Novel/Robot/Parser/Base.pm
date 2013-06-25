@@ -97,11 +97,13 @@ sub format_abs_url {
 
 	for my $r (@$info_array_ref){
 		next unless($r);
+
 		if(ref($r) eq 'HASH'){
 			$r->{url} = URI->new_abs($r->{url}, $base_url)->as_string;
 		}else{
 			$r = URI->new_abs($r, $base_url)->as_string;
 		}
+
 	}
 }
 
@@ -114,7 +116,7 @@ sub calc_index_chapter_num {
 
     my $i = 0;
     for my $c (@{$r->{chapter_info}}){
-	$c->{id} ||= ++$i;
+        $c->{id} ||= ++$i;
     }
 	
     return $r->{chapter_num};

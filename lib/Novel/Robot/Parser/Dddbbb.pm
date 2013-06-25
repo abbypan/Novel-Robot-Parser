@@ -106,7 +106,7 @@ sub parse_chapter {
     $$html_ref=~s#\<img[^>]+dou\.gif[^>]+\>#，#g;
 
     my $parse_chapter = scraper {
-        process '#toplink>a', 'book_info[]' => 'TEXT';
+        process '//div[@id="toplink"]//a', 'book_info[]' => 'TEXT';
         process_first '.mytitle', 'title' => 'TEXT';
         process_first '#content', 'content' => 'HTML';
     };

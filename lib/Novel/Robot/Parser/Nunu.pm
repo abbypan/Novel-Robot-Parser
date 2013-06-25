@@ -9,6 +9,8 @@
 
 =head2 parse_chapter
 
+=head2 parse_writer
+
 =cut
 package Novel::Robot::Parser::Nunu;
 use strict;
@@ -34,7 +36,8 @@ sub parse_index {
             'title' => 'TEXT',
             'url'   => '@href'
           };
-          process_first '//h2//b' , 'book' => 'TEXT';
+          process_first '//h2//b' , 'book_h2' => 'TEXT';
+          process_first '//h1//b' , 'book_h1' => 'TEXT';
           process_first '//font//strong' , 'writer' => 'TEXT';
     };
 
@@ -42,6 +45,7 @@ sub parse_index {
 
     $ref->{writer}=~s/作品集.*//s;
     $ref->{writer}=~s/^→//;
+    $ref->{book} = $ref->{book_h2} || $ref->{book_h1};
 
     $ref->{chapter_info} = [ grep { exists $_->{url} } @{ $ref->{chapter_info} } ];
 
@@ -63,6 +67,26 @@ sub parse_chapter {
     return unless ( defined $ref->{book} );
     return $ref;
 } ## end sub parse_chapter
+
+sub parse_writer {
+
+    my ( $self, $html_ref ) = @_;
+
+    my $parse_writer = scraper {
+        process_first '//h2/b', writer => 'TEXT';
+        process '//tr//td//a', 'booklist[]' => {
+            url => '@href', book => 'TEXT'
+        };
+    };
+
+    my $ref = $parse_writer->scrape($html_ref);
+
+    $ref->{writer}=~s/作品集//;
+    $ref->{booklist} = [ grep { $_->{url} and 
+        ( $_->{url}=~/index.html$/ or $_->{url}=~m#/\d+/$#) } 
+        @{$ref->{booklist}} ]; 
+    return $ref;
+} ## end sub parse_writer
 
 no Moo;
 1;
