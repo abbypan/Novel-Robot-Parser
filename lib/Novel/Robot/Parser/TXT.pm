@@ -87,7 +87,6 @@ sub parse_index {
     $data{writer} = $r->{writer};
     $data{book} = $r->{book};
 
-    my $i = 0;
 
     my $p_ref = ref($r->{path}) eq 'ARRAY' ? $r->{path} : [ $r->{path} ];
     for my $p (@$p_ref){
@@ -96,17 +95,17 @@ sub parse_index {
             my $txt_data_ref = $self->read_single_txt($txt);
             my $txt_file = decode(locale => $txt);
             for my $t (@$txt_data_ref){
-                $t->{id} = ++$i;
                 $t->{url} = $txt_file;
                 $t->{writer} = $data{writer};
                 $t->{book} = $data{book};
 
-		push @{$data{chapter_info}}, $t;
+                push @{$data{chapter_info}}, $t;
             }
         }
     }
 
-    $data{chapter_num} = $i;
+    $self->calc_index_chapter_num(\%data);
+
     $data{index_url} = '';
 
     return \%data;

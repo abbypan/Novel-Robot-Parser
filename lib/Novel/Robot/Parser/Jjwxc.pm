@@ -96,7 +96,7 @@ sub parse_index {
         process_first '#progress', 'progress' => 'TEXT';
         process_first '#word_num', 'word_num' => 'TEXT';
         process_first '.cytable', 'book_chapter_info' => sub {
-		$self->get_book_chapter_info_html(@_);
+            $self->get_book_chapter_info_html(@_);
         };
     };
 

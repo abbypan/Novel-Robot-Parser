@@ -108,16 +108,17 @@ sub format_abs_url {
 }
 
 sub parse_index { }
-sub calc_index_chapter_num { 
-    my ($self, $r) = @_;
-     
-    $r->{chapter_info} ||= [];
-    $r->{chapter_num} = scalar(@{$r->{chapter_info}}) ;
 
-    my $i = 0;
-    for my $c (@{$r->{chapter_info}}){
-        $c->{id} ||= ++$i;
+sub calc_index_chapter_num {
+    my ($self, $r) = @_;
+    $r->{chapter_info} ||= [];
+
+    my $chap_i = $r->{chapter_info};
+    for my $i ( 0 .. $#$chap_i){
+        $chap_i->[$i]{id} ||= $i+1;
     }
+
+    $r->{chapter_num} = scalar(@$chap_i);
 	
     return $r->{chapter_num};
 }
