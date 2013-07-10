@@ -19,6 +19,32 @@
 
 =head1 FUNCTION
 
+=head2 get_index_ref 获取目录页信息
+
+    $xs->set_parser('Jjwxc');
+
+    my $index_ref = $xs->get_index_ref($index_url);
+
+=head2 get_chapter_ref 获取章节页信息
+
+    my $chapter_url = 'http://www.jjwxc.net/onebook.php?novelid=2456&chapterid=2';
+
+    my $chapter_ref = $xs->get_chapter_ref($chapter_url, 2);
+
+=head2 get_writer_ref 获取作者页信息
+
+    my $writer_url = 'http://www.jjwxc.net/oneauthor.php?authorid=3243';
+
+    my $writer_ref = $xs->get_writer_ref($writer_url);
+
+=head2 get_query_ref 获取查询结果
+
+    my $query_type = '作者';
+
+    my $query_value = '顾漫';
+
+    my $query_ref = $xs->get_query_ref($query_type, $query_value);
+
 =head2 parse_index 解析目录页
 
    my $index_ref = $self->parse_index($index_html_ref);
@@ -59,14 +85,25 @@
 
   $self->format_abs_url($query_urls_ref, $query_url);
 
-=head2 calc_index_chapter_num 计算并更新章节数
+=head2 update_chapter_id 更新章节id
 
-  $self->calc_index_chapter_num($index_ref);
+  $self->update_chapter_id($index_ref);
+
+=head2 update_chapter_num 更新章节数
+
+  $self->update_chapter_num($index_ref);
 
 =cut
 package  Novel::Robot::Parser::Base;
 use Moo;
 use URI;
+use Encode;
+use Novel::Robot::Browser;
+
+has browser => (
+    is      => 'rw',
+    default => sub { new Novel::Robot::Browser(); },
+);
 
 #网站基地址
 has base_url => ( is => 'rw' );
@@ -109,7 +146,7 @@ sub format_abs_url {
 
 sub parse_index { }
 
-sub calc_index_chapter_num {
+sub update_chapter_id {
     my ($self, $r) = @_;
     $r->{chapter_info} ||= [];
 
@@ -117,16 +154,133 @@ sub calc_index_chapter_num {
     for my $i ( 0 .. $#$chap_i){
         $chap_i->[$i]{id} ||= $i+1;
     }
+}
 
+sub update_chapter_num {
+    my ($self, $r) = @_;
+    $r->{chapter_info} ||= [];
+
+    my $chap_i = $r->{chapter_info};
     $r->{chapter_num} = scalar(@$chap_i);
-	
-    return $r->{chapter_num};
 }
 sub parse_chapter { }
 sub parse_writer { }
 sub make_query_request { }
 sub parse_query { }
 sub parse_query_result_urls { }
+
+sub get_index_ref {
+
+    my ( $self, $index_url ) = @_;
+
+    return $self->parse_index($index_url)
+      unless ( $index_url =~ /^http/ );
+
+    my $html_ref = $self->{browser}->request_url($index_url);
+
+    my $ref = $self->parse_index($html_ref);
+    return unless ( defined $ref );
+
+    $ref->{index_url} = $index_url;
+    $ref->{site}      = $self->{site};
+
+    if ( exists $ref->{more_book_info} ) {
+        $self->format_abs_url( $ref->{more_book_info}, $ref->{index_url} );
+        for my $r ( @{ $ref->{more_book_info} } ) {
+            my $info = $self->{browser}->request_url( $r->{url} );
+            next unless ( defined $info );
+            $r->{function}->( $ref, $info );
+        }
+    }
+
+    $self->update_chapter_id($ref);
+    $self->update_chapter_num($ref);
+    $self->format_abs_url( $ref->{chapter_info}, $ref->{index_url} );
+
+    return $ref;
+} ## end sub get_index_ref
+
+sub get_chapter_ref {
+    my ( $self, $chap_url, $chap_id ) = @_;
+
+    my $html_ref = $self->{browser}->request_url($chap_url);
+    my $ref      = $self->parse_chapter($html_ref);
+
+    my $null_chapter_ref = {
+        content => '',
+        title   => '[空]',
+        id      => $chap_id || 1,
+    };
+    return $null_chapter_ref unless ($ref);
+
+    $ref->{content} =~ s#\s*([^><]+)(<br />\s*){1,}#<p>$1</p>\n#g;
+    $ref->{content} =~ s#(\S+)$#<p>$1</p>#s;
+    $ref->{content} =~ s###g;
+
+    $ref->{url} = $chap_url;
+    $ref->{id}  = $chap_id;
+
+    return $ref;
+} ## end sub get_chapter_ref
+
+sub get_writer_ref {
+    my ( $self, $writer_url ) = @_;
+
+    my $html_ref = $self->{browser}->request_url($writer_url);
+
+    my $writer_books = $self->parse_writer($html_ref);
+    $self->format_abs_url( $writer_books->{booklist}, $writer_url );
+
+    return $writer_books;
+} ## end sub get_writer_ref
+
+sub get_query_ref {
+    my ( $self, $type, $keyword ) = @_;
+
+    my ( $url, $post_vars ) =
+    $self->make_query_request( $type, $keyword );
+    $url = encode( $self->charset, $url );
+    $post_vars->{$_} = encode( $self->charset, $post_vars->{$_} )
+      for keys(%$post_vars);
+
+    my $html_ref = $self->{browser}->request_url( $url, $post_vars );
+    return unless $html_ref;
+
+    my $result = $self->parse_query($html_ref);
+
+    my $result_urls_ref = $self->parse_query_result_urls($html_ref);
+    for my $url (@$result_urls_ref) {
+        my $h = $self->{browser}->request_url($url);
+        my $r = $self->parse_query($h);
+        push @$result, @$r;
+    }
+
+    $self->format_abs_url( $result, $url );
+
+    return $result;
+} ## end sub get_query_ref
+
+sub is_empty_chapter {
+    my ($self, $chap_r) = @_;
+    return if($chap_r and $chap_r->{content});
+    return 1;
+}
+
+sub get_nth_chapter_info {
+    my ($self, $index_ref, $n) = @_;
+    my $r = $index_ref->{chapter_info}[ $n - 1 ];
+    return $r;
+}
+
+sub get_chapter_ids {
+    my ($self, $index_ref, $o) = @_;
+
+    my $chap_ids = $o->{chapter_ids} || [ 1 .. $index_ref->{chapter_num} ];
+
+    my @sort_chap_ids = sort { $a <=> $b } @$chap_ids;
+    return \@sort_chap_ids;
+}
+
 
 no Moo;
 1;

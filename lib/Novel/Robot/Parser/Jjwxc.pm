@@ -36,86 +36,53 @@ has '+charset' => ( default => sub {'cp936'} );
 
 
 sub parse_chapter {
-
-    my ( $self, $html_ref ) = @_;
-
-    $self->format_chapter_before_parse($html_ref);
-
-    my $parse_chapter = scraper {
-        process_first '.noveltext>div>h2', 'title' => 'TEXT';
-        process '//td[@class="noveltitle"]//a', 'book_info[]' => 'TEXT';
-        process_first '.readsmall', 'writer_say' => 'HTML';
-        process_first '#content', 'content' => 'HTML';
-    };
-    my $ref = $parse_chapter->scrape($html_ref);
-    return unless ( defined $ref->{title} );
-
-    @{$ref}{ 'book', 'writer' } = @{ $ref->{book_info} }[0,1];
-
-    for ($ref->{writer_say}){
-        $_ = $self->get_inner_html($_);
-        s/.*?<hr size="1" \/>//;
-    }
+    my ($self, $html_ref) = @_;
+    $$html_ref=~s{<font color='#E[^>]*'>.*?</font>}{}gis;
     
-    $ref->{content} = $self->get_inner_html($ref->{content});
+    my %chap;
 
-    return $ref;
-} ## end sub parse_chapter
+    @chap{qw/title content/} = $$html_ref=~m#<h2>(.+?)</h2>(.+?)<div id="favoriteshow.?3"#s;
+    return unless($chap{content});
+    $chap{content}=~s{</?div[^>]+>}{}sg;
 
-sub format_chapter_before_parse {
-    my ( $self, $chapter_content_ref ) = @_;
+    @chap{qw/book writer/} = $$html_ref=~m#<title>《(.+?)》(.+?)　ˇ#s;
 
-    for ($$chapter_content_ref) {
-        s{<font color='#E[^>]*'>.*?</font>}{}gis;
-        s{<font color='#cccccc'>.*?</font>}{}gis;
-        s{<script .*?</script>}{}gis;
-        s{(</title></p>)}{$1<div id="content">};
-        s{(<div style="clear:both;"></div>)}{$1<div id="content">};
-        s{(<div id="favoriteshow.?3")}{</div>$1};
-        s{(<div align="center" id="favoriteshow_3")}{</div>$1};
-        s{<div align="right">\s*<div[^>]+id="report_menu1".+?</div>\s*</div>\s*</div>}{}si;
-    } ## end for ($$chapter_content_ref)
-
-} ## end sub format_chapter_before_parse
-
-
+    ($chap{writer_say}) = 
+    $$html_ref=~m#<div class=readsmall[^>]+><hr[^>]+>作者有话要说：</br>(.+?)</div>#s;      
+    return \%chap;
+}
 
 sub parse_index {
 
     my ( $self, $html_ref ) = @_;
 
     return if ( $$html_ref =~ /自动进入被锁文章的作者专栏/);
-    $self->format_index_before_parse($html_ref);
 
     my $parse_index = scraper {
         process_first '.cytable>tbody>tr>td.sptd>span.bigtext', 'book' => 'TEXT';
         process_first '.cytable>tbody>tr>.sptd>h2>a', 
 		      'writer'     => 'TEXT', 'writer_url' => '@href';
         process_first '.readtd>.smallreadbody', 'intro' => sub { $self->get_book_intro(@_); };
-        process_first '#series', 'series' => 'TEXT';
-        process_first '#progress', 'progress' => 'TEXT';
-        process_first '#word_num', 'word_num' => 'TEXT';
         process_first '.cytable', 'book_chapter_info' => sub {
             $self->get_book_chapter_info_html(@_);
         };
     };
 
+
+
     my $ref = $parse_index->scrape($html_ref);
+    ($ref->{series}) = $$html_ref=~m{<span>所属系列：</span>(.*?)</li>}s;
+    ($ref->{progress}) = $$html_ref=~m{<span>文章进度：</span>(.*?)</li>}s;
+    ($ref->{word_num}) = $$html_ref=~m{<span>全文字数：</span>(\d+)字</li>}s;
+
     return $self->parse_index_just_one_chapter($html_ref) unless ( $ref->{book} ) ;
+
 
     $self->parse_book_chapter_info($ref) if($ref->{book_chapter_info});
 
     return $ref;
 } ## end sub parse_index
 
-sub format_index_before_parse {
-    my ( $self, $html_ref ) = @_;
-    for ($$html_ref) {
-        s{<span>所属系列：</span>(.*?)</li>}{<span id='series'>$1</span></li>}s;
-        s{<span>文章进度：</span>(.*?)</li>}{<span id='progress'>$1</span></li>}s;
-        s{<span>全文字数：</span>(\d+)字</li>}{<span id='word_num'>$1</span></li>}s;
-    }
-} ## end sub format_index_before_parse
 
 sub get_book_intro {
    my ($self, $e) = @_;

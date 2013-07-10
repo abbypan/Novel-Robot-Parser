@@ -104,7 +104,8 @@ sub parse_index {
         }
     }
 
-    $self->calc_index_chapter_num(\%data);
+    $self->update_chapter_id(\%data);
+    $self->update_chapter_num(\%data);
 
     $data{index_url} = '';
 
