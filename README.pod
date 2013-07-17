@@ -1,0 +1,35 @@
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+L<Novel::Robot::Parser> 小说站点解析引擎
+
+=head2 支持小说站点
+
+L<Jjwxc|http://www.jjwxc.net>
+
+L<Dddbbb|http://www.dddbbb.net>
+
+L<Nunu|http://book.kanunu.org>
+
+L<Shunong|http://book.shunong.com>
+
+=head1 FUNCTION
+
+=head2 init_parser 初始化解析模块
+
+   my $parser = Novel::Robot::Parser->new();
+
+   my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
+
+   $parser->init_parser($url);
+
+	
+   my $site_name = 'Jjwxc';
+
+   $parser->init_parser($site_name);
+
+=cut
+
