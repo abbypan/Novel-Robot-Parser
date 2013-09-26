@@ -7,7 +7,7 @@ use Novel::Robot::Parser::Shunong;
 use Novel::Robot::Parser::Nunu;
 use Novel::Robot::Parser::TXT;
 
-our $VERSION = 0.10;
+our $VERSION = 0.11;
 
 sub init_parser {
     my ( $self, $url ) = @_;
