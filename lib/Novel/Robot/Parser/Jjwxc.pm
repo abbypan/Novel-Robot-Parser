@@ -155,7 +155,7 @@ sub parse_book_chapter_info {
     my ( $self, $ref, $html_ref ) = @_;
 
     my $s = scraper {
-        process '//tr[@itemprop="chapter"]', 'chap[]' => scraper {
+        process '//tr[@itemtype="http://schema.org/Chapter"]', 'chap[]' => scraper {
             process '//td',      'info[]' => 'TEXT';
             process_first '//a', 'url'    => '@href';
         };
