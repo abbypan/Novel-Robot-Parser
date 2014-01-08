@@ -5,6 +5,7 @@ use Novel::Robot::Parser::Dddbbb;
 use Novel::Robot::Parser::Jjwxc;
 use Novel::Robot::Parser::Shunong;
 use Novel::Robot::Parser::Nunu;
+use Novel::Robot::Parser::TXT;
 
 our $VERSION = 0.12;
 
