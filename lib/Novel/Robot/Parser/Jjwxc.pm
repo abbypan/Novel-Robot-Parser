@@ -25,15 +25,16 @@ use strict;
 use warnings;
 use utf8;
 
-use Moo;
-extends 'Novel::Robot::Parser::Base';
+use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 use Encode;
 
-has '+base_url' => ( default => sub { 'http://www.jjwxc.net' } );
-has '+site'     => ( default => sub { 'Jjwxc' } );
-has '+charset'  => ( default => sub { 'cp936' } );
+our $BASE_URL = 'http://www.jjwxc.net';
+
+sub charset {
+    'cp936';
+}
 
 sub parse_chapter {
     my ( $self, $html_ref ) = @_;
@@ -77,10 +78,6 @@ sub parse_index {
           'writer_url' => '@href';
         process_first '.readtd>.smallreadbody',
           'intro' => sub { $self->get_book_intro(@_); };
-
-        #process_first '#oneboolt', 'book_chapter_info' => sub {
-        #$self->get_book_chapter_info_html(@_);
-        #};
     };
 
     my $ref = $parse_index->scrape($html_ref);
@@ -90,6 +87,9 @@ sub parse_index {
       $$html_ref =~ m{<span>文章进度：</span>(.*?)</li>}s;
     ( $ref->{word_num} ) =
       $$html_ref =~ m{<span>全文字数：</span>(\d+)字</li>}s;
+    for my $key (qw/series progress/){
+        $ref->{$key}=~s/<[^>]+>|^\s+|\s+$//gs;
+    }
 
     return $self->parse_index_just_one_chapter($html_ref)
       unless ( $ref->{book} );
@@ -171,7 +171,7 @@ sub parse_book_chapter_info {
     };
     my $r      = $s->scrape($html_ref);
     my $chaps  = $r->{chap};
-    my @fields = qw/id title abstract num time/;
+    my @fields = qw/id title abstract word_num time/;
     for my $c (@$chaps) {
         my $info = $c->{info};
         $c->{ $fields[$_] } = $info->[$_] for ( 0 .. 4 );
@@ -247,7 +247,7 @@ sub parse_writer_book {
     return {
         series => $series,
         book   => "$bookname($progress)",
-        url    => "$self->{base_url}/$book_url",
+        url    => "$BASE_URL/$book_url",
     };
 
 }
@@ -264,7 +264,7 @@ sub make_query_request {
         '其他' => '6',
     );
 
-    my $url = qq[$self->{base_url}/search.php?kw=$keyword&t=$qt{$type}];
+    my $url = qq[$BASE_URL/search.php?kw=$keyword&t=$qt{$type}];
 
     return $url;
 } ## end sub make_query_request
@@ -275,7 +275,7 @@ sub parse_query_result_urls {
     my $parse_query = scraper {
         process '//div[@class="page"]/a', 'urls[]' => sub {
             return unless ( $_[0]->as_text =~ /^\[\d*\]$/ );
-            my $url = $self->{base_url} . ( $_[0]->attr('href') );
+            my $url = $BASE_URL . ( $_[0]->attr('href') );
             $url = encode( $self->{charset}, $url );
             return $url;
         };
@@ -317,5 +317,4 @@ sub parse_query {
     return \@result;
 } ## end sub parse_query
 
-no Moo;
 1;

@@ -15,14 +15,15 @@ use strict;
 use warnings;
 use utf8;
 
-use Moo;
-extends 'Novel::Robot::Parser::Base';
+use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-has '+base_url'  => ( default => sub {'http://www.shunong.com'} );
-has '+site'    => ( default => sub {'Shunong'} );
-has '+charset' => ( default => sub {'cp936'} );
+our $BASE_URL = 'http://www.shunong.com';
+
+sub charset {
+    'cp936';
+}
 
 sub parse_index {
 
@@ -69,5 +70,4 @@ sub parse_chapter {
 } ## end sub parse_chapter
 
 
-no Moo;
 1;

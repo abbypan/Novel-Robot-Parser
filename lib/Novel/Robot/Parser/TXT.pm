@@ -26,14 +26,7 @@ use Encode;
 use Encode::Locale;
 use Encode::Detect::CJK qw/detect/;
 
-use Moo;
-extends 'Novel::Robot::Parser::Base';
-
-
-has '+site'    => ( default => sub {'TXT'} );
-#has 'chapter_regex'    => ( 
-    #is => 'rw', 
-    #default =>  \&get_default_chapter_regex);
+use base 'Novel::Robot::Parser';
 
 sub get_default_chapter_regex { 
     #指定分割章节的正则表达式
@@ -159,7 +152,6 @@ sub format_chapter_content {
     return $self;
 }
 
-
 sub detect_file_charset {
     my ($self, $file) = @_;
     open my $fh, '<', $file;
@@ -167,6 +159,4 @@ sub detect_file_charset {
     return detect($text);
 } ## end sub detect_file_charset
 
-
-no Moo;
 1;

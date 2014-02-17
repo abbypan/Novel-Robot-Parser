@@ -23,15 +23,16 @@ use strict;
 use warnings;
 use utf8;
 
-use Moo;
-extends 'Novel::Robot::Parser::Base';
+use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 use Encode;
 
-has '+base_url'  => ( default => sub {'http://www.dddbbb.net'} );
-has '+site'    => ( default => sub {'Dddbbb'} );
-has '+charset' => ( default => sub {'cp936'} );
+our $BASE_URL = 'http://www.dddbbb.net';
+
+sub charset {
+    'cp936';
+}
 
 sub parse_index {
 
@@ -44,8 +45,8 @@ sub parse_index {
         process_first '#lc', 'book_info' => sub {
             my ( $writer, $book ) = ( $_[0]->look_down( '_tag', 'a' ) )[ 2, 3 ];
             return [
-                $writer->as_trimmed_text, $self->{base_url} . $writer->attr('href'),
-                $book->as_trimmed_text,   $self->{base_url} . $book->attr('href')
+                $writer->as_trimmed_text, $BASE_URL . $writer->attr('href'),
+                $book->as_trimmed_text,   $BASE_URL . $book->attr('href')
             ];
         };
         process_first '//table[@width="95%"]//td[2]', 'intro' => 'HTML';
@@ -147,7 +148,7 @@ sub make_query_request {
 
     my ( $self, $type, $keyword ) = @_;
 
-    my $url = $self->{base_url} . '/search.php';
+    my $url = $BASE_URL . '/search.php';
 
     my %qt = ( '作品' => 'name', '作者' => 'author', '主角' => 'main', 
         '系列'=> 'series', 

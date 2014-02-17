@@ -17,14 +17,15 @@ use strict;
 use warnings;
 use utf8;
 
-use Moo;
-extends 'Novel::Robot::Parser::Base';
+use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-has '+base_url' => ( default => sub { 'http://book.kanunu.org' } );
-has '+site'     => ( default => sub { 'Nunu' } );
-has '+charset'  => ( default => sub { 'cp936' } );
+our $BASE_URL = 'http://book.kanunu.org';
+
+sub charset {
+    'cp936';
+}
 
 sub parse_index {
 
