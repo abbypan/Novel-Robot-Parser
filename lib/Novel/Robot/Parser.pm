@@ -89,7 +89,7 @@
 
 =cut
 package  Novel::Robot::Parser;
-our $VERSION = 0.13;
+our $VERSION = 0.14;
 use Novel::Robot::Browser;
 use URI;
 use Encode;

@@ -61,6 +61,7 @@ sub parse_chapter {
         process_first '//dl', 'book' => 'HTML';
     };
     my $ref = $parse_chapter->scrape($html_ref);
+    $ref->{book} ||='';
     $ref->{book}=~s#.*<a href="[^>]+">([^<]+)</a>.*#$1#s;
     $ref->{writer}='';
 
