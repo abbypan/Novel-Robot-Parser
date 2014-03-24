@@ -89,5 +89,4 @@ sub parse_writer {
     return $ref;
 } ## end sub parse_writer
 
-no Moo;
 1;

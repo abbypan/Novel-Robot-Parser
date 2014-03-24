@@ -19,11 +19,12 @@
 
 =cut
 package Novel::Robot::Parser::Dddbbb;
+use base 'Novel::Robot::Parser';
+
 use strict;
 use warnings;
 use utf8;
 
-use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 use Encode;

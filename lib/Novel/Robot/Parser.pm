@@ -116,6 +116,7 @@ sub detect_site {
         : ( $url =~ m#^http://www\.dddbbb\.net/# ) ? 'Dddbbb'
         : ( $url =~ m#^http://www\.shunong\.com/# ) ? 'Shunong'
         : ( $url =~ m#^http://book\.kanunu\.org/# ) ? 'Nunu'
+        : ( $url =~ m#^http://www\.23hh\.com/# ) ? 'Asxs'
         :                                            'Base';
 
     return $site;
@@ -180,8 +181,16 @@ sub get_book_ref {
     my ($self, $index_url, %opt) = @_;
     my $res =  $self->get_index_ref($index_url, %opt);
 
+    my @infos = grep {
+    not (
+    ( $opt{min_chapter} and $_->{id}<$opt{min_chapter} )
+        or
+    ( $opt{max_chapter} and $_->{id}>$opt{max_chapter} )
+    )
+    } @{$res->{chapter_info}};
+
     $res->{chapter_info} = $self->{browser}->request_urls(
-        $res->{chapter_info},
+         \@infos, 
         %opt, 
         deal_sub => sub {
             my ( $r, $chap ) = @_;
