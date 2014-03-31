@@ -1,5 +1,5 @@
-#ABSTRACT: 爱尚小说的解析模块 http://www.23hh.com
-package Novel::Robot::Parser::Asxs;
+#ABSTRACT: 顶点小说的解析模块 http://www.23us.com
+package Novel::Robot::Parser::Dingdian;
 use strict;
 use warnings;
 use utf8;
@@ -8,7 +8,7 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.23hh.com';
+our $BASE_URL = 'http://www.23us.com';
 
 sub charset {
     'cp936';
@@ -19,7 +19,7 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//table[@id="at"]//td[@class="L"]//a',
+        process '//table[@id="at"]//a',
           'chapter_info[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
@@ -31,11 +31,7 @@ sub parse_index {
     my $ref = $parse_index->scrape($html_ref);
 
     $ref->{writer}=~s/作者：//;
-    $ref->{book}=~s/\s*最新章节\s*$//;
-
-    $ref->{chapter_info} = [
-        grep { $_->{url} } @{ $ref->{chapter_info} }
-    ];
+    $ref->{book}=~s/\s*最新章节.*//;
 
     return $ref;
 } ## end sub parse_index
@@ -47,14 +43,12 @@ sub parse_chapter {
     my $parse_chapter = scraper {
         process_first '//dd[@id="contents"]', 'content' => 'HTML';
         process_first '//h1', 'title'=> 'TEXT';
-        process_first '//dl', 'book' => 'HTML';
+        process_first '//div[@id="amain"]//a[3]', 'book' => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
     $ref->{book} ||='';
-    $ref->{book}=~s#.*<a href="[^>]+">([^<]+)</a>.*#$1#s;
-    $ref->{writer}='';
+    $ref->{writer} ||='';
 
-    return unless ( defined $ref->{book} );
     return $ref;
 } ## end sub parse_chapter
 

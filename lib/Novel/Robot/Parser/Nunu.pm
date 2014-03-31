@@ -1,17 +1,4 @@
 #ABSTRACT: 努努书坊的解析模块 http://book.kanunu.org
-=pod
-
-=encoding utf8
-
-=head1 FUNCTION
-
-=head2 parse_index
-
-=head2 parse_chapter
-
-=head2 parse_writer
-
-=cut
 package Novel::Robot::Parser::Nunu;
 use strict;
 use warnings;

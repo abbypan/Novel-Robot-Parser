@@ -1,15 +1,4 @@
 #ABSTRACT: 书农的解析模块 http://www.shunong.com
-=pod
-
-=encoding utf8
-
-=head1 FUNCTION
-
-=head2 parse_index
-
-=head2 parse_chapter
-
-=cut
 package Novel::Robot::Parser::Shunong;
 use strict;
 use warnings;

@@ -1,5 +1,5 @@
-#ABSTRACT: 爱尚小说的解析模块 http://www.23hh.com
-package Novel::Robot::Parser::Asxs;
+#ABSTRACT: 落秋小说的解析模块 http://www.luoqiu.com
+package Novel::Robot::Parser::Luoqiu;
 use strict;
 use warnings;
 use utf8;
@@ -8,7 +8,7 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.23hh.com';
+our $BASE_URL = 'http://www.luoqiu.com';
 
 sub charset {
     'cp936';
@@ -19,19 +19,19 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//table[@id="at"]//td[@class="L"]//a',
+        process '//div[@class="booklist clearfix"]//a',
           'chapter_info[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
           };
           process_first '//h1' , 'book' => 'TEXT';
-          process_first '//h3' , 'writer' => 'TEXT';
+          process_first '//span[@class="author"]' , 'writer' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
 
     $ref->{writer}=~s/作者：//;
-    $ref->{book}=~s/\s*最新章节\s*$//;
+    $ref->{book}=~s/最新章节$//;
 
     $ref->{chapter_info} = [
         grep { $_->{url} } @{ $ref->{chapter_info} }
@@ -45,16 +45,16 @@ sub parse_chapter {
     my ( $self, $html_ref ) = @_;
 
     my $parse_chapter = scraper {
-        process_first '//dd[@id="contents"]', 'content' => 'HTML';
-        process_first '//h1', 'title'=> 'TEXT';
-        process_first '//dl', 'book' => 'HTML';
+        process_first '//div[@id="content"]', 'content' => 'HTML';
+        process_first '//h1[@class="bname_content"]', 'title'=> 'TEXT';
+        process_first '//div[@class="border_b"]//a', 'book' => 'TEXT';
+        process_first '//div[@class="border_b"]', 'writer' => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
     $ref->{book} ||='';
-    $ref->{book}=~s#.*<a href="[^>]+">([^<]+)</a>.*#$1#s;
-    $ref->{writer}='';
+    $ref->{writer} ||='';
+    $ref->{writer}=~s/^.*作者：(.+)?\s*书名.*/$1/s;
 
-    return unless ( defined $ref->{book} );
     return $ref;
 } ## end sub parse_chapter
 

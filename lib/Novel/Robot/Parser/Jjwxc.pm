@@ -1,18 +1,7 @@
 #ABSTRACT: 绿晋江的解析模块 http://www.jjwxc.net
-
 =pod
 
 =encoding utf8
-
-=head1 FUNCTION
-
-=head2 parse_chapter
-
-=head2 parse_index
-
-=head2 parse_writer
-
-=head2 parse_query
 
 =head1  支持查询类型 query type
 

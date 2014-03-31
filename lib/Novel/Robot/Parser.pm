@@ -1,93 +1,4 @@
 # ABSTRACT: 小说站点解析引擎
-=pod
-
-=encoding utf8
-
-=head1 ATTR
-
-=head2 site 网站名称
-
-例如 Jjwxc
-
-=head2 charset 网站编码
-
-例如 gb2312
-
-=head1 FUNCTION
-
-=head2 get_index_ref 获取目录页信息
-
-    my $index_ref = $xs->get_index_ref($index_url);
-
-=head2 get_chapter_ref 获取章节页信息
-
-    my $chapter_url = 'http://www.jjwxc.net/onebook.php?novelid=2456&chapterid=2';
-
-    my $chapter_ref = $xs->get_chapter_ref($chapter_url, 2);
-
-=head2 get_writer_ref 获取作者页信息
-
-    my $writer_url = 'http://www.jjwxc.net/oneauthor.php?authorid=3243';
-
-    my $writer_ref = $xs->get_writer_ref($writer_url);
-
-=head2 get_query_ref 获取查询结果
-
-    my $query_type = '作者';
-
-    my $query_value = '顾漫';
-
-    my $query_ref = $xs->get_query_ref($query_type, $query_value);
-
-=head2 parse_index 解析目录页
-
-   my $index_ref = $self->parse_index($index_html_ref);
-
-=head2 parse_chapter 解析章节页
-  
-   my $chapter_ref = $self->parse_chapter($chapter_html_ref);
-
-=head2 parse_writer 解析作者页
-
-   my $writer_ref = $self->parse_writer($writer_html_ref);
-
-=head2 make_query_request 指定类型及关键字生成查询请求
-
-  查询类型：  $type
-	
-  查询关键字：$keyword
-
-  my ($query_url, $post_data) = $self->make_query_request( $type, $keyword );
-
-=head2 parse_query 解析查询结果
-
-  my $query_ref = $self->parse_query($query_html_ref); 
-
-=head2 parse_query_result_urls 查询结果为分页url
-
-  my $query_urls_ref = $self->parse_query_result_urls($query_html_ref);
-
-=head2 get_inner_html 获取html元素的innerHTML
-
-  my $inner_html = $self->get_inner_html($element);
-
-=head2 format_abs_url 批量将url转换成绝对路径
-
-  $self->format_abs_url($index_ref->{chapter_info}, $index_ref->{index_url});
-
-  $self->format_abs_url($index_ref->{more_book_info}, $index_ref->{index_url});
-
-  $self->format_abs_url($query_urls_ref, $query_url);
-
-=head2 update_chapter_id 更新章节id
-
-  $self->update_chapter_id($index_ref);
-
-=head2 update_chapter_num 更新章节数
-
-  $self->update_chapter_num($index_ref);
-
-=cut
 package  Novel::Robot::Parser;
 our $VERSION = 0.14;
 use Novel::Robot::Browser;
@@ -117,6 +28,8 @@ sub detect_site {
         : ( $url =~ m#^http://www\.shunong\.com/# ) ? 'Shunong'
         : ( $url =~ m#^http://book\.kanunu\.org/# ) ? 'Nunu'
         : ( $url =~ m#^http://www\.23hh\.com/# ) ? 'Asxs'
+        : ( $url =~ m#^\Qhttp://www.luoqiu.com/# ) ? 'Luoqiu'
+        : ( $url =~ m#^\Qhttp://www.23us.com/# ) ? 'Dingdian'
         :                                            'Base';
 
     return $site;
@@ -148,7 +61,6 @@ sub format_abs_url {
 		}else{
 			$r = URI->new_abs($r, $base_url)->as_string;
 		}
-
 	}
 }
 
@@ -206,7 +118,7 @@ sub get_book_ref {
 
 sub get_index_ref {
 
-    my ( $self, $index_url ) = @_;
+    my ( $self, $index_url , %opt) = @_;
 
     return $self->parse_index($index_url)
       unless ( $index_url =~ /^http/ );
@@ -227,6 +139,8 @@ sub get_index_ref {
             $r->{function}->( $ref, $info );
         }
     }
+
+    $opt{index_sub}->($ref) if(exists $opt{index_sub});
 
     $self->update_chapter_id($ref);
     $self->update_chapter_num($ref);
