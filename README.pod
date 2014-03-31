@@ -10,19 +10,19 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 
 =head2 site 支持小说站点名称
 
-=item 晋江：L<Jjwxc|http://www.jjwxc.net>
+晋江：L<Jjwxc|http://www.jjwxc.net>
 
-=item 豆豆：L<Dddbbb|http://www.dddbbb.net>
+豆豆：L<Dddbbb|http://www.dddbbb.net>
 
-=item 努努：L<Nunu|http://book.kanunu.org>
+努努：L<Nunu|http://book.kanunu.org>
 
-=item 书农：L<Shunong|http://book.shunong.com>
+书农：L<Shunong|http://book.shunong.com>
 
-=item 爱尚：L<Asxs|http://www.23hh.com>
+爱尚：L<Asxs|http://www.23hh.com>
 
-=item 落秋：L<Luoqiu|http://www.luoqiu.com>
+落秋：L<Luoqiu|http://www.luoqiu.com>
 
-=item 顶点：L<Dingdian|http://www.23us.com>
+顶点：L<Dingdian|http://www.23us.com>
 
 =head1 FUNCTION
 
