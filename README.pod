@@ -27,12 +27,13 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 =head1 FUNCTION
 
 =head2 new 初始化解析模块
+
    my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
 
-   #直接指定
+   #直接指定站点
    my $parser = Novel::Robot::Parser->new( site => 'Jjwxc' );
     
-   #通过url自动检测
+   #通过url自动检测站点
    my $parser = Novel::Robot::Parser->new( site => $url );
 
    $parser->get_index_ref($url);
@@ -44,21 +45,17 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 =head2 get_chapter_ref 获取章节页信息
 
     my $chapter_url = 'http://www.jjwxc.net/onebook.php?novelid=2456&chapterid=2';
-
     my $chapter_ref = $parser->get_chapter_ref($chapter_url, 2);
 
 =head2 get_writer_ref 获取作者页信息
 
     my $writer_url = 'http://www.jjwxc.net/oneauthor.php?authorid=3243';
-
     my $writer_ref = $parser->get_writer_ref($writer_url);
 
 =head2 get_query_ref 获取查询结果
 
     my $query_type = '作者';
-
     my $query_value = '顾漫';
-
     my $query_ref = $parser->get_query_ref($query_type, $query_value);
 
 =head2 parse_index 解析目录页
@@ -73,11 +70,10 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 
    my $writer_ref = $parser->parse_writer($writer_html_ref);
 
-=head2 make_query_request 指定类型及关键字生成查询请求
+=head2 make_query_request 指定查询请求
 
-  查询类型：  $type
-  查询关键字：$keyword
-
+  #查询类型：  $type
+  #查询关键字：$keyword
   my ($query_url, $post_data) = 
         $parser->make_query_request( $type, $keyword );
 
@@ -96,9 +92,7 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 =head2 format_abs_url 批量将url转换成绝对路径
 
   $parser->format_abs_url($index_ref->{chapter_info}, $index_ref->{index_url});
-
   $parser->format_abs_url($index_ref->{more_book_info}, $index_ref->{index_url});
-
   $parser->format_abs_url($query_urls_ref, $query_url);
 
 =head2 update_chapter_id 更新章节id
