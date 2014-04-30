@@ -1,4 +1,4 @@
-#ABSTRACT: 书农的解析模块 http://www.shunong.com
+#ABSTRACT: 书农 http://www.shunong.com
 package Novel::Robot::Parser::Shunong;
 use strict;
 use warnings;

@@ -1,4 +1,4 @@
-#ABSTRACT: 努努书坊的解析模块 http://book.kanunu.org
+#ABSTRACT: 努努书坊 http://book.kanunu.org
 package Novel::Robot::Parser::Nunu;
 use strict;
 use warnings;

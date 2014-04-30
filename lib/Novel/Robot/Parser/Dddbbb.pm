@@ -3,9 +3,11 @@
 
 =encoding utf8
 
-=head1 支持查询类型 query type
+=head1 支持的查询类型
 
-  作品，作者，主角，系列
+  #$type：作品，作者，主角，系列
+  
+  $parser->make_query_request( $type, $keyword );
 
 =cut
 package Novel::Robot::Parser::Dddbbb;
@@ -119,18 +121,22 @@ sub parse_writer {
 
     my $parse_writer = scraper {
         process_first 'title', writer => 'TEXT';
-        process '#border_1>ul', 'booklist[]' => scraper {
-	    process_first '#idname>a' , url => '@href', book => 'TEXT';
-	    process_first '#idzj', series => 'TEXT';
+        process '//div[@id="border_1"]//ul', 'booklist[]' => scraper {
+	    process_first '//a' , url => '@href', book => 'TEXT';
+	    process_first '//li[2]', series => 'TEXT';
         };
     };
 
     my $ref = $parse_writer->scrape($html_ref);
-
     $ref->{writer}=~s/小说.*//;
+
+    my @book;
     for my $r (@{$ref->{booklist}}){
+        next unless($r->{book});
 	    $r->{series} =~ s/\s*(\S*)\s*.*$/$1/;
+        push @book , $r;
     }
+    $ref->{booklist} = \@book;
 
     return $ref;
 } ## end sub parse_writer

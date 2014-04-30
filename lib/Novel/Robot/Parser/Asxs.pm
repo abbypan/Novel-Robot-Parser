@@ -1,4 +1,4 @@
-#ABSTRACT: 爱尚小说的解析模块 http://www.23hh.com
+#ABSTRACT: 爱尚小说 http://www.23hh.com
 package Novel::Robot::Parser::Asxs;
 use strict;
 use warnings;

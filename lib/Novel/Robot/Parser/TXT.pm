@@ -1,11 +1,13 @@
-#ABSTRACT: TXT的解析模块
+#ABSTRACT: 解析TXT
 =pod
 
 =encoding utf8
 
 =head1 FUNCTION
 
-=head2 parse_index 解析文本内容
+=head2 parse_index
+
+解析TXT
   
   my $txt_content_ref = $self->parse_index(
     [ '/somedir/', '/someotherdir/somefile.txt' ], 

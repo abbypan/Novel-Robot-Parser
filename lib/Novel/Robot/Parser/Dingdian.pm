@@ -1,4 +1,4 @@
-#ABSTRACT: 顶点小说的解析模块 http://www.23us.com
+#ABSTRACT: 顶点小说 http://www.23us.com
 package Novel::Robot::Parser::Dingdian;
 use strict;
 use warnings;

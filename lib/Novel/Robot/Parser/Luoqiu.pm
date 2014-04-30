@@ -1,4 +1,4 @@
-#ABSTRACT: 落秋小说的解析模块 http://www.luoqiu.com
+#ABSTRACT: 落秋小说 http://www.luoqiu.com
 package Novel::Robot::Parser::Luoqiu;
 use strict;
 use warnings;
