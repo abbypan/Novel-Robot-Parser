@@ -8,7 +8,9 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 
 =head1 INIT
 
-=head2 site 支持小说站点名称
+=head2 site
+
+支持小说站点名称
 
 晋江：L<Jjwxc|http://www.jjwxc.net>
 

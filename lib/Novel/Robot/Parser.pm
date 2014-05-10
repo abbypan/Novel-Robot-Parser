@@ -1,6 +1,6 @@
 # ABSTRACT: get novel content from website 小说站点解析引擎
 package  Novel::Robot::Parser;
-our $VERSION = 0.17;
+our $VERSION = 0.18;
 use Novel::Robot::Browser;
 use URI;
 use Encode;

@@ -3,7 +3,9 @@
 
 =encoding utf8
 
-=head1  支持查询类型
+=head1 FUNCTION
+
+=head2 make_query_request
 
   #$type：作品，作者，主角，配角，其他
   
@@ -157,7 +159,7 @@ sub parse_book_chapter_info {
     my ( $self, $ref, $html_ref ) = @_;
 
     my $s = scraper {
-        process '//tr[@itemtype="http://schema.org/Chapter"]', 'chap[]' => scraper {
+        process '//tr[@itemprop="chapter"]', 'chap[]' => scraper {
             process '//td',      'info[]' => 'TEXT';
             process_first '//a', 'url'    => '@href';
         };

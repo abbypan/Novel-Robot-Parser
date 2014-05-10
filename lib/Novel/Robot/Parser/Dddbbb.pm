@@ -3,7 +3,11 @@
 
 =encoding utf8
 
-=head1 支持的查询类型
+=head1 FUNCTION
+
+=head2 make_query_request
+
+  支持的查询类型
 
   #$type：作品，作者，主角，系列
   
