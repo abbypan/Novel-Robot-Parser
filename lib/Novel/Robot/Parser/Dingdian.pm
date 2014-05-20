@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 
 use base 'Novel::Robot::Parser';
-
 use Web::Scraper;
 
 our $BASE_URL = 'http://www.23us.com';
@@ -24,14 +23,14 @@ sub parse_index {
             'title' => 'TEXT',
             'url'   => '@href'
           };
-          process_first '//h1' , 'book' => 'TEXT';
-          process_first '//h3' , 'writer' => 'TEXT';
+        process_first '//h1', 'book'   => 'TEXT';
+        process_first '//h3', 'writer' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
 
-    $ref->{writer}=~s/作者：//;
-    $ref->{book}=~s/\s*最新章节.*//;
+    $ref->{writer} =~ s/作者：//;
+    $ref->{book} =~ s/\s*最新章节.*//;
 
     return $ref;
 } ## end sub parse_index
@@ -41,13 +40,13 @@ sub parse_chapter {
     my ( $self, $html_ref ) = @_;
 
     my $parse_chapter = scraper {
-        process_first '//dd[@id="contents"]', 'content' => 'HTML';
-        process_first '//h1', 'title'=> 'TEXT';
-        process_first '//div[@id="amain"]//a[3]', 'book' => 'TEXT';
+        process_first '//dd[@id="contents"]',     'content' => 'HTML';
+        process_first '//h1',                     'title'   => 'TEXT';
+        process_first '//div[@id="amain"]//a[3]', 'book'    => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
-    $ref->{book} ||='';
-    $ref->{writer} ||='';
+    $ref->{book}   ||= '';
+    $ref->{writer} ||= '';
 
     return $ref;
 } ## end sub parse_chapter
