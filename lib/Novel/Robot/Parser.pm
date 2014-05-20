@@ -30,6 +30,7 @@ sub detect_site {
       : ( $url =~ m#^http://www\.23hh\.com/# )    ? 'Asxs'
       : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'Luoqiu'
       : ( $url =~ m#^\Qhttp://www.23us.com/# )    ? 'Dingdian'
+      : ( $url =~ m#^\Qhttp://read.qidian.com/# )    ? 'Qidian'
       :                                             'Base';
 
     return $site;
@@ -93,7 +94,12 @@ sub parse_query_result_urls { }
 
 sub get_book_ref {
     my ( $self, $index_url, %opt ) = @_;
+    $opt{min_chapter} ||='';
+    $opt{max_chapter} ||='';
+
     my $res = $self->get_index_ref( $index_url, %opt );
+    return unless($res);
+
 
     $opt{min_chapter} = $res->{chapter_info}[0]{id}
       if ( $opt{min_chapter} !~ /\S/ );
@@ -110,11 +116,13 @@ sub get_book_ref {
         %opt,
         deal_sub => sub {
             my ( $r, $chap ) = @_;
+            $r ||= {};
             return { %$chap, %$r };
         },
         request_sub => sub {
             my ($r) = @_;
-            return $self->get_chapter_ref( $r->{url} );
+            my $u = ($r and $r->{url}) ? $r->{url} : undef;
+            return $self->get_chapter_ref( $u );
         },
     );
     return $res;
@@ -130,9 +138,10 @@ sub get_index_ref {
     }
     else {
         my $html_ref = $self->{browser}->request_url($index_url);
+        return unless($html_ref);
 
         $ref = $self->parse_index($html_ref);
-        return unless ( defined $ref );
+        return unless ( $ref );
 
         $ref->{index_url} = $index_url;
         $ref->{site}      = $self->{site};
@@ -170,14 +179,18 @@ sub format_string {
 sub get_chapter_ref {
     my ( $self, $chap_url, %opt ) = @_;
 
-    my $html_ref = $self->{browser}->request_url($chap_url);
-    my $ref      = $self->parse_chapter($html_ref);
-
     my $null_chapter_ref = {
         content => '',
         title   => '章节为空',
         id      => $opt{id} || 1,
     };
+
+    return $null_chapter_ref unless($chap_url);
+
+    my $html_ref = $self->{browser}->request_url($chap_url);
+    return $null_chapter_ref unless($html_ref);
+
+    my $ref      = $self->parse_chapter($html_ref);
     return $null_chapter_ref unless ($ref);
 
     $ref->{content} =~ s#\s*([^><]+)(<br />\s*){1,}#<p>$1</p>\n#g;
