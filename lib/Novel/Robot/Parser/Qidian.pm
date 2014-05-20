@@ -54,6 +54,8 @@ sub parse_chapter {
     my $c = $self->{browser}->request_url($ref->{content_url});
     $$c=~s#^\s*document.write.*?'\s+##s;
     $$c=~s#'\);\s*$##s;
+    $$c=~s#起点中文网 www.cmfu.com##sg;
+    $$c=~s#欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！##sg;
     $ref->{content} = $$c;
 
     return $ref;
