@@ -14,7 +14,7 @@
   $parser->make_query_request( $type, $keyword );
 
 =cut
-package Novel::Robot::Parser::Dddbbb;
+package Novel::Robot::Parser::dddbbb;
 use base 'Novel::Robot::Parser';
 
 use strict;

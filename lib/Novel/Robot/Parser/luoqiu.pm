@@ -1,5 +1,5 @@
 #ABSTRACT: 落秋小说 http://www.luoqiu.com
-package Novel::Robot::Parser::Luoqiu;
+package Novel::Robot::Parser::luoqiu;
 use strict;
 use warnings;
 use utf8;

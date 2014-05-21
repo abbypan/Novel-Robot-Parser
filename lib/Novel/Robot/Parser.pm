@@ -8,7 +8,7 @@ use Encode;
 sub new {
     my ( $self, %opt ) = @_;
 
-    $opt{site} = $self->detect_site( $opt{site} ) || 'Jjwxc';
+    $opt{site} = $self->detect_site( $opt{site} ) || 'jjwxc';
     my $module = "Novel::Robot::Parser::$opt{site}";
 
     my $browser = Novel::Robot::Browser->new(%opt);
@@ -23,15 +23,16 @@ sub detect_site {
     return $url unless ( $url =~ /^http/ );
 
     my $site =
-        ( $url =~ m#^http://www\.jjwxc\.net/# )   ? 'Jjwxc'
-      : ( $url =~ m#^http://www\.dddbbb\.net/# )  ? 'Dddbbb'
-      : ( $url =~ m#^http://www\.shunong\.com/# ) ? 'Shunong'
-      : ( $url =~ m#^http://book\.kanunu\.org/# ) ? 'Nunu'
-      : ( $url =~ m#^http://www\.23hh\.com/# )    ? 'Asxs'
-      : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'Luoqiu'
-      : ( $url =~ m#^\Qhttp://www.23us.com/# )    ? 'Dingdian'
-      : ( $url =~ m#^\Qhttp://read.qidian.com/# )    ? 'Qidian'
-      :                                             'Base';
+        ( $url =~ m#^http://www\.jjwxc\.net/# )   ? 'jjwxc'
+      : ( $url =~ m#^http://www\.dddbbb\.net/# )  ? 'dddbbb'
+      : ( $url =~ m#^http://www\.shunong\.com/# ) ? 'shunong'
+      : ( $url =~ m#^http://book\.kanunu\.org/# ) ? 'kanunu'
+      : ( $url =~ m#^http://www\.23hh\.com/# )    ? 'asxs'
+      : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
+      : ( $url =~ m#^\Qhttp://www.23us.com/# )    ? 'dingdian'
+      : ( $url =~ m#^\Qhttp://read.qidian.com/# )    ? 'qidian'
+      : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
+      :                                             'unknown';
 
     return $site;
 } ## end sub detect_site

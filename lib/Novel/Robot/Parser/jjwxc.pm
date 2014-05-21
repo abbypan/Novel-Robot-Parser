@@ -13,7 +13,7 @@
 
 =cut
 
-package Novel::Robot::Parser::Jjwxc;
+package Novel::Robot::Parser::jjwxc;
 use strict;
 use warnings;
 use utf8;

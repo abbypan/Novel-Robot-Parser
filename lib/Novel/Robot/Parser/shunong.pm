@@ -1,5 +1,5 @@
 #ABSTRACT: 书农 http://www.shunong.com
-package Novel::Robot::Parser::Shunong;
+package Novel::Robot::Parser::shunong;
 use strict;
 use warnings;
 use utf8;

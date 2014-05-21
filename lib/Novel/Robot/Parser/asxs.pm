@@ -1,5 +1,5 @@
 #ABSTRACT: 爱尚小说 http://www.23hh.com
-package Novel::Robot::Parser::Asxs;
+package Novel::Robot::Parser::asxs;
 use strict;
 use warnings;
 use utf8;

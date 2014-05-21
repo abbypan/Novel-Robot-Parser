@@ -1,4 +1,4 @@
-#ABSTRACT: 解析TXT
+#ABSTRACT: 解析txt
 =pod
 
 =encoding utf8
@@ -7,7 +7,7 @@
 
 =head2 parse_index
 
-解析TXT
+解析txt
   
   my $txt_content_ref = $self->parse_index(
     [ '/somedir/', '/someotherdir/somefile.txt' ], 
@@ -18,7 +18,7 @@
 
 
 =cut
-package Novel::Robot::Parser::TXT;
+package Novel::Robot::Parser::txt;
 use strict;
 use warnings;
 use utf8;
@@ -105,7 +105,7 @@ sub parse_index {
 
 sub read_single_txt {
 
-    #读入单个TXT文件
+    #读入单个txt文件
     my ($self, $txt, %opt) = @_;
 
     my $charset = $self->detect_file_charset($txt);
@@ -141,7 +141,7 @@ sub read_single_txt {
     $self->format_chapter_content($_) for @data;
 
     return \@data;
-} ## end sub read_single_TXT
+} ## end sub read_single_txt
 
 sub format_chapter_content {
     my ($self, $r) = @_;

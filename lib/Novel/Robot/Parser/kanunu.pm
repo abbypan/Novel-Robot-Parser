@@ -1,5 +1,5 @@
 #ABSTRACT: 努努书坊 http://book.kanunu.org
-package Novel::Robot::Parser::Nunu;
+package Novel::Robot::Parser::kanunu;
 use strict;
 use warnings;
 use utf8;

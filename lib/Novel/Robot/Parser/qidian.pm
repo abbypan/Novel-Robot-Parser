@@ -1,5 +1,5 @@
 #ABSTRACT: 起点小说 http://read.qidian.com
-package Novel::Robot::Parser::Qidian;
+package Novel::Robot::Parser::qidian;
 use strict;
 use warnings;
 use utf8;
