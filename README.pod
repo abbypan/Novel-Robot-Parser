@@ -12,21 +12,21 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 
 支持小说站点名称
 
-L<Asxs|http://www.23hh.com> 爱尚
+L<asxs|http://www.23hh.com> 爱尚
 
-L<Dddbbb|http://www.dddbbb.net> 豆豆
+L<dddbbb|http://www.dddbbb.net> 豆豆
 
-L<Dingdian|http://www.23us.com> 顶点
+L<dingdian|http://www.23us.com> 顶点
 
-L<Jjwxc|http://www.jjwxc.net> 晋江
+L<jjwxc|http://www.jjwxc.net> 晋江
 
-L<Luoqiu|http://www.luoqiu.com> 落秋
+L<luoqiu|http://www.luoqiu.com> 落秋
 
-L<Nunu|http://book.kanunu.org> 努努
+L<kanunu|http://book.kanunu.org> 努努
 
-L<Qidian|http://read.qidian.com> 起点
+L<qidian|http://read.qidian.com> 起点
 
-L<Shunong|http://book.shunong.com> 书农
+L<shunong|http://book.shunong.com> 书农
 
 
 =head2 new
@@ -36,7 +36,7 @@ L<Shunong|http://book.shunong.com> 书农
    my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
 
    #直接指定站点
-   my $parser = Novel::Robot::Parser->new( site => 'Jjwxc' );
+   my $parser = Novel::Robot::Parser->new( site => 'jjwxc' );
     
    #通过url自动检测站点
    my $parser = Novel::Robot::Parser->new( site => $url );
