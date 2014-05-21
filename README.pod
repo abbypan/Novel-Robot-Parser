@@ -28,6 +28,8 @@ L<qidian|http://read.qidian.com> 起点
 
 L<shunong|http://book.shunong.com> 书农
 
+L<snwx|http://www.snwx.com> 少年文学
+
 
 =head2 new
 
