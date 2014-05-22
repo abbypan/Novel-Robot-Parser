@@ -17,7 +17,6 @@ package Novel::Robot::Parser::jjwxc;
 use strict;
 use warnings;
 use utf8;
-
 use base 'Novel::Robot::Parser';
 
 use Web::Scraper;

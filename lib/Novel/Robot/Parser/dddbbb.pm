@@ -21,7 +21,6 @@ use strict;
 use warnings;
 use utf8;
 
-
 use Web::Scraper;
 use Encode;
 

@@ -10,7 +10,7 @@ L<Novel::Robot::Parser> 小说站点解析引擎
 
 =head2 site
 
-支持小说站点名称
+支持小说站点
 
 L<asxs|http://www.23hh.com> 爱尚
 

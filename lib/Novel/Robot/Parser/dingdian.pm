@@ -3,7 +3,6 @@ package Novel::Robot::Parser::dingdian;
 use strict;
 use warnings;
 use utf8;
-
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 

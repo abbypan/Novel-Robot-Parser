@@ -7,7 +7,6 @@ use utf8;
 use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
-#use Encode;
 
 our $BASE_URL = 'http://read.qidian.com';
 

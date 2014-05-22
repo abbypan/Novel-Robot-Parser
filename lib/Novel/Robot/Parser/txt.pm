@@ -22,7 +22,6 @@ package Novel::Robot::Parser::txt;
 use strict;
 use warnings;
 use utf8;
-
 use File::Find::Rule;
 use Encode;
 use Encode::Locale;
