@@ -21,7 +21,7 @@ sub parse_index {
         process_first '.author', 'writer' => 'TEXT';
         process_first 'h1', 'book' => 'TEXT';
         process_first '.redbutt', 'index_url' => '@href';
-        process '//div[@class="booklist clearfix"]//a', 'chapter_info[]' => {
+        process '//div[@class="booklist clearfix"]//a', 'chapter_list[]' => {
             'title' => 'TEXT', 'url' => '@href'
         };
         };
@@ -31,7 +31,7 @@ sub parse_index {
     $ref->{writer}=~s/作者：//;
     $ref->{book}=~s/全文阅读//;
 
-    $ref->{chapter_info} = [ grep { exists $_->{url} } @{$ref->{chapter_info}} ];
+    $ref->{chapter_list} = [ grep { exists $_->{url} } @{$ref->{chapter_info}} ];
 
     return $ref;
 } ## end sub parse_index

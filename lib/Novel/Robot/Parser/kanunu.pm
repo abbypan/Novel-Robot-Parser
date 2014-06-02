@@ -19,7 +19,7 @@ sub parse_index {
 
     my $parse_index = scraper {
         process '//tr[@bgcolor="#ffffff"]//td//a',
-          'chapter_info[]' => {
+          'chapter_list[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
           };
@@ -34,7 +34,7 @@ sub parse_index {
     $ref->{writer}=~s/^→//;
     $ref->{book} = $ref->{book_h2} || $ref->{book_h1};
 
-    $ref->{chapter_info} = [ grep { exists $_->{url} } @{ $ref->{chapter_info} } ];
+    $ref->{chapter_list} = [ grep { exists $_->{url} } @{ $ref->{chapter_info} } ];
 
     return $ref;
 } ## end sub parse_index

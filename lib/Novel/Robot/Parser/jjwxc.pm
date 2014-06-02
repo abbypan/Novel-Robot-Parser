@@ -1,4 +1,5 @@
 #ABSTRACT: 绿晋江 http://www.jjwxc.net
+
 =pod
 
 =encoding utf8
@@ -29,72 +30,50 @@ sub charset {
 }
 
 sub parse_chapter {
-    my ( $self, $html_ref ) = @_;
+    my ( $self, $h ) = @_;
 
-    $$html_ref =~ s{<font color='#E[^>]*'>.*?</font>}{}gis;
+    my $pr = scraper {
+        process_first 'h2', title => 'TEXT';
+        process_first '//div/ul/li[1]', content => 'HTML';
+        process_first '//div/ul/li[2]', writer_say => 'HTML';
+    };
 
-    my %chap;
+    my $r = $pr->scrape($h);
+    $r->{title}  =~s#(^\d+、)|(\s*[\.]+\s*$)##sg;
+    @{$r}{qw/writer_say content/} = @{$r}{qw/content writer_say/}
+        if($r->{writer_say}!~/作者有话要说/);
+    $r->{writer_say}=~s#作者有话要说：(.+?)<hr[^>]+>\s*</li>#$1#s;
 
-    @chap{qw/title content/} =
-      $$html_ref =~ m#<h2>(.+?)</h2>(.+?)<div id="favoriteshow.?3"#s;
-    return unless ( $chap{content} );
-    for($chap{content}){
-        s{</?div[^>]*>}{}sgi;
-        s/^\s*//s;
-        #s{<br\s*/?\s*>}{\n}sgi;
-        #s{<p\s+[^>]*>}{}sgi;
-        #s{<p\s*>}{}sgi;
-        #s{</p>}{\n\n}sgi;
-        #s{\n\n\n*}{\n\n}sg;
-        #s{\S.*?\n}{\n<p>$&</p>}sg;
-    }
-
-    @chap{qw/book writer/} = $$html_ref =~ m#<title>《(.+?)》(.+?)　ˇ#s;
-
-    ( $chap{writer_say} ) =
-      $$html_ref =~
-m#<div class=readsmall[^>]+><hr[^>]+>作者有话要说：</br>(.+?)</div>#s;
-    return \%chap;
+    return $r;
 }
 
 sub parse_index {
 
-    my ( $self, $html_ref ) = @_;
-
-    return if ( $$html_ref =~ /自动进入被锁文章的作者专栏/ );
+    my ( $self, $h ) = @_;
+    return if ( $$h =~ /自动进入被锁文章的作者专栏/ );
 
     my $parse_index = scraper {
-        process_first '//h1[@itemprop="name"]',
-          'book' => 'TEXT';
-        process_first '//h2/a',
-          'writer_url' => '@href';
-        process_first '//span[@itemprop="author"]',
-          'writer'     => 'TEXT';
+        process_first '//h1[@itemprop="name"]',     'book'       => 'TEXT';
+        process_first '//h2/a',                     'writer_url' => '@href';
+        process_first '//span[@itemprop="author"]', 'writer'     => 'TEXT';
         process_first '.readtd>.smallreadbody',
-          'intro' => sub { $self->get_book_intro(@_); };
+          'intro' => sub { $self->parse_intro(@_); };
     };
 
-    my $ref = $parse_index->scrape($html_ref);
+    my $r = $parse_index->scrape($h);
+    return $self->parse_index_nolist($h) unless ( $r->{book} );
 
-    ( $ref->{series} ) =
-      $$html_ref =~ m{<span>所属系列：</span>(.*?)</li>}s;
-    ( $ref->{progress} ) =
-      $$html_ref =~ m{<span>文章进度：</span>(.*?)</li>}s;
-    ( $ref->{word_num} ) =
-      $$html_ref =~ m{<span>全文字数：</span>(\d+)字</li>}s;
-    for my $key (qw/series progress/){
-        $ref->{$key}=~s/<[^>]+>|^\s+|\s+$//gs;
+    for ($$h) {
+        ( $r->{series} )   = m{<span>所属系列：</span>(.*?)</li>}s;
+        ( $r->{progress} ) = m{<span>文章进度：</span>(.*?)</li>}s;
+        ( $r->{word_num} ) = m{<span>全文字数：</span>(\d+)字</li>}s;
     }
+    $r->{$_} =~ s/^\s+|<[^>]+>|\s+$//gs for qw/series progress/;
 
-    return $self->parse_index_just_one_chapter($html_ref)
-      unless ( $ref->{book} );
-
-    $self->parse_book_chapter_info( $ref, $html_ref );
-
-    return $ref;
+    return $r;
 } ## end sub parse_index
 
-sub get_book_intro {
+sub parse_intro {
     my ( $self, $e ) = @_;
     my $intro =
          $e->look_down( '_tag', 'div', 'style', 'clear:both' )
@@ -108,77 +87,64 @@ sub get_book_intro {
     return $h;
 }
 
-sub get_book_chapter_info_html {
-    my ( $self, $book_info ) = @_;
+sub parse_index_nolist {
 
-    my $red = $book_info->look_down( '_tag', 'span', 'class', 'redtext' );
-    $red->delete if ($red);
+    #just single chapter content on index page
+    my ( $self, $h ) = @_;
 
-    return $book_info->as_HTML('<>&');
-}
-
-sub parse_index_just_one_chapter {
-    my ( $self, $html_ref ) = @_;
-
-    my $refine_one_chap = scraper {
-        process_first '.bigtext',                       'book'      => 'TEXT';
-        process_first '//td[@class="noveltitle"]/h1/a', 'index_url' => '@href';
+    my $pr = scraper {
+        process_first '.bigtext',                       'book' => 'TEXT';
+        process_first '//td[@class="noveltitle"]/h1/a', 'url'  => '@href';
         process_first '//td[@class="noveltitle"]/a',
           'writer'     => 'TEXT',
           'writer_url' => '@href';
         process_first '//h2', 'chap_title' => 'TEXT';
     };
-    my $ref = $refine_one_chap->scrape($html_ref);
+    my $r = $pr->scrape($h);
+
+    my $chap_url = $r->{url};
+    $chap_url=~s#^.*?novelid=(\d+)#http://m.jjwxc.net/book2/$1/1#;
 
     my %chap = (
         id       => 1,
-        title    => $ref->{chap_title},
-        abstract => $ref->{chap_title},
-        num      => $ref->{word_num},
-        url      => $ref->{index_url} . '&chapterid=1',
+        title    => $r->{chap_title},
+        abstract => $r->{chap_title},
+        num      => $r->{word_num},
+        url      => $chap_url,
     );
-    push @{ $ref->{chapter_info} }, \%chap;
-    delete( $ref->{chap_title} );
+    push @{ $r->{chapter_list} }, \%chap;
 
-    return $ref;
+    delete( $r->{chap_title} );
 
-} ## end unless ( $ref->{book} )
+    return $r;
 
-sub parse_book_volume {
-    my ( $self, $ref, $cell ) = @_;
+} ## end unless ( $ref->{title} )
 
-    my $volume = $cell->look_down( 'class', 'volumnfont' );
-    return unless ($volume);
-
-    my $id = $ref->{main_chapter_id} + 1;
-    $ref->{volume}{$id} = $volume->as_trimmed_text;
-    return $id;
-}
-
-sub parse_book_chapter_info {
-    my ( $self, $ref, $html_ref ) = @_;
+sub parse_chapter_list {
+    my ( $self, $h ) = @_;
 
     my $s = scraper {
-        process '//tr[@itemtype="http://schema.org/Chapter"]', 'chap[]' => scraper {
+        process '//tr[@itemtype="http://schema.org/Chapter"]',
+          'chap_list[]' => scraper {
             process '//td',      'info[]' => 'TEXT';
             process_first '//a', 'url'    => '@href';
-        };
+          };
     };
-    my $r      = $s->scrape($html_ref);
-    my $chaps  = $r->{chap};
-    my @fields = qw/id title abstract word_num time/;
-    for my $c (@$chaps) {
+    my $r = $s->scrape($h);
+    return unless ( $r->{chap_list} );
+
+    my @fields = qw/id title abstract word_num click_num time/;
+    for my $c ( @{ $r->{chap_list} } ) {
         my $info = $c->{info};
-        $c->{ $fields[$_] } = $info->[$_] for ( 0 .. 4 );
+        $c->{ $fields[$_] } = $info->[$_] for ( 0 .. $#fields );
         $c->{type} = $self->format_chapter_type( $c->{title} );
         $c->{id} =~ s/\s+//g;
+        $c->{url}=~s#^.*?novelid=(\d+)&chapterid=(\d+).*#http://m.jjwxc.net/book2/$1/$2#;
+
         delete( $c->{info} );
     }
 
-    $ref->{main_chapter_id} = scalar(@$chaps);
-
-    $ref->{chapter_info} = $chaps;
-    return $ref;
+    return $r->{chap_list};
 }
 
 sub format_chapter_type {
@@ -191,30 +157,41 @@ sub format_chapter_type {
 }
 
 sub parse_writer {
-    my ( $self, $html_ref ) = @_;
-    my @series_book;
-    my $series = '未分类';
+    my ( $self, $h ) = @_;
 
     my $parse_writer = scraper {
         process_first '//tr[@valign="bottom"]//b', writer => 'TEXT';
+    };
+    my $ref = $parse_writer->scrape($h);
 
-        process '//tr[@bgcolor="#eefaee"]', 'booklist[]' => sub {
+    $self->format_hashref_string( $ref, 'writer' );
+    return $ref->{writer};
+}
+
+sub parse_writer_novels {
+    my ( $self, $h ) = @_;
+    my @book_list;
+    my $series = '未分类';
+
+    my $parse_writer = scraper {
+        process '//tr[@bgcolor="#eefaee"]', 'book_list[]' => sub {
             my $tr = $_[0];
-            $series = $self->parse_writer_series( $tr, $series );
+            $series = $self->parse_writer_series_name( $tr, $series );
 
-            my $book = $self->parse_writer_book( $tr, $series );
-            push @series_book, $book if ($book);
+            my $book = $self->parse_writer_book_info( $tr, $series );
+            push @book_list, $book if ( $book and $book->{url} =~ /onebook/ );
         };
     };
 
-    my $ref = $parse_writer->scrape($html_ref);
-    $ref->{booklist} = \@series_book;
-    $ref->{writer} =~ s/^\s*//;
+    my $ref = $parse_writer->scrape($h);
 
-    return $ref;
+    $self->format_hashref_string( $ref, 'writer' );
+    $_->{writer} = $ref->{writer} for @book_list;
+
+    return \@book_list;
 } ## end sub parse_writer
 
-sub parse_writer_series {
+sub parse_writer_series_name {
     my ( $self, $tr, $series ) = @_;
 
     return $series unless ( $tr->look_down( 'colspan', '7' ) );
@@ -226,7 +203,7 @@ sub parse_writer_series {
     return $series;
 }
 
-sub parse_writer_book {
+sub parse_writer_book_info {
     my ( $self, $tr, $series ) = @_;
 
     my $book = $tr->look_down( '_tag', 'a' );
@@ -249,7 +226,8 @@ sub parse_writer_book {
 
 sub make_query_request {
 
-    my ( $self, $type, $keyword ) = @_;
+    my ( $self, $keyword,  %opt ) = @_;
+    $opt{query_type} ||= '作品';
 
     my %qt = (
         '作品' => '1',
@@ -259,28 +237,28 @@ sub make_query_request {
         '其他' => '6',
     );
 
-    my $url = qq[$BASE_URL/search.php?kw=$keyword&t=$qt{$type}];
+    my $url = qq[$BASE_URL/search.php?kw=$keyword&t=$qt{$opt{query_type}}];
+    $url=encode($self->charset(), $url);
 
     return $url;
 } ## end sub make_query_request
 
-sub parse_query_result_urls {
-    my ( $self, $html_ref ) = @_;
-
+sub parse_query_urls {
+    my ( $self, $h ) = @_;
     my $parse_query = scraper {
         process '//div[@class="page"]/a', 'urls[]' => sub {
             return unless ( $_[0]->as_text =~ /^\[\d*\]$/ );
             my $url = $BASE_URL . ( $_[0]->attr('href') );
-            $url = encode( $self->{charset}, $url );
+            $url = encode( $self->charset(), $url );
             return $url;
         };
     };
-    my $r = $parse_query->scrape($html_ref);
+    my $r = $parse_query->scrape($h);
     return $r->{urls} || [];
 } ## end sub parse_query_result_urls
 
-sub parse_query {
-    my ( $self, $html_ref ) = @_;
+sub parse_query_items {
+    my ( $self, $h ) = @_;
 
     my $parse_query = scraper {
         process '//h3[@class="title"]/a',
@@ -290,23 +268,20 @@ sub parse_query {
           };
 
         process '//div[@class="info"]', 'writers[]' => sub {
-            my $writer = $_[0]->look_down( '_tag', 'a' )->as_trimmed_text;
-            my ($progress) = $_[0]->as_text =~ /进度：(\S+)\s*┃/s;
-            return [ $writer, $progress ];
+            my ($writer, $progress) = $_[0]->as_text =~ /作者：(.+?) \┃ 进度：(\S+)/s;
+            return { writer => $writer, progress => $progress };
         };
     };
-    my $ref = $parse_query->scrape($html_ref);
+    my $ref = $parse_query->scrape($h);
 
     my @result;
     foreach my $i ( 0 .. $#{ $ref->{books} } ) {
         my $r = $ref->{books}[$i];
-        my ( $writer, $progress ) = @{ $ref->{writers}[$i] };
-        push @result,
-          {
-            writer => $writer,
-            book   => "$r->{book}($progress)",
-            url    => $r->{url}
-          };
+        next unless($r->{url});
+
+        my $w = $ref->{writers}[$i];
+        $r->{book} .= "($w->{progress})";
+        push @result, { %$w, %$r };
     }
 
     return \@result;

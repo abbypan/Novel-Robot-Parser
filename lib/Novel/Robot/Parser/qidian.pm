@@ -20,7 +20,7 @@ sub parse_index {
 
     my $parse_index = scraper {
         process '//li[@itemprop="chapter"]//a[@itemprop="url"]',
-          'chapter_info[]' => {
+          'chapter_list[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
           };

@@ -88,7 +88,7 @@ sub parse_index {
                 $t->{url} = $txt_file;
                 $t->{writer} = $data{writer};
                 $t->{book} = $data{book};
-                push @{$data{chapter_info}}, $t;
+                push @{$data{chapter_list}}, $t;
             }
         }
     }

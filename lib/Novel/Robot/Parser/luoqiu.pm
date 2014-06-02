@@ -19,7 +19,7 @@ sub parse_index {
 
     my $parse_index = scraper {
         process '//div[@class="booklist clearfix"]//a',
-          'chapter_info[]' => {
+          'chapter_list[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
           };
@@ -32,8 +32,8 @@ sub parse_index {
     $ref->{writer}=~s/作者：//;
     $ref->{book}=~s/最新章节$//;
 
-    $ref->{chapter_info} = [
-        grep { $_->{url} } @{ $ref->{chapter_info} }
+    $ref->{chapter_list} = [
+        grep { $_->{url} } @{ $ref->{chapter_list} }
     ];
 
     return $ref;

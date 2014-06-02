@@ -83,17 +83,17 @@ sub parse_book_opf {
     my ( $self, $ref, $html_ref ) = @_;
 
     my $refine_engine = scraper {
-        process '//div[@class="opf"]//a', 'chapter_info[]' => {
+        process '//div[@class="opf"]//a', 'chapter_list[]' => {
             title => 'TEXT', 
             url => '@href'
         }; 
     };
     
     my $r = $refine_engine->scrape($html_ref);
-    $ref->{chapter_info} = $r->{chapter_info};
+    $ref->{chapter_list} = $r->{chapter_info};
 
     return $ref;
-} ## end sub parse_chapter_info
+} ## end sub parse_chapter_list
 
 sub parse_chapter {
 
