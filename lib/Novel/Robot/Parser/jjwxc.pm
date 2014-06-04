@@ -121,7 +121,7 @@ sub parse_index_nolist {
 } ## end unless ( $ref->{title} )
 
 sub parse_chapter_list {
-    my ( $self, $h ) = @_;
+    my ( $self, $index_ref, $h ) = @_;
 
     my $s = scraper {
         process '//tr[@itemtype="http://schema.org/Chapter"]',
@@ -139,7 +139,7 @@ sub parse_chapter_list {
         $c->{ $fields[$_] } = $info->[$_] for ( 0 .. $#fields );
         $c->{type} = $self->format_chapter_type( $c->{title} );
         $c->{id} =~ s/\s+//g;
-        $c->{url}=~s#^.*?novelid=(\d+)&chapterid=(\d+).*#http://m.jjwxc.net/book2/$1/$2#;
+        $c->{url}=~s#^.*?novelid=(\d+)&chapterid=(\d+).*#http://m.jjwxc.net/book2/$1/$2# if($c->{url});
 
         delete( $c->{info} );
     }
@@ -156,7 +156,7 @@ sub format_chapter_type {
     return $type;
 }
 
-sub parse_writer {
+sub parse_board {
     my ( $self, $h ) = @_;
 
     my $parse_writer = scraper {
@@ -168,7 +168,7 @@ sub parse_writer {
     return $ref->{writer};
 }
 
-sub parse_writer_novels {
+sub parse_board_items {
     my ( $self, $h ) = @_;
     my @book_list;
     my $series = '未分类';
@@ -280,7 +280,7 @@ sub parse_query_items {
         next unless($r->{url});
 
         my $w = $ref->{writers}[$i];
-        $r->{book} .= "($w->{progress})";
+        $r->{title} .= "($w->{progress})";
         push @result, { %$w, %$r };
     }
 

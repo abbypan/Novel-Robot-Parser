@@ -7,10 +7,23 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.shunong.com';
+sub base_url { 'http://www.shunong.com'; }
 
 sub charset {
     'cp936';
+}
+
+sub parse_chapter_list {
+    my ( $self, $r , $html_ref ) = @_;
+    my $parse_index = scraper {
+        process '//div[@class="booklist clearfix"]//a', 'chapter_list[]' => {
+            'title' => 'TEXT', 'url' => '@href'
+        };
+        };
+    my $ref = $parse_index->scrape($html_ref);
+
+    my @res =grep { exists $_->{url} } @{$ref->{chapter_list}} ;
+    return \@res;
 }
 
 sub parse_index {
@@ -20,18 +33,11 @@ sub parse_index {
     my $parse_index = scraper {
         process_first '.author', 'writer' => 'TEXT';
         process_first 'h1', 'book' => 'TEXT';
-        process_first '.redbutt', 'index_url' => '@href';
-        process '//div[@class="booklist clearfix"]//a', 'chapter_list[]' => {
-            'title' => 'TEXT', 'url' => '@href'
-        };
-        };
-
+    };
     my $ref = $parse_index->scrape($html_ref);
-
     $ref->{writer}=~s/作者：//;
     $ref->{book}=~s/全文阅读//;
 
-    $ref->{chapter_list} = [ grep { exists $_->{url} } @{$ref->{chapter_info}} ];
 
     return $ref;
 } ## end sub parse_index

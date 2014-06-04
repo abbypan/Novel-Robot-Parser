@@ -21,56 +21,16 @@
 package Novel::Robot::Parser::txt;
 use strict;
 use warnings;
-use utf8;
+use base 'Novel::Robot::Parser';
+
 use File::Find::Rule;
 use Encode;
 use Encode::Locale;
 use Encode::Detect::CJK qw/detect/;
-
-use base 'Novel::Robot::Parser';
-
-sub get_default_chapter_regex { 
-    #指定分割章节的正则表达式
-
-    #序号
-    my $r_num =
-qr/[\d０１２３４５６７８９零○〇一二三四五六七八九十百千]+/;
-    my $r_split = qr/[上中下]/;
-	my $r_not_chap_head = qr/楔子|尾声|内容简介|正文|番外|终章|序言|后记|文案/;
-
-    #第x章，卷x，第x章(大结局)，尾声x
-    my $r_head = qr/(卷|第|$r_not_chap_head)?/;
-    my $r_tail  = qr/(章|卷|回|部|折)?/;
-    my $r_post  = qr/([\s\-\(\/（]+.{0,35})?/;
-    my $regex_a = qr/(【?$r_head\s*$r_num\s*$r_tail$r_post】?)/;
-
-    #(1)，(1)xxx
-    #xxx(1)，xxx(1)yyy
-    #(1-上|中|下)
-    my $regex_b_index = qr/[(（]$r_num[）)]/;
-    my $regex_b_tail  = qr/$regex_b_index\s*\S+/;
-    my $regex_b_head  = qr/\S+\s*$regex_b_index.{0,10}/;
-    my $regex_b_split = qr/[(（]$r_num[-－]$r_split[）)]/;
-    my $regex_b = qr/$regex_b_head|$regex_b_tail|$regex_b_index|$regex_b_split/;
-
-    #1、xxx，一、xxx
-    my $regex_c = qr/$r_num[、.．].{0,10}/;
-
-    #第x卷 xxx 第x章 xxx
-    #第x卷/第x章 xxx
-    my $regex_d = qr/($regex_a(\s+.{0,10})?){2}/;
-
-	#后记 xxx
-	my $regex_e = qr/(【?$r_not_chap_head\s*$r_post】?)/;
-
-	#总体
-    my $chap_r = qr/^\s*($regex_a|$regex_b|$regex_c|$regex_d|$regex_e)\s*$/m;
-
-    return $chap_r;
- }
+use utf8;
 
 
-sub parse_index {
+sub get_item_ref {
     my ($self, $path, %opt) = @_;
     $opt{chapter_regex} ||= get_default_chapter_regex();
 
@@ -85,21 +45,59 @@ sub parse_index {
             my $txt_data_ref = $self->read_single_txt($txt, %opt);
             my $txt_file = decode(locale => $txt);
             for my $t (@$txt_data_ref){
-                $t->{url} = $txt_file;
-                $t->{writer} = $data{writer};
-                $t->{book} = $data{book};
-                push @{$data{chapter_list}}, $t;
+                #$t->{url} = $txt_file;
+                push @{$data{floor_list}}, $t;
             }
         }
     }
 
-    $self->update_chapter_id(\%data);
-    $self->update_chapter_num(\%data);
+    $self->update_url_list($data{floor_list});
 
-    $data{index_url} = '';
+    #$data{url} = '';
 
     return \%data;
 }
+
+sub get_default_chapter_regex { 
+    #指定分割章节的正则表达式
+
+    #序号
+    my $r_num =
+qr/[０１２３４５６７８９零○〇一二三四五六七八九十百千\d]+/;
+    my $r_split = qr/[上中下]/;
+	my $r_not_chap_head = qr/楔子|尾声|内容简介|正文|番外|终章|序言|后记|文案/;
+
+    #第x章，卷x，第x章(大结局)，尾声x
+    my $r_head = qr/(卷|第|$r_not_chap_head)?/;
+    my $r_tail  = qr/(章|卷|回|部|折)?/;
+    my $r_post  = qr/([.\s\-\(\/（]+.{0,35})?/;
+    my $regex_a = qr/(【?$r_head\s*$r_num\s*$r_tail$r_post】?)/;
+
+    #(1)，(1)xxx
+    #xxx(1)，xxx(1)yyy
+    #(1-上|中|下)
+    my $regex_b_index = qr/[(（]$r_num[）)]/;
+    my $regex_b_tail  = qr/$regex_b_index\s*\S+/;
+    my $regex_b_head  = qr/\S+\s*$regex_b_index.{0,10}/;
+    my $regex_b_split = qr/[(（]$r_num[-－]$r_split[）)]/;
+    my $regex_b = qr/$regex_b_head|$regex_b_tail|$regex_b_index|$regex_b_split/;
+
+    #1、xxx，一、xxx
+    my $regex_c = qr/$r_num[、．. ].{0,10}/;
+
+    #第x卷 xxx 第x章 xxx
+    #第x卷/第x章 xxx
+    my $regex_d = qr/($regex_a(\s+.{0,10})?){2}/;
+
+	#后记 xxx
+	my $regex_e = qr/(【?$r_not_chap_head\s*$r_post】?)/;
+
+	#总体
+    my $chap_r = qr/^\s*($regex_a|$regex_b|$regex_c|$regex_d|$regex_e)\s*$/m;
+
+    return $chap_r;
+ }
+
 
 
 sub read_single_txt {

@@ -8,10 +8,25 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-our $BASE_URL = 'http://read.qidian.com';
+sub base_url {
+'http://read.qidian.com';
+}
 
 sub charset {
     'utf8';
+}
+
+sub parse_chapter_list {
+    my ($self, $r, $html_ref) = @_;
+    my $parse_index = scraper {
+        process '//li[@itemprop="chapter"]//a[@itemprop="url"]',
+          'chapter_list[]' => {
+            'title' => 'TEXT',
+            'url'   => '@href'
+        };
+          };
+    my $ref = $parse_index->scrape($html_ref);
+    return $ref->{chapter_list};
 }
 
 sub parse_index {
@@ -19,19 +34,12 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//li[@itemprop="chapter"]//a[@itemprop="url"]',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-          process_first '//div[@class="booktitle"]' , 'book' => 'TEXT';
+          process_first '//div[@class="booktitle"]/h1' , 'book' => 'TEXT';
           process_first '//div[@class="booktitle"]//a' , 'writer' => 'TEXT',
           writer_url=>'@href';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-
-    $ref->{writer}=~s/\*//g;
     $ref->{book}=~s/\s*试玩得起点币.*//sg;
 
     return $ref;
@@ -51,11 +59,11 @@ sub parse_chapter {
     $ref->{writer} ||='';
     
     my $c = $self->{browser}->request_url($ref->{content_url});
-    $$c=~s#^\s*document.write.*?'\s+##s;
-    $$c=~s#'\);\s*$##s;
-    $$c=~s#起点中文网 www.cmfu.com##sg;
-    $$c=~s#欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！##sg;
-    $ref->{content} = $$c;
+    $c=~s#^\s*document.write.*?'\s+##s;
+    $c=~s#'\);\s*$##s;
+    $c=~s#起点中文网 www.cmfu.com##sg;
+    $c=~s#欢迎广大书友光临阅读，最新、最快、最火的连载作品尽在起点原创！##sg;
+    $ref->{content} = $c;
 
     return $ref;
 } ## end sub parse_chapter

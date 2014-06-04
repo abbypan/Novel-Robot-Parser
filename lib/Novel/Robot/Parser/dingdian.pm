@@ -17,11 +17,6 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//table[@id="at"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
         process_first '//h1', 'book'   => 'TEXT';
         process_first '//h3', 'writer' => 'TEXT';
     };
@@ -34,6 +29,20 @@ sub parse_index {
     return $ref;
 } ## end sub parse_index
 
+sub parse_chapter_list {
+    my ( $self, $r, $html_ref ) = @_;
+
+    my $parse_index = scraper {
+        process '//table[@id="at"]//a',
+          'chapter_list[]' => {
+            'title' => 'TEXT',
+            'url'   => '@href'
+          };
+      };
+    my $ref = $parse_index->scrape($html_ref);
+    return $ref->{chapter_list};
+}
+
 sub parse_chapter {
 
     my ( $self, $html_ref ) = @_;
@@ -44,8 +53,6 @@ sub parse_chapter {
         process_first '//div[@id="amain"]//a[3]', 'book'    => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
-    $ref->{book}   ||= '';
-    $ref->{writer} ||= '';
 
     return $ref;
 } ## end sub parse_chapter

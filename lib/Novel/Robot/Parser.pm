@@ -4,7 +4,8 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.18;
+our $VERSION    = 0.19;
+
 our %NULL_INDEX = (
     url          => '',
     book         => '',
@@ -32,8 +33,6 @@ our %NULL_CHAPTER = (
     type       => '',
 );
 
-sub site_type { 'novel' }
-
 
 sub new {
     my ( $self, %opt ) = @_;
@@ -47,6 +46,7 @@ sub new {
     bless { browser => $browser, %opt }, $module;
 
 } ## end sub init_parser
+
 
 sub detect_site {
     my ( $self, $url ) = @_;
@@ -69,27 +69,62 @@ sub detect_site {
     return $site;
 } ## end sub detect_site
 
-## xs {
+sub site_type { 'novel' }
+sub base_url { }
+
+sub get_item_ref {
+    my ( $self, $index_url, %o ) = @_;
+    my $bt   = $self->site_type();
+    my $name = "get_${bt}_ref";
+    $self->$name( $index_url, %o );
+}
+
+sub get_novel_ref {
+    my ( $self, $index_url, %o ) = @_;
+
+    my $r = $self->get_index_ref( $index_url, %o );
+    return unless ($r);
+
+    $r->{floor_list} = $self->{browser}->request_urls(
+        $r->{chapter_list},
+        %o,
+        select_url_sub => sub {
+            my ($arr) = @_;
+            $self->select_list_range( $arr, 
+                $o{min_chapter_num},
+                $o{max_chapter_num} );
+        },
+        data_sub            => sub { $self->get_chapter_ref(@_); },
+        no_auto_request_url => 1,
+    );
+
+    return $r;
+}
+
+sub get_index_ref {
+    my ( $self, $url, %opt ) = @_;
+
+    my $r;
+    if ( $url and $url !~ /^http/ ) {
+        $r = $self->parse_index( $url, %opt );
+    }
+    else {
+        my $html = $self->{browser}->request_url($url);
+        $r = $self->parse_index( \$html, %opt ) || {};
+        $r->{chapter_list} ||= $self->parse_chapter_list( $r, \$html ) || [];
+        $r->{url} = $url;
+    }
+
+    $r->{$_} ||= $NULL_INDEX{$_} for keys(%NULL_INDEX);
+    $self->format_hashref_string( $r, $_ ) for qw/writer book/;
+    $r->{chapter_num}  = $self->update_url_list($r->{chapter_list}, $r->{url});
+
+    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $base_url );
+
+    return $r;
+} ## end sub get_index_ref
 
 sub parse_index   { }
-sub parse_chapter { }
-
-sub parse_writer  { }
-sub parse_writer_novels  { }
-sub parse_writer_urls  { }
-
-sub parse_board  { }
-sub parse_board_tiezis  { }
-sub parse_board_urls  { }
-
-sub make_query_request { }
-sub parse_query  { 'Query' }
-sub parse_query_items  { }
-sub parse_query_urls  { }
-
-sub parse_tiezi {}
-sub parse_tiezi_items  { }
-sub parse_tiezi_urls  { }
 
 sub get_chapter_ref {
     my ( $self, $src ) = @_;
@@ -106,44 +141,116 @@ sub get_chapter_ref {
     return $r;
 } ## end sub get_chapter_ref
 
-sub get_index_ref {
-    my ( $self, $url, %opt ) = @_;
+sub parse_chapter { }
 
-    my $r;
-    if ( $url and $url !~ /^http/ ) {
-        $r = $self->parse_index( $url, %opt );
-    }
-    else {
-        my $html = $self->{browser}->request_url($url);
-        $r = $self->parse_index( \$html, %opt ) || {};
-        $r->{chapter_list} ||= $self->parse_chapter_list( \$html ) || [];
-        $r->{url} = $url;
-    }
+sub get_tiezi_ref {
+    my ( $self, $url, %o ) = @_;
 
-    $r->{$_} ||= $NULL_INDEX{$_} for keys(%NULL_INDEX);
-    $self->format_hashref_string( $r, $_ ) for qw/writer book/;
-    $self->update_chapter_list($r);
+    my $items_sub = $self->get_items_sub( 'tiezi', 'floor' );
+    my ( $topic, $floor_list ) = $items_sub->( $url, %o );
 
-    return $r;
-} ## end sub get_index_ref
+    unshift @$floor_list, $topic if ( $topic->{content} );
+    my %r = (
+        %$topic,
+        book       => $topic->{title},
+        url        => $url,
+        floor_list => $floor_list,
+    );
+    $self->update_floor_list( \%r, %o );
 
-sub update_chapter_list {
-    my ( $self, $r ) = @_;
+    return \%r;
+} ## end sub get_tiezi_ref
 
-    my $arr = $r->{chapter_list};
+sub parse_tiezi {}
+sub parse_tiezi_items  { }
+sub parse_tiezi_urls  { }
+
+sub get_board_ref {
+    my ( $self, $url, %o ) = @_;
+
+    my $items_sub = $self->get_items_sub( 'board', 'item' );
+
+    my ( $topic, $item_list ) = $items_sub->( $url, %o );
+
+    $self->update_url_list($item_list, $url);
+
+    return ( $topic, $item_list );
+} ## end sub get_tiezi_ref
+
+sub parse_board  { }
+sub parse_board_items  { }
+sub parse_board_urls  { }
+
+sub get_items_sub {
+    my ( $self, $class, $item ) = @_;
+
+    my $info_sub_name      = "parse_$class";
+    my $data_list_sub_name = "parse_${class}_${item}s";
+    my $url_list_sub_name  = "parse_${class}_urls";
+
+    my $items_sub = sub {
+        my ( $url, %o ) = @_;
+
+        my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
+            $url,
+            post_data     => $o{post_data},
+            info_sub      => sub { $self->$info_sub_name(@_) },
+            data_list_sub => sub { $self->$data_list_sub_name(@_) },
+            stop_sub      => sub {
+                my ( $info, $data_list ) = @_;
+                $self->is_list_overflow( $data_list,
+                    $o{"max_${class}_${item}_num"} );
+            },
+            url_list_sub   => sub { $self->$url_list_sub_name(@_); },
+            select_url_sub => sub {
+                my ($url_s) = @_;
+                $self->select_list_range( $url_s, $o{"min_${class}_page"},
+                    $o{"max_${class}_page"} );
+            },
+        );
+
+        return ( $title, $item_list );
+    };
+
+    return $items_sub;
+}
+
+sub get_query_ref {
+    my ( $self, $keyword, %o ) = @_;
+
+    my $items_sub = $self->get_items_sub( 'query', 'item' );
+
+    my ( $url, $post_data ) = $self->make_query_request( $keyword, %o );
+    
+    my ( $info, $item_list ) =
+      $items_sub->( $url, %o, post_data => $post_data, );
+    
+    $self->update_url_list($item_list, $url);
+
+    return ( $info, $item_list );
+} ## end sub get_tiezi_ref
+
+sub make_query_request { }
+sub parse_query  { 'Query' }
+sub parse_query_items  { }
+sub parse_query_urls  { }
+
+####-------------------------
+
+sub update_url_list {
+    my ( $self, $arr , $base_url) = @_;
+
     my $i   = 0;
     for my $chap (@$arr) {
         $chap = { url => $chap || '' } if ( ref($chap) ne 'HASH' );
-        $self->format_abs_url( $chap, $r->{url} );
+        $self->format_abs_url( $chap, $base_url );
 
         ++$i;
         $chap->{pid} ||= $i;
         $chap->{id}  ||= $i;
     }
-    $r->{chapter_num} = $i;
+    return $i;
 }
-
-####-------------------------
 
 sub is_list_overflow {
     my ( $self, $r, $max ) = @_;
@@ -179,30 +286,6 @@ sub select_list_range {
 
     return \@chap_list;
 }
-
-sub get_novel_ref {
-    my ( $self, $index_url, %o ) = @_;
-
-    my $r = $self->get_index_ref( $index_url, %o );
-    return unless ($r);
-
-    $r->{floor_list} = $self->{browser}->request_urls(
-        $r->{chapter_list},
-        %o,
-        select_url_sub => sub {
-            my ($arr) = @_;
-            $self->select_list_range( $arr, 
-                $o{min_chapter_num},
-                $o{max_chapter_num} );
-        },
-        data_sub            => sub { $self->get_chapter_ref(@_); },
-        no_auto_request_url => 1,
-    );
-
-    return $r;
-}
-
-#--------------------
 
 sub update_floor_list {
     my ( $self, $r, %o ) = @_;
@@ -291,7 +374,15 @@ sub get_inner_html {
 
 sub format_abs_url {
     my ( $self, $chap, $base_url ) = @_;
-    $chap->{url} = URI->new_abs( $chap->{url}, $base_url )->as_string;
+    $base_url ||= $self->base_url();
+    return $chap if( ! $chap or $base_url!~/^http/ );
+
+    if(ref($chap) eq 'HASH'){
+        $chap->{url} = URI->new_abs( $chap->{url}, $base_url )->as_string;
+    }else{
+        $chap =  URI->new_abs( $chap, $base_url )->as_string;
+    }
+
     return $chap;
 }
 
@@ -307,99 +398,6 @@ sub format_hashref_string {
     $r;
 }
 
-sub get_tiezi_ref {
-    my ( $self, $url, %o ) = @_;
 
-    my $items_sub = $self->get_items_sub( 'tiezi', 'floor' );
-    my ( $topic, $floor_list ) = $items_sub->( $url, %o );
-
-    unshift @$floor_list, $topic if ( $topic->{content} );
-    my %r = (
-        %$topic,
-        book       => $topic->{title},
-        url        => $url,
-        floor_list => $floor_list,
-    );
-    $self->update_floor_list( \%r, %o );
-
-    return \%r;
-} ## end sub get_tiezi_ref
-
-sub get_items_sub {
-    my ( $self, $class, $item ) = @_;
-
-    my $info_sub_name      = "parse_$class";
-    my $data_list_sub_name = "parse_${class}_${item}s";
-    my $url_list_sub_name  = "parse_${class}_urls";
-
-    my $items_sub = sub {
-        my ( $url, %o ) = @_;
-
-        my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
-            $url,
-            post_data     => $o{post_data},
-            info_sub      => sub { $self->$info_sub_name(@_) },
-            data_list_sub => sub { $self->$data_list_sub_name(@_) },
-            stop_sub      => sub {
-                my ( $info, $data_list ) = @_;
-                $self->is_list_overflow( $data_list,
-                    $o{"max_${class}_${item}_num"} );
-            },
-            url_list_sub   => sub { $self->$url_list_sub_name(@_); },
-            select_url_sub => sub {
-                my ($url_s) = @_;
-                $self->select_list_range( $url_s, $o{"min_${class}_page"},
-                    $o{"max_${class}_page"} );
-            },
-        );
-
-        return ( $title, $item_list );
-    };
-
-    return $items_sub;
-}
-
-sub get_writer_ref {
-
-    my ( $self, $writer_url , %o) = @_;
-
-    my $items_sub = $self->get_items_sub( 'writer', 'novel' );
-
-    my ( $writer_name, $novel_list ) = $items_sub->( $writer_url, %o );
-
-    # novel_list : [ { url, writer, book, series, time },  ]
-
-    return ( $writer_name, $novel_list );
-} ## end sub get_writer_ref
-
-sub get_board_ref {
-    my ( $self, $url, %o ) = @_;
-
-    my $items_sub = $self->get_items_sub( 'board', 'tiezi' );
-
-    my ( $topic, $tiezi_list ) = $items_sub->( $url, %o );
-
-    return ( $topic, $tiezi_list );
-} ## end sub get_tiezi_ref
-
-sub get_query_ref {
-    my ( $self, $keyword, %o ) = @_;
-
-    my $items_sub = $self->get_items_sub( 'query', 'item' );
-
-    my ( $url, $post_data ) = $self->make_query_request( $keyword, %o );
-    
-    my ( $info, $item_list ) =
-      $items_sub->( $url, %o, post_data => $post_data, );
-
-    return ( $info, $item_list );
-} ## end sub get_tiezi_ref
-
-sub get_book_ref {
-    my ( $self, $index_url, %o ) = @_;
-    my $bt   = $self->site_type();
-    my $name = "get_${bt}_ref";
-    $self->$name( $index_url, %o );
-}
 1;
 

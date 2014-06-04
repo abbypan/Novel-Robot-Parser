@@ -18,7 +18,7 @@ L<dddbbb|http://www.dddbbb.net> 豆豆
 
 L<dingdian|http://www.23us.com> 顶点
 
-L<jjwxc|http://www.jjwxc.net> 晋江
+L<jjwxc|http://www.jjwxc.net> 绿晋江
 
 L<luoqiu|http://www.luoqiu.com> 落秋
 
@@ -30,6 +30,11 @@ L<shunong|http://book.shunong.com> 书农
 
 L<snwx|http://www.snwx.com> 少年文学
 
+支持论坛站点
+
+L<hjj|http://bbs.jjwxc.net> 红晋江
+
+L<tieba|http://tieba.baidu.com> 百度贴吧
 
 =head2 new
 
@@ -43,13 +48,19 @@ L<snwx|http://www.snwx.com> 少年文学
    #通过url自动检测站点
    my $parser = Novel::Robot::Parser->new( site => $url );
 
-   $parser->get_index_ref($url);
+=head2  get_item_ref 获取小说/贴子内容
+
+   my $r = $parser->get_item_ref($url, %opt);
 
 =head1 NOVEL FUNCTION
 
+=head2  get_novel_ref 获取小说内容
+
+   my $r = $parser->get_novel_ref($url, %opt);
+
 =head2 get_index_ref 获取目录页信息
 
-    my $index_ref = $parser->get_index_ref($index_url, %opt);
+   my $index_ref = $parser->get_index_ref($index_url, %opt);
 
 =head2 parse_index 解析目录页
 
@@ -66,40 +77,43 @@ L<snwx|http://www.snwx.com> 少年文学
 
 =head1 TIEZI FUNCTION
 
-=head2 get_tiezi_ref 获取贴子
+=head2 get_tiezi_ref 获取贴子内容
+
+   my $r = $parser->get_tiezi_ref($url, %opt);
 
 =head2 parse_tiezi 获取帖子信息
 
+   my $tz_ref = $parser->parse_tiezi($tz_html_ref);
+
 =head2 parse_tiezi_floors 获取帖子楼层
 
+   my $floors = $parser->parse_tiezi_floors($tz_html_ref);
+
 =head2 parse_tiezi_urls 获取帖子分页
+
+   my $urls = $parser->parse_tiezi_urls($tz_html_ref);
 
 =head1 BOARD FUNCTION
 
 =head2 get_board_ref 获取版块信息
 
-=head2 parse_board 获取版块标题
+   my $r = $parser->get_board_ref($url, %opt);
 
-=head2 parse_board_tiezis 获取版块帖子url
+=head2 parse_board 获取版块/作者专栏标题
+
+   my $board_ref = $parser->parse_board($board_html_ref);
+
+=head2 parse_board_tiezis 获取版块内容url
+
+   my $tzs = $parser->parse_board_items($board_html_ref);
 
 =head2 parse_board_urls 获取版块分页url
 
+   my $urls = $parser->parse_board_urls($board_html_ref);
+
 =head2 parse_board_subboards 获取子版块url
 
-=head1 WRITER FUNCTION
-
-=head2 get_writer_ref 获取作者页信息
-
-    my $writer_url = 'http://www.jjwxc.net/oneauthor.php?authorid=3243';
-    my ($writer_name, $novels_ref) = $parser->get_writer_ref($writer_url);
-
-=head2 parse_writer 解析作者名
-
-    my $writer_name = $parser->parse_writer($writer_html_ref);
-
-=head2 parse_writer_novels 解析作者专栏中的小说
-
-    my $novels_ref = $parser->parse_writer_novels($writer_html_ref);
+   my $subboards = $parser->parse_board_subboards($board_html_ref);
 
 =head1 QUERY FUNCTION
 

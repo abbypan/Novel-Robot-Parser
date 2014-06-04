@@ -7,15 +7,14 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.snwx.com';
+sub base_url { 'http://www.snwx.com'}
 
 sub charset {
     'cp936';
 }
 
-sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
+sub parse_chapter_list {
+    my ( $self, $r, $html_ref ) = @_;
 
     my $parse_index = scraper {
         process '//div[@id="list"]//a',
@@ -23,12 +22,22 @@ sub parse_index {
             'title' => 'TEXT',
             'url'   => '@href'
           };
+      };
+    my $ref = $parse_index->scrape($html_ref);
+    return $ref->{chapter_list};
+
+}
+
+sub parse_index {
+
+    my ( $self, $html_ref ) = @_;
+
+    my $parse_index = scraper {
           process_first '//div[@class="infotitle"]//h1' , 'book' => 'TEXT';
           process_first '//div[@class="infotitle"]//i' , 'writer' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-
     $ref->{writer}=~s/作者.*?\*//;
     $ref->{writer}=~s/\*//g;
 
