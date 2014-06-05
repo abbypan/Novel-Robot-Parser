@@ -269,7 +269,7 @@ sub select_list_range {
 
     my $id_sub = sub {
         my ( $id, $default ) = @_;
-        return $id // $default if ( exists $src->[0]{id} );
+        return $id=~/\S/ ? $id : $default if ( exists $src->[0]{id} );
         return ( $id - 1 ) if ( $id and $id =~ /^\d+$/ );
         return $default;
     };
@@ -292,8 +292,8 @@ sub update_floor_list {
 
     my $flist = $r->{floor_list};
 
-    $flist = [ grep { $_->{word_num} >= $o{min_word_num} } @$flist ]
-      if ( $o{min_word_num} );
+    $flist = [ grep { $_->{word_num} >= $o{min_floor_word_num} } @$flist ]
+      if ( $o{min_floor_word_num} );
 
     $flist = [ grep { $_->{writer} eq $r->{writer} } @$flist ]
       if ( $o{only_poster} );
