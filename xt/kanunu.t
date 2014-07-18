@@ -5,13 +5,11 @@ use Novel::Robot::Parser;
 use Test::More ;
 use Data::Dump qw/dump/;
 
-my $xs = Novel::Robot::Parser->new(site => 'kanunu');
+my $xs = Novel::Robot::Parser->new(site => 'kanshu');
 
 
-my $index_url = 'http://book.kanunu.org/files/youth/201104/2455.html';
-my $chapter_url = "http://book.kanunu.org/files/youth/201104/2455/61068.html";
-#$index_url = 'http://book.kanunu.org/book3/6823/index.html';
-#$chapter_url = 'http://book.kanunu.org/book3/6823/130432.html';
+my $index_url = 'http://www.1kanshu.com/files/article/html/65/65478/';
+my $chapter_url = "http://www.1kanshu.com/files/article/html/65/65478/10807672.html";
 
 my $index_ref = $xs->get_index_ref($index_url);
 is($index_ref->{book}=~/^杉杉来吃/ ? 1 : 0, 1,'book');
