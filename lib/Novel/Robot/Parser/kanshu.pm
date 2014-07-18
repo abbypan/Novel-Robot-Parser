@@ -22,8 +22,8 @@ sub parse_index {
 
     my $ref = $parse_index->scrape($html_ref);
 
-    @{$ref}{qw/book writer/} = $ref->{book}=~m#《(.+?)》.+?<span>作者:(.+?)</span>#s;
-
+    @{$ref}{qw/book writer/} = $ref->{book}=~m#《(.+?)》<span>作者:(.+?)</span>#s;
+    
     return $ref;
 } ## end sub parse_index
 
@@ -48,7 +48,7 @@ sub parse_chapter {
 
     my $parse_chapter = scraper {
         process_first '//div[@id="text_area"]',     'content' => 'HTML';
-        process_first '//div[@id="chapter_title"]//h1',                     'title'   => 'TEXT';
+        process_first '//div[@id="chapter_title"]//h1', 'title'   => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
 
