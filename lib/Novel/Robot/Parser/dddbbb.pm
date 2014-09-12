@@ -101,7 +101,7 @@ sub parse_chapter {
     };
     my $ref = $parse_chapter->scrape($html_ref);
 
-    @{$ref}{ 'book', 'writer' } = @{ $ref->{book_info} }[ 3, 4 ];
+    #@{$ref}{ 'book', 'writer' } = @{ $ref->{book_info} }[ 3, 4 ];
     for ( $ref->{content} ) {
         s#<script[^>]+></script>##sg;
         s#<div[^>]+></div>##sg;

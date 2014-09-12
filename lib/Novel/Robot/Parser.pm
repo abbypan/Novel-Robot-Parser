@@ -4,7 +4,7 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.20;
+our $VERSION    = 0.21;
 
 our %NULL_INDEX = (
     url          => '',
