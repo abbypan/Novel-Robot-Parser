@@ -64,6 +64,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.23us.com/# )    ? 'dingdian'
       : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
       : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
+      : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';
