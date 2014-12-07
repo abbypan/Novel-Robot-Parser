@@ -29,7 +29,7 @@ sub parse_index {
 
     my $ref = $parse_index->scrape($html_ref);
 
-    $ref->{writer}=~s/作者：//;
+    $ref->{writer}=~s/作者：//s;
 
     $ref->{chapter_list} = [
         grep { $_->{url} } @{ $ref->{chapter_list} }
@@ -48,6 +48,8 @@ sub parse_chapter {
         process_first '//h1', 'book' => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
+    $ref->{content}=~s/^.*?正文，敬请欣赏！//s;
+    $ref->{content}=~s/\(tXT下载WWW.XsHUOTxT.Com\)//sg;
     return $ref;
 } ## end sub parse_chapter
 

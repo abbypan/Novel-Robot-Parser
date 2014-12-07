@@ -65,6 +65,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
       : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
       : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
+      : ( $url =~ m#^\Qhttp://www.tadu.com/# )    ? 'tadu'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';
@@ -403,6 +404,12 @@ sub format_hashref_string {
     $r;
 }
 
+sub unescape_js {
+    my ($self, $s) = @_;
+    $s =~ s/%u([0-9a-f]{4})/chr(hex($1))/eigs;
+    $s =~ s/%([0-9a-f]{2})/chr(hex($1))/eigs;
+    return $s;
+}
 
 1;
 
