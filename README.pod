@@ -40,6 +40,10 @@ L<hkslg|http://www.hkslg.com> 顺隆书院
 
 L<tadu|http://www.tadu.com> 塔读文学
 
+L<zilang|http://www.zilang.net> 紫琅文学
+
+L<yanqingji|http://www.yanqingji.com> 言情记
+
 支持论坛站点
 
 L<hjj|http://bbs.jjwxc.net> 红晋江

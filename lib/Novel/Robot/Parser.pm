@@ -4,7 +4,7 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.21;
+our $VERSION    = 0.22;
 
 our %NULL_INDEX = (
     url          => '',
@@ -66,6 +66,8 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
       : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
       : ( $url =~ m#^\Qhttp://www.tadu.com/# )    ? 'tadu'
+      : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
+      : ( $url =~ m#^\Qhttp://www.yanqingji.com/# )    ? 'yanqingji'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';

@@ -1,4 +1,4 @@
-#ABSTRACT: 顺隆书院 http://www.hkslg.com/
+# ABSTRACT: 顺隆书院 http://www.hkslg.com/
 package Novel::Robot::Parser::hkslg;
 use strict;
 use warnings;

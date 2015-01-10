@@ -1,4 +1,4 @@
-#ABSTRACT: 豆豆小说阅读网 http://www.ddddbbb.net
+# ABSTRACT: 豆豆小说阅读网 http://www.ddddbbb.net
 =pod
 
 =encoding utf8
@@ -100,7 +100,7 @@ sub parse_chapter {
         process_first '#content',          'content'     => 'HTML';
     };
     my $ref = $parse_chapter->scrape($html_ref);
-
+    return unless($ref->{content}); 
     #@{$ref}{ 'book', 'writer' } = @{ $ref->{book_info} }[ 3, 4 ];
     for ( $ref->{content} ) {
         s#<script[^>]+></script>##sg;

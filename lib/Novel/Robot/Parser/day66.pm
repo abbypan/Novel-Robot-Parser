@@ -1,4 +1,4 @@
-#ABSTRACT: 天天小说 http://www.day66.com
+# ABSTRACT: 天天小说 http://www.day66.com
 package Novel::Robot::Parser::day66;
 use strict;
 use warnings;

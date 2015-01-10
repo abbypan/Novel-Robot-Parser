@@ -1,4 +1,4 @@
-#ABSTRACT: 要看书 http://www.1kanshu.com
+# ABSTRACT: 要看书 http://www.1kanshu.com
 package Novel::Robot::Parser::kanshu;
 use strict;
 use warnings;

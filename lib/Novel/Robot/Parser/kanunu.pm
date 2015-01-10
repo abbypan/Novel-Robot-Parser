@@ -1,4 +1,4 @@
-#ABSTRACT: 努努书坊 http://book.kanunu.org
+# ABSTRACT: 努努书坊 http://book.kanunu.org
 package Novel::Robot::Parser::kanunu;
 use strict;
 use warnings;
@@ -36,13 +36,11 @@ sub parse_index {
     my $parse_index = scraper {
         process_first '//h2//b',        'book_h2' => 'TEXT';
         process_first '//h1//b',        'book_h1' => 'TEXT';
-        process_first '//font//strong', 'writer'  => 'TEXT';
+        #process_first '//font//strong', 'writer'  => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-
-    $ref->{writer} =~ s/作品集.*//s;
-    $ref->{writer} =~ s/^→//;
+    ($ref->{writer})= $$html_ref=~/作者：(\S+) 发布时间：/s;
     $ref->{book} = $ref->{book_h2} || $ref->{book_h1};
 
     return $ref;

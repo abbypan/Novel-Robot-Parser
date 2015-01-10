@@ -1,4 +1,4 @@
-#ABSTRACT: 少年文学网 www.snwx.com
+# ABSTRACT: 少年文学网 www.snwx.com
 package Novel::Robot::Parser::snwx;
 use strict;
 use warnings;
@@ -39,6 +39,7 @@ sub parse_index {
 
     my $ref = $parse_index->scrape($html_ref);
     $ref->{writer}=~s/作者.*?\*//;
+    $ref->{writer}=~s/作者：//;
     $ref->{writer}=~s/\*//g;
 
     return $ref;

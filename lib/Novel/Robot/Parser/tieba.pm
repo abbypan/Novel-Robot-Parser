@@ -1,4 +1,4 @@
-#ABSTRACT:  百度贴吧 http:://tieba.baidu.com
+# ABSTRACT:  百度贴吧 http:://tieba.baidu.com
 package Novel::Robot::Parser::tieba;
 use strict;
 use warnings;
