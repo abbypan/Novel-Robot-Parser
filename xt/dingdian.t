@@ -9,8 +9,8 @@ my $xs = Novel::Robot::Parser->new(
     site=> 'dingdian',
 );
 
-my $index_url = 'http://www.23us.com/html/0/202/';
-my $chapter_url = 'http://www.23us.com/html/0/202/15973286.html';
+my $index_url = 'http://www.23wx.com/html/0/202/';
+my $chapter_url = 'http://www.23wx.com/html/0/202/15973286.html';
 
 my $index_ref = $xs->get_index_ref($index_url);
 is($index_ref->{book}=~/^全职高手/ ? 1 : 0, 1,'book');

@@ -34,14 +34,15 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process_first '//h2//b',        'book_h2' => 'TEXT';
-        process_first '//h1//b',        'book_h1' => 'TEXT';
+        process_first '//h2',        'book_h2' => 'TEXT';
+        process_first '//h1',        'book_h1' => 'TEXT';
         #process_first '//font//strong', 'writer'  => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-    ($ref->{writer})= $$html_ref=~/作者：(\S+) 发布时间：/s;
     $ref->{book} = $ref->{book_h2} || $ref->{book_h1};
+
+    ($ref->{writer})= $$html_ref=~/作者：(\S+) 发布时间：/s;
 
     return $ref;
 } ## end sub parse_index

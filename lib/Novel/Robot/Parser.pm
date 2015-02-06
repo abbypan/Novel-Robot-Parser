@@ -4,7 +4,7 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.22;
+our $VERSION    = 0.23;
 
 our %NULL_INDEX = (
     url          => '',
@@ -57,11 +57,12 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.dddbbb.net/# )  ? 'dddbbb'
       : ( $url =~ m#^\Qhttp://www.shunong.com/# ) ? 'shunong'
       : ( $url =~ m#^\Qhttp://book.kanunu.org/# ) ? 'kanunu'
+      : ( $url =~ m#^\Qhttp://www.kanunu8.com/# ) ? 'kanunu'
       : ( $url =~ m#^\Qhttp://www.23hh.com/# )    ? 'asxs'
       : ( $url =~ m#^\Qhttp://www.day66.com/# ) ? 'day66'
       : ( $url =~ m#^\Qhttp://www.1kanshu.com/# ) ? 'kanshu'
       : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
-      : ( $url =~ m#^\Qhttp://www.23us.com/# )    ? 'dingdian'
+      : ( $url =~ m#^\Qhttp://www.23wx.com/# )    ? 'dingdian'
       : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
       : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
       : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
@@ -126,6 +127,8 @@ sub get_index_ref {
     $r->{chapter_num}  = $self->update_url_list($r->{chapter_list}, $r->{url});
 
     $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $base_url );
+    $r->{writer}=~s/[[:punct:]]//sg;
+    $r->{book}=~s/[[:punct:]]//sg;
 
     return $r;
 } ## end sub get_index_ref

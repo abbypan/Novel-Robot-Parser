@@ -4,7 +4,9 @@
 
 =head1 NAME
 
-L<Novel::Robot::Parser> get novel / bbs content from website
+L<Novel::Robot::Parser> 
+
+get novel / bbs content from website
 
 小说站点解析引擎
 
@@ -12,13 +14,13 @@ L<Novel::Robot::Parser> get novel / bbs content from website
 
 =head2 site
 
-支持小说站点
+support nove website 支持小说站点
 
 L<asxs|http://www.23hh.com> 爱尚
 
 L<dddbbb|http://www.dddbbb.net> 豆豆
 
-L<dingdian|http://www.23us.com> 顶点
+L<dingdian|http://www.23wx.com> 顶点
 
 L<jjwxc|http://www.jjwxc.net> 绿晋江
 
@@ -44,7 +46,7 @@ L<zilang|http://www.zilang.net> 紫琅文学
 
 L<yanqingji|http://www.yanqingji.com> 言情记
 
-支持论坛站点
+support forum website 支持论坛站点
 
 L<hjj|http://bbs.jjwxc.net> 红晋江
 
@@ -52,86 +54,123 @@ L<tieba|http://tieba.baidu.com> 百度贴吧
 
 =head2 new
 
-初始化解析模块
+init funtion, need set sitename，or url  初始化解析模块，需指定站点名称或网址
 
-   my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
-
-   #直接指定站点
+   #sitename : 直接指定站点
    my $parser = Novel::Robot::Parser->new( site => 'jjwxc' );
     
-   #通过url自动检测站点
+   #url : 通过url自动检测站点
+   my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
    my $parser = Novel::Robot::Parser->new( site => $url );
 
-=head2  get_item_ref 获取小说/贴子内容
+=head2  get_item_ref 
+
+get novel / forum thread data hash ref 
+
+获取小说/贴子内容，返回一个hash引用
 
    my $r = $parser->get_item_ref($url, %opt);
 
 =head1 NOVEL FUNCTION
 
-=head2  get_novel_ref 获取小说内容
+=head2  get_novel_ref 
+
+get novel data, 获取小说内容
 
    my $r = $parser->get_novel_ref($url, %opt);
 
-=head2 get_index_ref 获取目录页信息
+=head2 get_index_ref 
+
+get novel index data, 获取目录页信息
 
    my $index_ref = $parser->get_index_ref($index_url, %opt);
 
-=head2 parse_index 解析目录页
+=head2 parse_index 
+
+parse novel index html content, 解析目录页
 
    my $index_ref = $parser->parse_index($index_html_ref);
 
-=head2 get_chapter_ref 获取章节页信息
+=head2 get_chapter_ref 
+
+get novel chapter data, 获取章节页信息
 
     my $chapter_url = 'http://m.jjwxc.net/book2/2456/2';
     my $chapter_ref = $parser->get_chapter_ref($chapter_url, 2);
 
-=head2 parse_chapter 解析章节页
+=head2 parse_chapter 
+
+parse novel chapter html content, 解析章节页
   
    my $chapter_ref = $parser->parse_chapter($chapter_html_ref);
 
 =head1 TIEZI FUNCTION
 
-=head2 get_tiezi_ref 获取贴子内容
+=head2 get_tiezi_ref
+
+get forum thread data, 获取贴子内容
 
    my $r = $parser->get_tiezi_ref($url, %opt);
 
-=head2 parse_tiezi 获取帖子信息
+=head2 parse_tiezi 
+
+parse forum thread html content, 解析帖子信息
 
    my $tz_ref = $parser->parse_tiezi($tz_html_ref);
 
-=head2 parse_tiezi_floors 获取帖子楼层
+=head2 parse_tiezi_floors
+
+parse forum thread html floor content, 解析贴子楼层
 
    my $floors = $parser->parse_tiezi_floors($tz_html_ref);
 
-=head2 parse_tiezi_urls 获取帖子分页
+=head2 parse_tiezi_urls 
+
+get forum thread pages, 获取帖子分页
 
    my $urls = $parser->parse_tiezi_urls($tz_html_ref);
 
 =head1 BOARD FUNCTION
 
-=head2 get_board_ref 获取版块信息
+writer -> multi books
+
+forum board -> multi threads
+
+=head2 get_board_ref 
+
+get writer / board info, 获取版块信息
 
    my $r = $parser->get_board_ref($url, %opt);
 
-=head2 parse_board 获取版块/作者专栏标题
+=head2 parse_board 
+
+parse writer / fourm board info，解析作者专栏/版块信息
 
    my $board_ref = $parser->parse_board($board_html_ref);
 
-=head2 parse_board_tiezis 获取版块内容url
+=head2 parse_board_tiezis 
+
+parse board thread urls, 解析版块内容url
 
    my $tzs = $parser->parse_board_items($board_html_ref);
 
-=head2 parse_board_urls 获取版块分页url
+=head2 parse_board_urls 
+
+parse board pages, 解析版块分页url
 
    my $urls = $parser->parse_board_urls($board_html_ref);
 
-=head2 parse_board_subboards 获取子版块url
+=head2 parse_board_subboards 
+
+parse forum subboards, 获取子版块url
 
    my $subboards = $parser->parse_board_subboards($board_html_ref);
 
 =head1 QUERY FUNCTION
 
-=head2 get_query_ref 获取查询结果
+=head2 get_query_ref 
+
+query info, 获取查询结果
 
     my $query_type = '作者';
     my $query_keyword = '顾漫';
@@ -141,21 +180,28 @@ L<tieba|http://tieba.baidu.com> 百度贴吧
 
 =head2 make_query_request 指定查询请求
 
+make query http data，查询请求数据
+
   my ($query_url, $post_data) = 
         $parser->make_query_request( $query_keyword, 
         query_type => $query_type );
 
-=head2 parse_query 解析查询结果标题
+=head2 parse_query 
+
+parse query html，解析查询结果
 
   my $query_title = $parser->parse_query($query_html_ref); 
 
-=head2 parse_query_items 解析查询结果列表，例如小说url
+=head2 parse_query_items 
+
+parse query result, for examle, novel/thread url，解析查询结果列表，例如小说url
 
   my $items_ref = $parser->parse_query_items($query_html_ref); 
 
-=head2 parse_query_urls 查询结果为分页url
+=head2 parse_query_urls 
+
+parse query pages, 查询结果为分页url
 
   my $urls_ref = $parser->parse_query_urls($query_html_ref);
 
 =cut
-
