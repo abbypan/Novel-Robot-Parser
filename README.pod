@@ -14,19 +14,25 @@ get novel / bbs content from website
 
 =head2 site
 
-=head3 support nove website 支持小说站点
+=head3 support novel website 支持小说站点
 
 L<asxs|http://www.23hh.com> 爱尚
+
+L<day66|http://www.day66.com> 天天小说
 
 L<dddbbb|http://www.dddbbb.net> 豆豆
 
 L<dingdian|http://www.23wx.com> 顶点
 
+L<hkslg|http://www.hkslg.com> 顺隆书院
+
 L<jjwxc|http://www.jjwxc.net> 绿晋江
 
-L<luoqiu|http://www.luoqiu.com> 落秋
+L<kanshu|http://www.1kanshu.com> 要看书
 
 L<kanunu|http://book.kanunu.org> 努努
+
+L<luoqiu|http://www.luoqiu.com> 落秋
 
 L<qidian|http://read.qidian.com> 起点
 
@@ -34,19 +40,13 @@ L<shunong|http://book.shunong.com> 书农
 
 L<snwx|http://www.snwx.com> 少年文学
 
-L<day66|http://www.day66.com> 天天小说
-
-L<kanshu|http://www.1kanshu.com> 要看书
-
-L<hkslg|http://www.hkslg.com> 顺隆书院
-
 L<tadu|http://www.tadu.com> 塔读文学
-
-L<zilang|http://www.zilang.net> 紫琅文学
 
 L<yanqingji|http://www.yanqingji.com> 言情记
 
 L<yqhhy|http://www.yqhhy.cc> 言情后花园
+
+L<zilang|http://www.zilang.net> 紫琅文学
 
 =head3 support txt file 支持处理txt
 
