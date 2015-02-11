@@ -69,6 +69,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.tadu.com/# )    ? 'tadu'
       : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
       : ( $url =~ m#^\Qhttp://www.yanqingji.com/# )    ? 'yanqingji'
+      : ( $url =~ m#^\Qhttp://www.yqhhy.cc/# )    ? 'yqhhy'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';
