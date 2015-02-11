@@ -14,7 +14,7 @@ get novel / bbs content from website
 
 =head2 site
 
-support nove website 支持小说站点
+=head3 support nove website 支持小说站点
 
 L<asxs|http://www.23hh.com> 爱尚
 
@@ -48,7 +48,11 @@ L<yanqingji|http://www.yanqingji.com> 言情记
 
 L<yqhhy|http://www.yqhhy.cc> 言情后花园
 
-support forum website 支持论坛站点
+=head3 support txt file 支持处理txt
+
+txt 指定解析txt文件
+
+=head3 support forum website 支持论坛站点
 
 L<hjj|http://bbs.jjwxc.net> 红晋江
 
