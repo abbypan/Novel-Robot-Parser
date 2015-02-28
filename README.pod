@@ -4,9 +4,7 @@
 
 =head1 NAME
 
-L<Novel::Robot::Parser> 
-
-get novel / bbs content from website
+L<Novel::Robot::Parser> - get novel / bbs content from website
 
 小说站点解析引擎
 
