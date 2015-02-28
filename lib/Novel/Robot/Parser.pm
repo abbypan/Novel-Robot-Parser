@@ -1,5 +1,9 @@
 # ABSTRACT: get novel / bbs content from website
 package  Novel::Robot::Parser;
+
+use strict;
+use warnings;
+
 use Novel::Robot::Browser;
 use URI;
 use Encode;
@@ -127,7 +131,7 @@ sub get_index_ref {
     $self->format_hashref_string( $r, $_ ) for qw/writer book/;
     $r->{chapter_num}  = $self->update_url_list($r->{chapter_list}, $r->{url});
 
-    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $base_url );
+    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
     $r->{writer}=~s/[[:punct:]]//sg;
     $r->{book}=~s/[[:punct:]]//sg;
 
@@ -277,20 +281,32 @@ sub is_list_overflow {
 sub select_list_range {
     my ( $self, $src, $s_min, $s_max ) = @_;
 
+    my $have_id;
+    {
+        my $ref  = ref($src->[0]);
+        $have_id = ($ref and $ref eq 'HASH' and exists $src->[0]{id});
+    }
+
+    my $default_sub = sub {
+        my ($hashref, $fallback) = @_;
+        return $fallback unless $have_id;
+        return $hashref->{id} // $fallback;
+    };
+
     my $id_sub = sub {
         my ( $id, $default ) = @_;
-        return $id=~/\S/ ? $id : $default if ( exists $src->[0]{id} );
+        return $id=~/\S/ ? $id : $default if $have_id;
         return ( $id - 1 ) if ( $id and $id =~ /^\d+$/ );
         return $default;
     };
 
-    my $min = $id_sub->( $s_min, $src->[0]{id} // 0 );
-    my $max = $id_sub->( $s_max, $src->[-1]{id} // $#$src );
+    my $min = $id_sub->( $s_min, $default_sub->($src->[0], 0) );
+    my $max = $id_sub->( $s_max, $default_sub->($src->[-1], $#$src) );
 
     my @chap_list =
       map { $src->[$_] }
       grep {
-        my $j = $src->[$_]{id} // $_;
+        my $j = $have_id ? ($src->[$_]{id} // $_) : $_;
         $j >= $min and $j <= $max
       } ( 0 .. $#$src );
 
@@ -387,7 +403,7 @@ sub get_inner_html {
 sub format_abs_url {
     my ( $self, $chap, $base_url ) = @_;
     $base_url ||= $self->base_url();
-    return $chap if( ! $chap or $base_url!~/^http/ );
+    return $chap if( ! $chap or ! $base_url or $base_url!~/^http/ );
 
     if(ref($chap) eq 'HASH'){
         $chap->{url} = URI->new_abs( $chap->{url}, $base_url )->as_string;
