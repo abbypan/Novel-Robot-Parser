@@ -110,6 +110,8 @@ sub get_novel_ref {
         no_auto_request_url => 1,
     );
 
+    $self->update_floor_list( $r, %o );
+
     return $r;
 }
 
@@ -325,6 +327,12 @@ sub update_floor_list {
 
     $flist = [ grep { $_->{writer} eq $r->{writer} } @$flist ]
       if ( $o{only_poster} );
+
+    $flist = [ grep { $_->{content}=~/$o{grep_content}/s } @$flist ]
+      if ( $o{grep_content} );
+
+    $flist = [ grep { $_->{content}!~/$o{filter_content}/s } @$flist ]
+      if ( $o{filter_content} );
 
     $r->{floor_list} = $flist;
 
