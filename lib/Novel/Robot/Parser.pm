@@ -58,22 +58,23 @@ sub detect_site {
 
     my $site =
         ( $url =~ m#^\Qhttp://www.jjwxc.net/# )   ? 'jjwxc'
-      : ( $url =~ m#^\Qhttp://www.dddbbb.net/# )  ? 'dddbbb'
-      : ( $url =~ m#^\Qhttp://www.shunong.com/# ) ? 'shunong'
-      : ( $url =~ m#^\Qhttp://book.kanunu.org/# ) ? 'kanunu'
-      : ( $url =~ m#^\Qhttp://www.kanunu8.com/# ) ? 'kanunu'
       : ( $url =~ m#^\Qhttp://www.23hh.com/# )    ? 'asxs'
       : ( $url =~ m#^\Qhttp://www.day66.com/# ) ? 'day66'
+      : ( $url =~ m#^\Qhttp://www.dddbbb.net/# )  ? 'dddbbb'
+      : ( $url =~ m#^\Qhttp://www.23wx.com/# )    ? 'dingdian'
+      : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
+      : ( $url =~ m#^\Qhttp://book.kanunu.org/# ) ? 'kanunu'
+      : ( $url =~ m#^\Qhttp://www.kanunu8.com/# ) ? 'kanunu'
       : ( $url =~ m#^\Qhttp://www.1kanshu.com/# ) ? 'kanshu'
       : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
-      : ( $url =~ m#^\Qhttp://www.23wx.com/# )    ? 'dingdian'
       : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
+      : ( $url =~ m#^\Qhttp://www.shunong.com/# ) ? 'shunong'
       : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
-      : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
       : ( $url =~ m#^\Qhttp://www.tadu.com/# )    ? 'tadu'
-      : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
+      : ( $url =~ m#^\Qhttp://www.ttzw.com/# )    ? 'ttzw'
       : ( $url =~ m#^\Qhttp://www.yanqingji.com/# )    ? 'yanqingji'
       : ( $url =~ m#^\Qhttp://www.yqhhy.cc/# )    ? 'yqhhy'
+      : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';
@@ -297,7 +298,7 @@ sub select_list_range {
 
     my $id_sub = sub {
         my ( $id, $default ) = @_;
-        return $id=~/\S/ ? $id : $default if $have_id;
+        return ($id and $id=~/\S/) ? $id : $default if $have_id;
         return ( $id - 1 ) if ( $id and $id =~ /^\d+$/ );
         return $default;
     };
