@@ -44,7 +44,7 @@ sub parse_chapter {
     my ( $self, $html_ref ) = @_;
 
     my $parse_chapter = scraper {
-        process_first '//div[@class="bookname"]/h1', 'title'=> 'TEXT';
+        process_first '//div/h1', 'title'=> 'TEXT';
         process_first '//div[@id="booktext"]', content=> 'HTML';
     };
     my $ref = $parse_chapter->scrape($html_ref);

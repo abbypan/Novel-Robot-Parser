@@ -67,6 +67,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.kanunu8.com/# ) ? 'kanunu'
       : ( $url =~ m#^\Qhttp://www.1kanshu.com/# ) ? 'kanshu'
       : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
+      : ( $url =~ m#^\Qhttp://www.my285.com/# )    ? 'my285'
       : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
       : ( $url =~ m#^\Qhttp://www.qqxs.cc/# ) ? 'qqxs'
       : ( $url =~ m#^\Qhttp://www.shunong.com/# ) ? 'shunong'
@@ -74,9 +75,9 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.tadu.com/# )    ? 'tadu'
       : ( $url =~ m#^\Qhttp://www.ttzw.com/# )    ? 'ttzw'
       : ( $url =~ m#^\Qhttp://www.yanqingji.com/# )    ? 'yanqingji'
+      : ( $url =~ m#^\Qhttp://www.ybdu.com/# )    ? 'ybdu'
       : ( $url =~ m#^\Qhttp://www.yqhhy.cc/# )    ? 'yqhhy'
       : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
-      : ( $url =~ m#^\Qhttp://www.my285.com/# )    ? 'my285'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';
