@@ -8,7 +8,7 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.23;
+our $VERSION    = 0.24;
 
 our %NULL_INDEX = (
     url          => '',
@@ -78,6 +78,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.ybdu.com/# )    ? 'ybdu'
       : ( $url =~ m#^\Qhttp://www.yqhhy.cc/# )    ? 'yqhhy'
       : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
+      : ( $url =~ m#^\Qhttp://ncs.xvna.com/# )    ? 'xvna'
       : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
       : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
       :                                             'unknown';
@@ -337,6 +338,8 @@ sub update_floor_list {
 
     $flist = [ grep { $_->{content}!~/$o{filter_content}/s } @$flist ]
       if ( $o{filter_content} );
+
+    $flist->[$_]{id} ||= $_+1 for (0 .. $#$flist);
 
     $r->{floor_list} = $flist;
 

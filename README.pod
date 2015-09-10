@@ -54,6 +54,7 @@ L<yqhhy|http://www.yqhhy.cc> 言情后花园
 
 L<zilang|http://www.zilang.net> 紫琅文学
 
+
 =head3 support txt file 支持处理txt
 
 txt 指定解析txt文件
@@ -63,6 +64,8 @@ txt 指定解析txt文件
 L<hjj|http://bbs.jjwxc.net> 红晋江
 
 L<tieba|http://tieba.baidu.com> 百度贴吧
+
+L<xvna|http://ncs.xvna.com> 炫浪网络
 
 =head2 new
 
