@@ -65,6 +65,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
       : ( $url =~ m#^\Qhttp://book.kanunu.org/# ) ? 'kanunu'
       : ( $url =~ m#^\Qhttp://www.kanunu8.com/# ) ? 'kanunu'
+      : ( $url =~ m#^\Qhttp://www.kanshuge.com/# ) ? 'kanshuge'
       : ( $url =~ m#^\Qhttp://www.1kanshu.com/# ) ? 'kanshu'
       : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
       : ( $url =~ m#^\Qhttp://www.my285.com/# )    ? 'my285'
