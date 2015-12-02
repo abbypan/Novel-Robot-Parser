@@ -8,6 +8,10 @@ use Data::Dumper;
 
 my $pr = Novel::Robot::Parser->new(site=>'jjwxc');
 
+#my $r = $pr->get_chapter_ref('http://m.jjwxc.net/book2/1075041/32');
+#print Dumper($r);
+#exit;
+
 my $index_url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
 my $chapter_url = "http://m.jjwxc.net/book2/2456/1";
 

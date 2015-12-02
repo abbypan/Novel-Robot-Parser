@@ -34,15 +34,14 @@ sub parse_chapter {
 
     my $pr = scraper {
         process_first 'h2', title => 'TEXT';
-        process_first '//div/ul/li[1]', content => 'HTML';
-        process_first '//div/ul/li[2]', writer_say => 'HTML';
+        #process_first '//div[@class="b module"]//li[1]', content => 'HTML';
+        #process_first '//div/ul/li[2]', writer_say => 'HTML';
     };
 
     my $r = $pr->scrape($h);
     $r->{title}  =~s#(^\d+、)|(\s*[\.]+\s*$)##sg;
-    @{$r}{qw/writer_say content/} = @{$r}{qw/content writer_say/}
-        if($r->{writer_say}!~/作者有话要说/);
-    $r->{writer_say}=~s#作者有话要说：(.+?)<hr[^>]+>\s*</li>#$1#s;
+    ($r->{content})= $$h=~m#<li>(.+?)</li>#s;
+    $r->{content} ||= '';
 
     return $r;
 }
