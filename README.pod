@@ -54,12 +54,17 @@ L<ybdu|http://www.ybdu.com> 一本读
 
 L<yqhhy|http://www.yqhhy.cc> 言情后花园
 
-L<zilang|http://www.zilang.net> 紫琅文学
+L<zhonghuawuxia|http://zhonghuawuxia.com> 中华武侠
 
+L<zilang|http://www.zilang.net> 紫琅文学
 
 =head3 support txt file 支持处理txt
 
 txt 指定解析txt文件
+
+=head3 support raw file 支持处理序列化数据
+
+raw 指定解析经MessagePack压缩的二进制文件
 
 =head3 support forum website 支持论坛站点
 

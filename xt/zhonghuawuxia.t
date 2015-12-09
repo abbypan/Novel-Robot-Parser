@@ -17,8 +17,9 @@ my $chapter_url = "http://www.zhonghuawuxia.com/chapter/69550";
 my $index_ref = $xs->get_index_ref($index_url);
 is($index_ref->{book}=~/浩然剑/ ? 1 : 0, 1,'book');
 is($index_ref->{writer}=~/赵晨光/? 1 : 0, 1, 'writer');
+#print $index_ref->{writer},"\n";
 is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
-dump($index_ref->{chapter_list});
+#dump($index_ref->{chapter_list});
 
 my $chapter_ref = $xs->get_chapter_ref($chapter_url);
 is($chapter_ref->{title}=~/序/?1:0, 1 , 'chapter_title');

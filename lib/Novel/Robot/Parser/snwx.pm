@@ -24,7 +24,8 @@ sub parse_chapter_list {
           };
       };
     my $ref = $parse_index->scrape($html_ref);
-    return $ref->{chapter_list};
+    my @ch = sort { $a->{url} cmp $b->{url} } @{$ref->{chapter_list}};
+    return \@ch;
 
 }
 

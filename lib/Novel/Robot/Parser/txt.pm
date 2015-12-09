@@ -30,7 +30,7 @@ use Encode::Detect::CJK qw/detect/;
 use utf8;
 
 
-sub get_item_ref {
+sub parse_index {
     my ($self, $path, %opt) = @_;
     $opt{chapter_regex} ||= get_default_chapter_regex();
 

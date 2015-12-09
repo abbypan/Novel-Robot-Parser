@@ -8,7 +8,7 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.24;
+our $VERSION    = 0.25;
 
 our %NULL_INDEX = (
     url          => '',
@@ -104,6 +104,7 @@ sub get_novel_ref {
 
     my $r = $self->get_index_ref( $index_url, %o );
     return unless ($r);
+    return $r if($r->{floor_list} and scalar(@{$r->{floor_list}})>0);
 
     $r->{floor_list} = $self->{browser}->request_urls(
         $r->{chapter_list},
@@ -343,6 +344,8 @@ sub update_floor_list {
       if ( $o{filter_content} );
 
     $flist->[$_]{id} ||= $_+1 for (0 .. $#$flist);
+
+    $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || 'unknown' for (0 .. $#$flist);
 
     $r->{floor_list} = $flist;
 
