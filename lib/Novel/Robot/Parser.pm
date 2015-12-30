@@ -328,6 +328,7 @@ sub update_floor_list {
     my ( $self, $r, %o ) = @_;
 
     my $flist = $r->{floor_list};
+    $r->{raw_floor_num} = scalar(@$flist);
 
     $self->calc_content_word_num($_) for @$flist;
 

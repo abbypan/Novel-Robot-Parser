@@ -42,7 +42,7 @@ sub parse_tiezi_floors {
 
     my @floor;
     while ( $$h =~
-m#(<tr>\s+<td colspan="2">.*?<td><font color=99CC00 size="-1">.*?</tr>)#gis
+m#(<tr class="reply_\d+">\s+<td colspan="2">.*?<td><font color=99CC00 size="-1">.*?</tr>)#gis
       )
     {
         my $cell = $1;
@@ -52,14 +52,14 @@ m#(<tr>\s+<td colspan="2">.*?<td><font color=99CC00 size="-1">.*?</tr>)#gis
 
         ( $fl{writer}, $fl{time} ) =
           $cell =~
-m#☆☆☆</font>\s*(.*?)\s*</b><font color="99CC00">于</font>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})留言#s;
+m#☆☆☆</font>\s*(.*?)\s*</b><font color="?99CC00"?>于</font>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})留言#s;
         $fl{writer} =~ s/<\/?(font|b).*?>//gsi;
         $fl{writer} =~ s/^-*//;
         $fl{writer} ||= 'unknown';
 
         ( $fl{content} ) =
           $cell =~
-          m{<tr>\s*<td[^>]*class="read">\s*(.*?)\s*</td>\s*</tr>\s*</table>}s;
+          m{<tr>\s*<td[^>]*class="read">\s*<div id="topic">(.*?)\s*</div>\s*</td>\s*</tr>\s*</table>}s;
         for ( $fl{content} ) {
 s#本帖尚未审核,若发布24小时后仍未审核通过会被屏蔽##s;
             s#</?font[^>]*>##isg;
@@ -216,7 +216,6 @@ sub parse_query_items {
         time_s => $r->[3],
         time_e => $r->[4],
         reply => $r->[5]+0,
-        click => $r->[6]+0,
     }
     }
     grep { $_->{url} }
