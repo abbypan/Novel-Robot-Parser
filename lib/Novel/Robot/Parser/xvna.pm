@@ -18,11 +18,12 @@ sub parse_tiezi {
     my ( $self, $h ) = @_;
 
     my $parse_query = scraper {
-        process_first '//title',                        'title'  => 'TEXT';
+        process_first '//span[@class="fl"]//a[3]',                        'title'  => 'TEXT';
     };
     my $ref = $parse_query->scrape($h);
-    ($ref->{title}) = $ref->{title}=~/《(.*?)》/;
-    $ref->{writer} = 'unknown';
+    ($ref->{title}, $ref->{writer}) = $ref->{title}=~/《(.*?)》BY(.*)/;
+    $ref->{writer} ||= 'unknown';
+    $ref->{writer}=~s/（.*?）//;
     
     return $ref;
 } ## end sub parse_Novel_topic

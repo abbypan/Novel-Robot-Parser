@@ -106,7 +106,8 @@ sub get_novel_ref {
     return unless ($r);
     return $r if($r->{floor_list} and scalar(@{$r->{floor_list}})>0);
 
-    $r->{floor_list} = $self->{browser}->request_urls(
+    #$r->{floor_list} = $self->{browser}->request_urls(
+    $r->{floor_list} = $self->{browser}->request_urls_iter(
         $r->{chapter_list},
         %o,
         select_url_sub => sub {
