@@ -23,7 +23,7 @@ sub parse_index {
 
     my $ref = $parse_index->scrape($html_ref);
 
-    $ref->{writer} =~ s/作者：//;
+    $ref->{writer} =~ s/^.*作者：//;
     $ref->{book} =~ s/\s*最新章节.*//;
 
     return $ref;
