@@ -59,6 +59,7 @@ sub detect_site {
     my $site =
         ( $url =~ m#^\Qhttp://www.jjwxc.net/# )   ? 'jjwxc'
       : ( $url =~ m#^\Qhttp://www.23hh.com/# )    ? 'asxs'
+      : ( $url =~ m#^\Qhttp://www.365xs.org/# )    ? 'lewen'
       : ( $url =~ m#^\Qhttp://www.day66.com/# ) ? 'day66'
       : ( $url =~ m#^\Qhttp://www.dddbbb.net/# )  ? 'dddbbb'
       : ( $url =~ m#^\Qhttp://www.23wx.com/# )    ? 'dingdian'
@@ -91,6 +92,16 @@ sub detect_site {
 
 sub site_type { 'novel' }
 sub base_url { }
+
+sub get_item_info {
+    my ( $self, $index_url ) = @_;
+    my $bt   = $self->site_type();
+    return $self->get_index_ref($index_url) if($bt eq 'novel');
+
+    my $items_sub = $self->get_items_sub('tiezi', 'floor');
+    my ($topic, $floor_list) = $items_sub->($index_url);
+    return $topic;
+}
 
 sub get_item_ref {
     my ( $self, $index_url, %o ) = @_;

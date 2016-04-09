@@ -32,6 +32,8 @@ L<kanshuge|http://www.kanshuge.com> 看书阁
 
 L<kanunu|http://book.kanunu.org> 努努
 
+L<lewen|http://www.365xs.org> 乐文
+
 L<luoqiu|http://www.luoqiu.com> 落秋
 
 L<my285|http://www.my285.com> 梦远
@@ -92,6 +94,14 @@ get novel / forum thread data hash ref
 获取小说/贴子内容，返回一个hash引用
 
    my $r = $parser->get_item_ref($url, %opt);
+
+=head2 get_item_info
+
+get novel index info / forum thread first page info
+
+获取小说/贴子首页信息
+
+   my $r = $parser->get_item_info($url);
 
 =head1 NOVEL FUNCTION
 
