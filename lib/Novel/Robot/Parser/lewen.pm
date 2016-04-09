@@ -22,6 +22,7 @@ sub parse_index {
     };
 
     my $ref = $parse_index->scrape($html_ref);
+    $ref->{writer}=~s/作者//;
 
     return $ref;
 } ## end sub parse_index
