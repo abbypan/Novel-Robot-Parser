@@ -18,11 +18,11 @@ sub parse_index {
 
     my $parse_index = scraper {
         process_first '//h1', 'book'   => 'HTML';
-        process_first '//div[@class="infot"]//span', 'writer' => 'TEXT';
+        process_first '//title', 'writer' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-    $ref->{writer}=~s/作者：//;
+    $ref->{writer}=~s/^.+\((.+?)\)\,.+$/$1/;
     
     return $ref;
 } ## end sub parse_index
