@@ -51,7 +51,7 @@ sub parse_chapter {
         process_first '//h2', 'title'   => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
-    $ref->{content}=~s#<[^>]+>##sg;
+    $ref->{content}=~s#<[^>]+>#\n#sg;
 
     return $ref;
 } ## end sub parse_chapter

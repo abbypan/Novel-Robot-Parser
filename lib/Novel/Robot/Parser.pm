@@ -406,10 +406,19 @@ sub merge_hashref {
 sub tidy_chapter_content {
     my ( $self, $r ) = @_;
     for ( $r->{content} ) {
-        s/^\s*//s;
-        s#\s*([^><]+)(<br\s*/?>\s*){1,}#<p>$1</p>\n#g;
-        s#(\S+)$#<p>$1</p>#s;
-        s###g;
+
+         s###sg;
+         s#\s*\<[^>]+?\>\s#\n#sg;
+         s{\n\n\n*}{\n}sg;
+         s{\s*(\S.*?)\s*\n}{\n<p>$1</p>}sg;
+#         s{(\S.*?)\n}{$1<br />\n}sg;
+#         s#^#<p>#s;
+#         s#$#</p>#s;
+
+#        s/^\s*//s;
+#        s#\s*([^><]+)(<br\s*/?>\s*){1,}#<p>$1</p>\n#g;
+#        s#(\S+)$#<p>$1</p>#s;
+#        s###g;
 
         #s{<br\s*/?\s*>}{\n}sgi;
         #s{<p\s+[^>]*>}{}sgi;
