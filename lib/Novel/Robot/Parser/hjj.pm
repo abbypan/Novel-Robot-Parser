@@ -21,7 +21,7 @@ sub parse_tiezi {
     my %t;
     for ($$h) {
         ( $t{title} ) =
-m{<td bgcolor="\#E8F3FF"><div style="float: left;">\s*主题：(.+?)\s*<font color="\#999999" size="-1">}s;
+m{<td bgcolor="\#E8F3FF"><div [^>]+?style="float: left;">\s*主题：(.+?)\s*<font color="\#999999" size="-1">}s;
         ( $t{content} ) =
 m{<td class="read"><div id="topic">(.*?)</div>\s*</td>\s*</tr>\s*</table>}s;
         $t{content} ||='';

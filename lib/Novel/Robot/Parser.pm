@@ -119,7 +119,6 @@ sub get_novel_ref {
     return $r if($r->{floor_list} and scalar(@{$r->{floor_list}})>0);
 
     $r->{floor_list} = $self->{browser}->request_urls(
-    #$r->{floor_list} = $self->{browser}->request_urls_iter(
         $r->{chapter_list},
         %o,
         select_url_sub => sub {
@@ -184,13 +183,25 @@ sub parse_chapter { }
 sub get_tiezi_ref {
     my ( $self, $url, %o ) = @_;
 
-    my $items_sub = $self->get_items_sub( 'tiezi', 'floor' );
+    my $items_sub = $self->get_items_sub( 'tiezi', 'floor', %o );
     my ( $topic, $floor_list ) = $items_sub->( $url, %o );
+
+    $floor_list = [ reverse @$floor_list ] if($o{reverse_content_list});
+    $self->update_url_list( $floor_list, $self->base_url || $url );
+
+    if(! $floor_list->[0]{content} and $o{deal_content_url}){
+        for my $x (@$floor_list) {
+            my $u = $x->{url};
+            my $h = $self->{browser}->request_url($u);
+            $x->{content} = $o{deal_content_url}->($h);
+        }
+    }
 
     unshift @$floor_list, $topic if ( $topic->{content} );
     my %r = (
         %$topic,
         book       => $topic->{title},
+        title      => $topic->{title},
         url        => $url,
         floor_list => $floor_list,
     );
@@ -220,7 +231,7 @@ sub parse_board_items  { }
 sub parse_board_urls  { }
 
 sub get_items_sub {
-    my ( $self, $class, $item ) = @_;
+    my ( $self, $class, $item , %opt) = @_;
 
     my $info_sub_name      = "parse_$class";
     my $data_list_sub_name = "parse_${class}_${item}s";
@@ -232,19 +243,16 @@ sub get_items_sub {
         my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
             $url,
             post_data     => $o{post_data},
-            info_sub      => sub { $self->$info_sub_name(@_) },
-            data_list_sub => sub { $self->$data_list_sub_name(@_) },
-            stop_sub      => sub {
-                my ( $info, $data_list ) = @_;
-                $self->is_list_overflow( $data_list,
-                    $o{"max_${class}_${item}_num"} );
+            parse_info    => sub { $self->$info_sub_name(@_) },
+            parse_content => sub { $self->$data_list_sub_name(@_) },
+            get_url_list  => sub { $self->$url_list_sub_name(@_) },
+            min_page_num  => $o{"min_${class}_page"},
+            max_page_num  => $o{"max_${class}_page"},
+            stop_iter     => sub {
+                my ( $info, $data_list, $i) = @_;
+                $self->is_list_overflow( $data_list, $o{"max_${class}_${item}_num"} );
             },
-            url_list_sub   => sub { $self->$url_list_sub_name(@_); },
-            select_url_sub => sub {
-                my ($url_s) = @_;
-                $self->select_list_range( $url_s, $o{"min_${class}_page"},
-                    $o{"max_${class}_page"} );
-            },
+            %opt, 
         );
 
         return ( $title, $item_list );
@@ -408,6 +416,7 @@ sub tidy_chapter_content {
     for ( $r->{content} ) {
 
          s###sg;
+         s#<script(\s+[^>]+\>|\>)[^<]*</script>##sg;
          s#\s*\<[^>]+?\>\s#\n#sg;
          s{\n\n\n*}{\n}sg;
          s{\s*(\S.*?)\s*\n}{\n<p>$1</p>}sg;
