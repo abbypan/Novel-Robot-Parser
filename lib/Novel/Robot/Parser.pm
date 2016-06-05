@@ -8,7 +8,7 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 
-our $VERSION    = 0.25;
+our $VERSION    = 0.26;
 
 our %NULL_INDEX = (
     url          => '',
