@@ -44,7 +44,7 @@ sub parse_chapter {
         process_first '//td[@height="30"]', 'title'=> 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
-    ($ref->{content}) = $$html_ref=~/<p style="line-height: 150%">&nbsp;&nbsp;&nbsp;(.+?)<\/td>/s;
+    ($ref->{content}) = $$html_ref=~/<td colspan="2">(.+?)<\/td>/s;
     if(! $ref->{content}){
     ($ref->{content}) = $$html_ref=~/<p style="line-height: 150%">(.+?)<\/td>/s;
     }
