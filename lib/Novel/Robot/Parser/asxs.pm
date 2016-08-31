@@ -1,4 +1,4 @@
-# ABSTRACT: 爱尚小说 http://www.23hh.com
+# ABSTRACT: 爱尚小说 http://www.23xs.cc
 package Novel::Robot::Parser::asxs;
 use strict;
 use warnings;
@@ -7,7 +7,7 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.23hh.com';
+our $BASE_URL = 'http://www.23xs.cc';
 
 sub charset {
     'cp936';

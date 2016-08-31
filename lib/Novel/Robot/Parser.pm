@@ -58,7 +58,7 @@ sub detect_site {
 
     my $site =
         ( $url =~ m#^\Qhttp://www.jjwxc.net/# )   ? 'jjwxc'
-      : ( $url =~ m#^\Qhttp://www.23hh.com/# )    ? 'asxs'
+      : ( $url =~ m#^\Qhttp://www.23xs.cc/# )    ? 'asxs'
       : ( $url =~ m#^\Qhttp://www.365xs.org/# )    ? 'lewen'
       : ( $url =~ m#^\Qhttp://www.day66.com/# ) ? 'day66'
       : ( $url =~ m#^\Qhttp://www.dddbbb.net/# )  ? 'dddbbb'
@@ -70,6 +70,7 @@ sub detect_site {
       : ( $url =~ m#^\Qhttp://www.kanshuge.com/# ) ? 'kanshuge'
       : ( $url =~ m#^\Qhttp://www.1kanshu.com/# ) ? 'kanshu'
       : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
+      : ( $url =~ m#^\Qhttp://my285.com/# )    ? 'my285'
       : ( $url =~ m#^\Qhttp://www.my285.com/# )    ? 'my285'
       : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
       : ( $url =~ m#^\Qhttp://www.qqxs.cc/# ) ? 'qqxs'
@@ -414,27 +415,11 @@ sub merge_hashref {
 sub tidy_chapter_content {
     my ( $self, $r ) = @_;
     for ( $r->{content} ) {
-
          s###sg;
          s#<script(\s+[^>]+\>|\>)[^<]*</script>##sg;
          s#\s*\<[^>]+?\>\s#\n#sg;
          s{\n\n\n*}{\n}sg;
          s{\s*(\S.*?)\s*\n}{\n<p>$1</p>}sg;
-#         s{(\S.*?)\n}{$1<br />\n}sg;
-#         s#^#<p>#s;
-#         s#$#</p>#s;
-
-#        s/^\s*//s;
-#        s#\s*([^><]+)(<br\s*/?>\s*){1,}#<p>$1</p>\n#g;
-#        s#(\S+)$#<p>$1</p>#s;
-#        s###g;
-
-        #s{<br\s*/?\s*>}{\n}sgi;
-        #s{<p\s+[^>]*>}{}sgi;
-        #s{<p\s*>}{}sgi;
-        #s{</p>}{\n\n}sgi;
-        #s{\n\n\n*}{\n\n}sg;
-        #s{\S.*?\n}{\n<p>$&</p>}sg;
     }
     return $r;
 }
