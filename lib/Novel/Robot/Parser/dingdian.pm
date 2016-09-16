@@ -16,15 +16,10 @@ sub parse_index {
 
     my ( $self, $html_ref ) = @_;
 
-    my $parse_index = scraper {
-        process_first '//h1', 'book'   => 'TEXT';
-        process_first '//h3', 'writer' => 'TEXT';
-    };
+    my $ref = {};
 
-    my $ref = $parse_index->scrape($html_ref);
-
-    $ref->{writer} =~ s/^.*作者：//;
-    $ref->{book} =~ s/\s*最新章节.*//;
+    ($ref->{writer}) = $$html_ref=~m#<meta name="og:novel:author" content="(.+?)"/>#s;
+    ($ref->{book}) = $$html_ref=~m#<meta name="og:novel:book_name" content="(.+?)"/>#s;
 
     return $ref;
 } ## end sub parse_index

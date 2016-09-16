@@ -22,18 +22,15 @@ sub parse_index {
             'title' => 'TEXT',
             'url'   => '@href'
           };
-          #process_first '//h1' , 'book' => 'TEXT';
-          #process_first '//div[@class="book"]//span' , 'writer' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-    ($ref->{book}) = $$html_ref=~/var articlename='(.+?)';/s;
-    #var url_articleinfo='http://www.ybdu.com/xiazai/4/4996/';
-    $ref->{writer}= '未名';
-
     $ref->{chapter_list} = [
         grep { $_->{url} } @{ $ref->{chapter_list} }
     ];
+
+    ($ref->{writer}) = $$html_ref=~m#<meta property="og:novel:author" content="(.+?)"/>#s;
+    ($ref->{book}) = $$html_ref=~m#<meta property="og:novel:book_name" content="(.+?)"/>#s;
 
     return $ref;
 } ## end sub parse_index
