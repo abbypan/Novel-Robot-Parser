@@ -14,14 +14,15 @@ sub charset {
 
 sub parse_index {
 
-    my ( $self, $html_ref ) = @_;
+    my ( $self, $hr ) = @_;
 
-    my $ref = {};
-
-    ($ref->{writer}) = $$html_ref=~m#<meta name="og:novel:author" content="(.+?)"/>#s;
-    ($ref->{book}) = $$html_ref=~m#<meta name="og:novel:book_name" content="(.+?)"/>#s;
-
-    return $ref;
+    my ($wn) = $$hr=~m#<meta name="og:novel:author" content="(.+?)"/>#s;
+    my ($bn) = $$hr=~m#<meta name="og:novel:book_name" content="(.+?)"/>#s; 
+    
+    return {
+        writer => $wn, 
+        book => $bn, 
+    };
 } ## end sub parse_index
 
 sub parse_chapter_list {

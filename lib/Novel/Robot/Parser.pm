@@ -51,43 +51,45 @@ sub new {
 
 } ## end sub init_parser
 
+our %SITE_DOM_NAME = (
+    'www.jjwxc.net'=>'jjwxc',
+    'www.23xs.cc'=>'asxs',
+    'www.365xs.org'=>'lewen',
+    'www.day66.com'=>'day66',
+    'www.dddbbb.net'=>'dddbbb',
+    'www.23wx.com'=>'dingdian',
+    'www.hkslg.com'=>'hkslg',
+    'book.kanunu.org'=>'kanunu',
+    'www.kanunu8.com'=>'kanunu',
+    'www.kanshu8.net'=>'kanshu8',
+    'www.kanshuge.com'=>'kanshuge',
+    'www.1kanshu.com'=>'kanshu',
+    'www.luoqiu.com'=>'luoqiu',
+    'www.my285.com'=>'my285',
+    'read.qidian.com'=>'qidian',
+    'www.qqxs.cc'=>'qqxs',
+    'www.shunong.com'=>'shunong',
+    'www.snwx.com'=>'snwx',
+    'www.tadu.com'=>'tadu',
+    'www.ttzw.com'=>'ttzw',
+    'www.yanqingji.com'=>'yanqingji',
+    'www.ybdu.com'=>'ybdu',
+    'www.123yq.com'=>'yesyq',
+    'www.yqhhy.cc'=>'yqhhy',
+    'www.zhonghuawuxia.com'=>'zhonghuawuxia',
+    'www.zilang.net'=>'zilang',
+    'ncs.xvna.com'=>'xvna',
+    'www.yssm.org' => 'yssm', 
+    'bbs.jjwxc.net'=>'hjj',
+    'tieba.baidu.com'=>'tieba',
+);
 
 sub detect_site {
     my ( $self, $url ) = @_;
     return $url unless ( $url =~ /^http/ );
 
-    my $site =
-        ( $url =~ m#^\Qhttp://www.jjwxc.net/# )   ? 'jjwxc'
-      : ( $url =~ m#^\Qhttp://www.23xs.cc/# )    ? 'asxs'
-      : ( $url =~ m#^\Qhttp://www.365xs.org/# )    ? 'lewen'
-      : ( $url =~ m#^\Qhttp://www.day66.com/# ) ? 'day66'
-      : ( $url =~ m#^\Qhttp://www.dddbbb.net/# )  ? 'dddbbb'
-      : ( $url =~ m#^\Qhttp://www.23wx.com/# )    ? 'dingdian'
-      : ( $url =~ m#^\Qhttp://www.hkslg.com/# )    ? 'hkslg'
-      : ( $url =~ m#^\Qhttp://book.kanunu.org/# ) ? 'kanunu'
-      : ( $url =~ m#^\Qhttp://www.kanunu8.com/# ) ? 'kanunu'
-      : ( $url =~ m#^\Qhttp://www.kanshu8.net/# ) ? 'kanshu8'
-      : ( $url =~ m#^\Qhttp://www.kanshuge.com/# ) ? 'kanshuge'
-      : ( $url =~ m#^\Qhttp://www.1kanshu.com/# ) ? 'kanshu'
-      : ( $url =~ m#^\Qhttp://www.luoqiu.com/# )  ? 'luoqiu'
-      : ( $url =~ m#^\Qhttp://my285.com/# )    ? 'my285'
-      : ( $url =~ m#^\Qhttp://www.my285.com/# )    ? 'my285'
-      : ( $url =~ m#^\Qhttp://read.qidian.com/# ) ? 'qidian'
-      : ( $url =~ m#^\Qhttp://www.qqxs.cc/# ) ? 'qqxs'
-      : ( $url =~ m#^\Qhttp://www.shunong.com/# ) ? 'shunong'
-      : ( $url =~ m#^\Qhttp://www.snwx.com/# )    ? 'snwx'
-      : ( $url =~ m#^\Qhttp://www.tadu.com/# )    ? 'tadu'
-      : ( $url =~ m#^\Qhttp://www.ttzw.com/# )    ? 'ttzw'
-      : ( $url =~ m#^\Qhttp://www.yanqingji.com/# )    ? 'yanqingji'
-      : ( $url =~ m#^\Qhttp://www.ybdu.com/# )    ? 'ybdu'
-      : ( $url =~ m#^\Qhttp://www.123yq.com/# )    ? 'yesyq'
-      : ( $url =~ m#^\Qhttp://www.yqhhy.cc/# )    ? 'yqhhy'
-      : ( $url =~ m#^\Qhttp://www.zhonghuawuxia.com/# )    ? 'zhonghuawuxia'
-      : ( $url =~ m#^\Qhttp://www.zilang.net/# )    ? 'zilang'
-      : ( $url =~ m#^\Qhttp://ncs.xvna.com/# )    ? 'xvna'
-      : ( $url =~ m#^\Qhttp://bbs.jjwxc.net/# )   ? 'hjj'
-      : ( $url =~ m#^\Qhttp://tieba.baidu.com/# ) ? 'tieba'
-      :                                             'unknown';
+    my ($dom) = $url=~m#^.*?\/\/(.+?)/#;
+    my $site = exists $SITE_DOM_NAME{$dom} ? $SITE_DOM_NAME{$dom} : 'unknown';
 
     return $site;
 } ## end sub detect_site
