@@ -18,7 +18,7 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//d[@class="chapterlist"]//dd//a',
+        process '//dl[@class="chapterlist"]//dd//a',
           'chapter_list[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
