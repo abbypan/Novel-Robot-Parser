@@ -54,7 +54,7 @@ sub new {
 our %SITE_DOM_NAME = (
     'www.jjwxc.net'=>'jjwxc',
     'www.23xs.cc'=>'asxs',
-    'www.365xs.org'=>'lewen',
+    'www.xs82.com'=>'lewen',
     'www.day66.com'=>'day66',
     'www.dddbbb.net'=>'dddbbb',
     'www.23wx.com'=>'dingdian',
@@ -191,6 +191,7 @@ sub get_tiezi_ref {
 
     $floor_list = [ reverse @$floor_list ] if($o{reverse_content_list});
     $self->update_url_list( $floor_list, $self->base_url || $url );
+    $floor_list =  $self->select_list_range( $floor_list, $o{min_chapter_num}, $o{max_chapter_num} );
 
     if(! $floor_list->[0]{content} and $o{deal_content_url}){
         for my $x (@$floor_list) {

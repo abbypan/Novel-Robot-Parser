@@ -17,7 +17,7 @@ sub parse_chapter_list {
     my ( $self, $r, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//div[@class="booklist clearfix"]//a',
+        process '//div[@id="container_bookinfo"]//a',
           'chapter_list[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
@@ -36,14 +36,12 @@ sub parse_index {
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-          process_first '//h1' , 'book' => 'TEXT';
-          process_first '//span[@class="author"]' , 'writer' => 'TEXT';
+          process_first '//h1//a' , 'book' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
 
-    $ref->{writer}=~s/作者：\s*//;
-    $ref->{book}=~s/\s*最新章节\s*$//;
+    ($ref->{writer}) = $$html_ref=~m#<meta name="author" content="(.+?)" />#s;
 
     return $ref;
 } ## end sub parse_index
