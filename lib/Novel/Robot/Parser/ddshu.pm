@@ -1,4 +1,4 @@
-# ABSTRACT: 豆豆小说阅读网 http://www.ddddbbb.net
+# ABSTRACT: 豆豆小说阅读网 http://www.dddshu.net
 =pod
 
 =encoding utf8
@@ -11,7 +11,7 @@
 
 =cut
 
-package Novel::Robot::Parser::dddbbb;
+package Novel::Robot::Parser::ddshu;
 use base 'Novel::Robot::Parser';
 
 use strict;
@@ -22,7 +22,7 @@ use Web::Scraper;
 use Encode;
 
 sub base_url {
-    'http://www.dddbbb.net';
+    'http://www.ddshu.net';
 }
 
 sub charset {
