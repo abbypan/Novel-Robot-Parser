@@ -1,5 +1,5 @@
 # ABSTRACT: 乐文小说 http://www.xs82.com
-package Novel::Robot::Parser::lewen;
+package Novel::Robot::Parser::xs82;
 use strict;
 use warnings;
 use utf8;

@@ -54,7 +54,7 @@ sub new {
 our %SITE_DOM_NAME = (
     'www.jjwxc.net'=>'jjwxc',
     'www.23xs.cc'=>'asxs',
-    'www.xs82.com'=>'lewen',
+    'www.xs82.com'=>'xs82',
     'www.day66.com'=>'day66',
     'www.ddshu.net'=>'ddshu',
     'www.23wx.com'=>'dingdian',
