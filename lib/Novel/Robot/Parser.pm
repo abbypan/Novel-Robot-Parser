@@ -80,6 +80,7 @@ our %SITE_DOM_NAME = (
     'www.zilang.net'=>'zilang',
     'ncs.xvna.com'=>'xvna',
     'www.yssm.org' => 'yssm', 
+    'm.xiaoxiaoshuwu.com' => 'xiaoxiaoshuwu', 
     'bbs.jjwxc.net'=>'hjj',
     'tieba.baidu.com'=>'tieba',
 );

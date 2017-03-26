@@ -64,6 +64,8 @@ L<zilang|http://www.zilang.net> 紫琅文学
 
 L<yssm|http://www.yssm.org> 幼狮书盟
 
+L<xiaoxiaoshuwu|http://m.xiaoxiaoshuwu.com> 
+
 =head3 support txt file 支持处理txt
 
 txt 指定解析txt文件
