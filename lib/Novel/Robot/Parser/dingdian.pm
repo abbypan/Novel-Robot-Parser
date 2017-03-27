@@ -1,4 +1,4 @@
-# ABSTRACT: 顶点小说 http://www.23wx.com
+# ABSTRACT: 顶点小说 http://www.23us.com
 package Novel::Robot::Parser::dingdian;
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.23wx.com';
+our $BASE_URL = 'http://www.23us.com';
 
 sub charset {
     'cp936';
