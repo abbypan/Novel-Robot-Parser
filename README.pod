@@ -14,57 +14,59 @@ L<Novel::Robot::Parser> - get novel / bbs content from website
 
 =head3 support novel website 支持小说站点
 
-L<asxs|http://www.23hh.com> 爱尚
+L<asxs|http://www.23hh.com>
 
-L<day66|http://www.day66.com> 天天小说
+L<day66|http://www.day66.com>
 
-L<ddshu|http://www.ddshu.net> 豆豆
+L<ddshu|http://www.ddshu.net>
 
-L<dingdian|http://www.23us.com> 顶点
+L<dingdian|http://www.23us.com>
 
-L<hkslg|http://www.hkslg.com> 顺隆书院
+L<hkslg|http://www.hkslg.com>
 
-L<jjwxc|http://www.jjwxc.net> 绿晋江
+L<jjwxc|http://www.jjwxc.net>
 
-L<kanshu|http://www.1kanshu.com> 要看书
+L<kanshu|http://www.1kanshu.com>
 
-L<kanshu8|http://www.kanshu8.net> 看书吧
+L<kanshu8|http://www.kanshu8.net>
 
-L<kanshuge|http://www.kanshuge.com> 看书阁
+L<kanshuge|http://www.kanshuge.com>
 
-L<kanunu|http://book.kanunu.org> 努努
+L<kanunu|http://book.kanunu.org>
 
-L<xs82|http://www.xs82.com> 乐文
+L<xs82|http://www.xs82.com>
 
-L<luoqiu|http://www.luoqiu.com> 落秋
+L<luoqiu|http://www.luoqiu.com>
 
-L<my285|http://my285.com> 梦远
+L<my285|http://my285.com>
 
-L<qidian|http://read.qidian.com> 起点
+L<qidian|http://read.qidian.com>
 
-L<qqxs|http://www.qqxs.cc> 千千
+L<qqxs|http://www.qqxs.cc>
 
-L<shunong|http://book.shunong.com> 书农
+L<shunong|http://book.shunong.com>
 
-L<snwx|http://www.snwx.com> 少年文学
+L<snwx|http://www.snwx.com>
 
-L<tadu|http://www.tadu.com> 塔读文学
+L<tadu|http://www.tadu.com>
 
-L<ttzw|http://www.ttzw.com> 天天中文
+L<ttzw|http://www.ttzw.com>
 
-L<yanqingji|http://www.yanqingji.com> 言情记
+L<yanqingji|http://www.yanqingji.com>
 
-L<ybdu|http://www.ybdu.com> 一本读
+L<ybdu|http://www.ybdu.com>
 
-L<yqhhy|http://www.yqhhy.cc> 言情后花园
+L<yqhhy|http://www.yqhhy.cc>
 
-L<zhonghuawuxia|http://zhonghuawuxia.com> 中华武侠
+L<zhonghuawuxia|http://zhonghuawuxia.com>
 
-L<zilang|http://www.zilang.net> 紫琅文学
+L<zilang|http://www.zilang.net>
 
-L<yssm|http://www.yssm.org> 幼狮书盟
+L<yssm|http://www.yssm.org>
 
 L<xiaoxiaoshuwu|http://m.xiaoxiaoshuwu.com> 
+
+L<biquge|http://www.biquge.tw> 
 
 =head3 support txt file 支持处理txt
 
@@ -79,8 +81,6 @@ raw 指定解析经MessagePack压缩的二进制文件
 L<hjj|http://bbs.jjwxc.net> 红晋江
 
 L<tieba|http://tieba.baidu.com> 百度贴吧
-
-L<xvna|http://ncs.xvna.com> 炫浪网络
 
 =head2 new
 
