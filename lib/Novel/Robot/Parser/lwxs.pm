@@ -46,13 +46,13 @@ sub parse_chapter {
 
     my $parse_chapter = scraper {
         process_first '//div[@id="TXT"]',     'content' => 'HTML';
-        process_first '//div[@class="con_top"]', 'title'   => 'TEXT';
+        process_first '//div[@class="con_top"]', 'title'   => 'HTML';
     };
     my $ref = $parse_chapter->scrape($html_ref);
 
     $ref->{content}=~s/<[^>]+?>/<br \/>/sg;
 
-    ($ref->{title})=~s#^.*</a>(.+?)</div>#s;
+    $ref->{title}=~s#^.*</a>(.+?)</div>#$1#s;
 
     return $ref;
 } ## end sub parse_chapter
