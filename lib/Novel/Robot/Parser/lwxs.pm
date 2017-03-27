@@ -1,12 +1,12 @@
-# ABSTRACT: 乐文小说 http://www.xs82.com
-package Novel::Robot::Parser::xs82;
+# ABSTRACT: 乐文小说 http://www.lwxs.com
+package Novel::Robot::Parser::lwxs;
 use strict;
 use warnings;
 use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.xs82.com';
+our $BASE_URL = 'http://www.lwxs.com';
 
 sub charset {
     'cp936';
@@ -18,11 +18,10 @@ sub parse_index {
 
     my $parse_index = scraper {
         process_first '//h1', 'book'   => 'TEXT';
-        process_first '//div[@class="infot"]/span', 'writer' => 'TEXT';
     };
 
     my $ref = $parse_index->scrape($html_ref);
-    $ref->{writer}=~s/作者//;
+    ($ref->{writer})=$$html_ref=~m#最新章节\((.+?)\)#s;
 
     return $ref;
 } ## end sub parse_index
@@ -31,7 +30,7 @@ sub parse_chapter_list {
     my ( $self, $r, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//ul[@class="chapterlist"]//a',
+        process '//div[@id="list"]//dd//a',
           'chapter_list[]' => {
             'title' => 'TEXT',
             'url'   => '@href'
@@ -46,12 +45,14 @@ sub parse_chapter {
     my ( $self, $html_ref ) = @_;
 
     my $parse_chapter = scraper {
-        process_first '//div[@id="content"]',     'content' => 'HTML';
-        process_first '//h1',                     'title'   => 'TEXT';
+        process_first '//div[@id="TXT"]',     'content' => 'HTML';
+        process_first '//div[@class="con_top"]', 'title'   => 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
 
     $ref->{content}=~s/<[^>]+?>/<br \/>/sg;
+
+    ($ref->{title})=~s#^.*</a>(.+?)</div>#s;
 
     return $ref;
 } ## end sub parse_chapter
