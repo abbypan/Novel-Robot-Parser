@@ -12,7 +12,7 @@ sub scrape_index {
     my ($self) = @_;
     { 
         book => { path=> '//h3' },
-        writer => { sub => $self->extract_element_sub('是由作家(.+?)所作'), }, 
+        writer => { regex => '是由作家(.+?)所作', }, 
 
     }
 } ## end sub parse_index

@@ -12,7 +12,7 @@ sub scrape_index {
     my ($self) = @_;
     { 
         book => { path=> '//h1' },
-        writer => { sub => $self->extract_element_sub('最新章节\((.+?)\)'), }, 
+        writer => { regex => '最新章节\((.+?)\)', }, 
 
     }
 } ## end sub parse_index

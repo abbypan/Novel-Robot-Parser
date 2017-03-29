@@ -15,7 +15,7 @@ sub scrape_index {
     my ($self) = @_;
     { 
         book => { path=> '//h1//a' },
-        writer => { sub => $self->extract_element_sub('<meta name="author" content="(.+?)" />'), }, 
+        writer => { regex => '<meta name="author" content="(.+?)" />', }, 
 
     }
 } ## end sub parse_index

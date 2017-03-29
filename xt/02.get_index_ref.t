@@ -6,22 +6,6 @@ use Data::Dumper;
 use utf8;
 
 
-# { my285
-my $xs = Novel::Robot::Parser->new( site=> 'my285' );
-my $index_url = 'http://www.my285.com/wuxia/gulong/wlws/index.htm';
-my $chapter_url = 'http://www.my285.com/wuxia/gulong/wlws/001.htm';
-
-my $index_ref = $xs->get_index_ref($index_url);
-is($index_ref->{book}=~/^武林/ ? 1 : 0, 1,'book');
-is($index_ref->{writer}, '古龙', 'writer');
-is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
-
-my $chapter_ref = $xs->get_chapter_ref($chapter_url);
-is($chapter_ref->{title}=~/风雪/ ? 1 : 0, 1 , 'chapter_title');
-is($chapter_ref->{content}=~/怒雪威寒/ ? 1 : 0, 1 , 'chapter_content');
-# }
-
-exit;
 # { lwxs 
 my $xs = Novel::Robot::Parser->new( site=> 'lwxs' );
 my $index_url = 'http://www.lwxs.com/shu/5/5242/';

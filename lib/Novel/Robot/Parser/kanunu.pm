@@ -33,7 +33,7 @@ sub parse_index {
 sub scrape_chapter {
     my ($self) = @_;
     return {
-        title => { sub => $self->extract_element_sub('<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读') }, 
+        title => { regex => '<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读' }, 
         content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
     };
 }

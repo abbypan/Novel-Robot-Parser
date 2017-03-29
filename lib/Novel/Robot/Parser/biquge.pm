@@ -13,8 +13,8 @@ sub charset { 'utf8' }
 sub scrape_index {
     my ($self) = @_;
     return {
-        writer => { sub => $self->extract_element_sub('<meta property="og:novel:author" content="(.+?)"/>'), }, 
-        book=>{ sub => $self->extract_element_sub('<meta property="og:title" content="(.+?)"/>'), }, 
+        writer => { regex => '<meta property="og:novel:author" content="(.+?)"/>', }, 
+        book=>{ regex=>'<meta property="og:title" content="(.+?)"/>', }, 
     };
 }
 

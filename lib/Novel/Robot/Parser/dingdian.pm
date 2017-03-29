@@ -11,8 +11,8 @@ sub base_url { 'http://www.23us.com' }
 sub scrape_index {
     my ($self) = @_;
     return {
-        writer => { sub => $self->extract_element_sub('<meta name="og:novel:author" content="(.+?)"/>'), }, 
-        book=>{ sub => $self->extract_element_sub('<meta name="og:novel:book_name" content="(.+?)"/>'), }, 
+        writer => { regex => '<meta name="og:novel:author" content="(.+?)"/>', }, 
+        book=>{ regex => '<meta name="og:novel:book_name" content="(.+?)"/>', }, 
     };
 }
 

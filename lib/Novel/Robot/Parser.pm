@@ -243,15 +243,6 @@ sub format_abs_url {
     return $chap;
 }
 
-sub extract_element_sub {
-    my ($self, $reg) = @_;
-    my $s = sub {
-        my ($h) = @_;
-        my ($d) = $$h=~m#$reg#s;
-        return $d;
-    };
-    return $s;
-}
 ########## }}}
 
 sub site_type { 'novel' }
@@ -284,6 +275,7 @@ sub scrape_chapter { {} }
 
 sub scrape_element {
     my ($self, $h, $o) = @_;
+    return $self->extract_regex_element($h, $o->{regex}) if($o->{regex});
     return $o->{sub}->($h) unless($o->{path});
 
     $o->{extract} ||='TEXT';
@@ -296,6 +288,12 @@ sub scrape_element {
 
     return $r->{data} unless($o->{sub});
     return $o->{sub}->($r->{data});
+}
+
+sub extract_regex_element {
+    my ($self, $h, $reg) = @_;
+    my ($d) = $$h=~m#$reg#s;
+    return $d;
 }
 
 sub parse_chapter {
