@@ -23,11 +23,7 @@ use base 'Novel::Robot::Parser';
 use Web::Scraper;
 use Encode;
 
-our $BASE_URL = 'http://www.jjwxc.net';
-
-sub charset {
-    'cp936';
-}
+sub base_url { 'http://www.jjwxc.net' }
 
 sub parse_chapter {
     my ( $self, $h ) = @_;
@@ -120,7 +116,7 @@ sub parse_index_nolist {
 } ## end unless ( $ref->{title} )
 
 sub parse_chapter_list {
-    my ( $self, $index_ref, $h ) = @_;
+    my ( $self, $h, $index_ref ) = @_;
 
     my $s = scraper {
         process '//tr[@itemtype="http://schema.org/Chapter"]',

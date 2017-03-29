@@ -7,22 +7,15 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.qqxs.cc';
+sub base_url { 'http://www.qqxs.cc' }
 
-sub charset {
-    'cp936';
-}
+sub scrape_chapter_list { '//div[@id="list"]//dd/a' }
 
 sub parse_index {
 
     my ( $self, $html_ref ) = @_;
 
     my $parse_index = scraper {
-        process '//div[@id="list"]//dd/a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
           process_first '//div[@id="intro"]/h3', book => 'TEXT';
     };
 
@@ -31,10 +24,6 @@ sub parse_index {
     $ref->{book}=~s/^.*?《//s;
     $ref->{book}=~s/》.*$//s;
     @{$ref}{qw/writer/} = $$html_ref=~/作者([^\n]+?)所写的/s;
-
-    $ref->{chapter_list} = [
-        grep { $_->{url} } @{ $ref->{chapter_list} }
-    ];
 
     return $ref;
 } ## end sub parse_index

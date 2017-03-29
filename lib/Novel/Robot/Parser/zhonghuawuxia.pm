@@ -7,11 +7,7 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.zhonghuawuxia.com';
-
-sub charset {
-    'cp936';
-}
+sub base_url {  'http://www.zhonghuawuxia.com' }
 
 sub parse_index {
 
@@ -41,20 +37,12 @@ sub parse_index {
 } ## end sub parse_index
 
 sub parse_chapter {
-
     my ( $self, $html_ref ) = @_;
 
     $$html_ref=~s#^.*?"##s;
     $$html_ref=~s#"\)$##s;
     return { content => $$html_ref };
 
-    #my $parse_chapter = scraper {
-        #process_first '//div[@id="content"]', 'content' => 'HTML';
-        #process_first '//h1[@class="story_title"]', 'title'=> 'TEXT';
-    #};
-    #my $ref = $parse_chapter->scrape($html_ref);
-    #$ref->{content}=~s#<div[^>]*?>.+?</div>##sg;
-    #return $ref;
 } ## end sub parse_chapter
 
 1;

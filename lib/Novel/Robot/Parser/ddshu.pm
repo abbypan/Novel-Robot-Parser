@@ -21,13 +21,7 @@ use utf8;
 use Web::Scraper;
 use Encode;
 
-sub base_url {
-    'http://www.ddshu.net';
-}
-
-sub charset {
-    'cp936';
-}
+sub base_url { 'http://www.ddshu.net' }
 
 sub parse_index {
 
@@ -72,7 +66,7 @@ sub parse_index {
 } ## end sub parse_index
 
 sub parse_chapter_list {
-    my ( $self, $index_ref, $html_ref ) = @_;
+    my ( $self, $html_ref, $index_ref ) = @_;
 
     my $h = $self->{browser}->request_url( $index_ref->{book_opt_url} );
 

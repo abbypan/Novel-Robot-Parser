@@ -1,4 +1,4 @@
-# ABSTRACT: 乐文小说 http://www.lwxs.com
+# ABSTRACT: http://www.lwxs.com
 package Novel::Robot::Parser::lwxs;
 use strict;
 use warnings;
@@ -6,53 +6,30 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.lwxs.com';
+sub base_url { 'http://www.lwxs.com' }
 
-sub charset {
-    'cp936';
-}
+sub scrape_index {
+    my ($self) = @_;
+    { 
+        book => { path=> '//h1' },
+        writer => { sub => $self->extract_element_sub('最新章节\((.+?)\)'), }, 
 
-sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process_first '//h1', 'book'   => 'TEXT';
-    };
-
-    my $ref = $parse_index->scrape($html_ref);
-    ($ref->{writer})=$$html_ref=~m#最新章节\((.+?)\)#s;
-
-    return $ref;
+    }
 } ## end sub parse_index
 
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//div[@id="list"]//dd//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-      };
-    my $ref = $parse_index->scrape($html_ref);
-    return $ref->{chapter_list};
+sub scrape_chapter_list { { path => '//div[@id="list"]//dd//a' } }
+sub scrape_chapter {
+    return {
+        title => { path => '//div[@class="con_top"]'}, 
+        content=>{ path => '//div[@id="TXT"]', extract => 'HTML' }, 
+    };
 }
 
 sub parse_chapter {
 
-    my ( $self, $html_ref ) = @_;
+    my ( $self, $html_ref, $ref ) = @_;
 
-    my $parse_chapter = scraper {
-        process_first '//div[@id="TXT"]',     'content' => 'HTML';
-        process_first '//div[@class="con_top"]', 'title'   => 'HTML';
-    };
-    my $ref = $parse_chapter->scrape($html_ref);
-
-    $ref->{content}=~s/<[^>]+?>/<br \/>/sg;
-
-    $ref->{title}=~s#^.*</a>(.+?)</div>#$1#s;
+    $ref->{title}=~s#^.*>##s;
 
     return $ref;
 } ## end sub parse_chapter

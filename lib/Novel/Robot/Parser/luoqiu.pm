@@ -1,4 +1,4 @@
-# ABSTRACT: 落秋小说 http://www.luoqiu.com
+# ABSTRACT: http://www.luoqiu.com
 package Novel::Robot::Parser::luoqiu;
 use strict;
 use warnings;
@@ -9,53 +9,22 @@ use Web::Scraper;
 
 sub base_url { 'http://www.luoqiu.com' };
 
-sub charset {
-    'cp936';
-}
+sub scrape_chapter_list { { path => '//div[@id="container_bookinfo"]//a' } }
 
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
+sub scrape_index {
+    my ($self) = @_;
+    { 
+        book => { path=> '//h1//a' },
+        writer => { sub => $self->extract_element_sub('<meta name="author" content="(.+?)" />'), }, 
 
-    my $parse_index = scraper {
-        process '//div[@id="container_bookinfo"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-      };
-
-    my $ref = $parse_index->scrape($html_ref);
-    my @res = 
-        grep { $_->{url} } @{ $ref->{chapter_list} }
-        ;
-        return \@res;
-}
-
-sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-          process_first '//h1//a' , 'book' => 'TEXT';
-    };
-
-    my $ref = $parse_index->scrape($html_ref);
-
-    ($ref->{writer}) = $$html_ref=~m#<meta name="author" content="(.+?)" />#s;
-
-    return $ref;
+    }
 } ## end sub parse_index
 
-sub parse_chapter {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//div[@id="content"]', 'content' => 'HTML';
-        process_first '//h1[@class="bname_content"]', 'title'=> 'TEXT';
+sub scrape_chapter {
+    return {
+        title => { path => '//h1[@class="bname_content"]'}, 
+        content=>{ path => '//div[@id="content"]', extract => 'HTML' }, 
     };
-    my $ref = $parse_chapter->scrape($html_ref);
-    return $ref;
-} ## end sub parse_chapter
+}
 
 1;

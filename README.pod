@@ -14,31 +14,25 @@ L<Novel::Robot::Parser> - get novel / bbs content from website
 
 =head3 support novel website 支持小说站点
 
-L<asxs|http://www.23hh.com>
+L<asxs|http://www.23xs.cc>
 
-L<day66|http://www.day66.com>
+L<qywx|http://www.qywx.net>
 
 L<ddshu|http://www.ddshu.net>
 
 L<dingdian|http://www.23us.com>
 
-L<hkslg|http://www.hkslg.com>
+L<hkslg|http://www.hkslg520.com>
 
 L<jjwxc|http://www.jjwxc.net>
 
-L<kanshu|http://www.1kanshu.com>
-
-L<kanshu8|http://www.kanshu8.net>
-
 L<kanshuge|http://www.kanshuge.com>
 
-L<kanunu|http://book.kanunu.org>
+L<kanunu|http://www.kanunu8.com>
 
 L<lwxs|http://www.lwxs.com>
 
 L<luoqiu|http://www.luoqiu.com>
-
-L<my285|http://my285.com>
 
 L<qidian|http://read.qidian.com>
 
@@ -123,24 +117,12 @@ get novel index data, 获取目录页信息
 
    my $index_ref = $parser->get_index_ref($index_url, %opt);
 
-=head2 parse_index 
-
-parse novel index html content, 解析目录页
-
-   my $index_ref = $parser->parse_index($index_html_ref);
-
 =head2 get_chapter_ref 
 
 get novel chapter data, 获取章节页信息
 
     my $chapter_url = 'http://m.jjwxc.net/book2/2456/2';
     my $chapter_ref = $parser->get_chapter_ref($chapter_url, 2);
-
-=head2 parse_chapter 
-
-parse novel chapter html content, 解析章节页
-  
-   my $chapter_ref = $parser->parse_chapter($chapter_html_ref);
 
 =head1 TIEZI FUNCTION
 

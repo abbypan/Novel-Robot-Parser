@@ -1,4 +1,4 @@
-# ABSTRACT: 努努书坊 http://book.kanunu.org
+# ABSTRACT: http://www.kanunu8.com
 package Novel::Robot::Parser::kanunu;
 use strict;
 use warnings;
@@ -7,27 +7,10 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-sub base_url {
-    'http://book.kanunu.org';
-}
+sub base_url { 'http://www.kanunu8.com' }
 
-sub charset {
-    'cp936';
-}
 
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
-    my $parse_index = scraper {
-        process '//tr[@bgcolor="#ffffff"]//td//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-    };
-    my $ref = $parse_index->scrape($html_ref);
-    my @res = grep { exists $_->{url} } @{ $ref->{chapter_list} };
-    return \@res;
-}
+sub scrape_chapter_list { { path => '//tr[@bgcolor="#ffffff"]//td//a',  } }
 
 sub parse_index {
 
@@ -47,20 +30,28 @@ sub parse_index {
     return $ref;
 } ## end sub parse_index
 
-sub parse_chapter {
-
-    my ( $self, $h ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//td[@width="820"]', 'content' => 'HTML';
+sub scrape_chapter {
+    my ($self) = @_;
+    return {
+        title => { sub => $self->extract_element_sub('<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读') }, 
+        content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
     };
-    my $ref = $parse_chapter->scrape($h);
+}
 
-    ( $ref->{title} ) =
-      $$h =~ m#<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读#s;
-
-    return $ref;
-} ## end sub parse_chapter
+#sub parse_chapter {
+#
+#    my ( $self, $h ) = @_;
+#
+#    my $parse_chapter = scraper {
+#        process_first '//td[@width="820"]', 'content' => 'HTML';
+#    };
+#    my $ref = $parse_chapter->scrape($h);
+#
+#    ( $ref->{title} ) =
+#      $$h =~ m#<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读#s;
+#
+#    return $ref;
+#} ## end sub parse_chapter
 
 sub parse_board {
 

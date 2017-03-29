@@ -7,27 +7,9 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-sub base_url { 'http://www.snwx.com'}
+sub base_url { 'http://www.snwx.com' }
 
-sub charset {
-    'cp936';
-}
-
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//div[@id="list"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-      };
-    my $ref = $parse_index->scrape($html_ref);
-    my @ch = sort { $a->{url} cmp $b->{url} } @{$ref->{chapter_list}};
-    return \@ch;
-
-}
+sub scrape_chapter_list { { path=>'//div[@id="list"]//a', sort=>1 } }
 
 sub parse_index {
 

@@ -7,11 +7,13 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.tadu.com';
+sub base_url { 'http://www.tadu.com' }
 
 sub charset {
     'utf8';
 }
+
+sub scrape_chapter_list { { path=>'//div[@class="catalogList"]//a' } }
 
 sub parse_index {
 
@@ -19,11 +21,6 @@ sub parse_index {
     #http://www.tadu.com/book/356496/toc/
 
     my $parse_index = scraper {
-        process '//div[@class="catalogList"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
           process_first '//div[@class="c_title"]//h3' , 'book' => 'TEXT';
           process_first '//div[@class="catalog_top"]//a' , 'writer' => 'TEXT';
     };

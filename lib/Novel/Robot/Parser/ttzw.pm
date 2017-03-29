@@ -7,11 +7,7 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.ttzw.com';
-
-sub charset {
-    'cp936';
-}
+sub base_url { 'http://www.ttzw.com' }
 
 sub parse_index {
 

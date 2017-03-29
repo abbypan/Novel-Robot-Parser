@@ -1,4 +1,4 @@
-# ABSTRACT: 顶点小说 http://www.23us.com
+# ABSTRACT: http://www.23us.com
 package Novel::Robot::Parser::dingdian;
 use strict;
 use warnings;
@@ -6,51 +6,25 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://www.23us.com';
+sub base_url { 'http://www.23us.com' }
 
-sub charset {
-    'cp936';
-}
-
-sub parse_index {
-
-    my ( $self, $hr ) = @_;
-
-    my ($wn) = $$hr=~m#<meta name="og:novel:author" content="(.+?)"/>#s;
-    my ($bn) = $$hr=~m#<meta name="og:novel:book_name" content="(.+?)"/>#s; 
-    
+sub scrape_index {
+    my ($self) = @_;
     return {
-        writer => $wn, 
-        book => $bn, 
+        writer => { sub => $self->extract_element_sub('<meta name="og:novel:author" content="(.+?)"/>'), }, 
+        book=>{ sub => $self->extract_element_sub('<meta name="og:novel:book_name" content="(.+?)"/>'), }, 
     };
-} ## end sub parse_index
-
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//table[@id="at"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-      };
-    my $ref = $parse_index->scrape($html_ref);
-    return $ref->{chapter_list};
 }
 
-sub parse_chapter {
+sub scrape_chapter_list {
+    { path => '//table[@id="at"]//a'}
+}
 
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//dd[@id="contents"]',     'content' => 'HTML';
-        process_first '//h1',                     'title'   => 'TEXT';
-        process_first '//div[@id="amain"]//a[3]', 'book'    => 'TEXT';
+sub scrape_chapter {
+    return {
+        title => { path => '//h1' }, 
+        content=>{ path => '//dd[@id="contents"]', extract => 'HTML' }, 
     };
-    my $ref = $parse_chapter->scrape($html_ref);
-
-    return $ref;
-} ## end sub parse_chapter
+}
 
 1;

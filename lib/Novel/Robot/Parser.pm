@@ -3,12 +3,14 @@ package  Novel::Robot::Parser;
 
 use strict;
 use warnings;
+use utf8;
 
 use Novel::Robot::Browser;
 use URI;
 use Encode;
+use Web::Scraper;
 
-our $VERSION    = 0.26;
+our $VERSION    = 0.27;
 
 our %NULL_INDEX = (
     url          => '',
@@ -53,24 +55,21 @@ sub new {
 
 our %SITE_DOM_NAME = (
     'bbs.jjwxc.net'=>'hjj',
-    'book.kanunu.org'=>'kanunu',
+    'www.kanunu8.com'=>'kanunu',
     'm.xiaoxiaoshuwu.com' => 'xiaoxiaoshuwu', 
     'read.qidian.com'=>'qidian',
     'tieba.baidu.com'=>'tieba',
     'www.123yq.com'=>'yesyq',
-    'www.1kanshu.com'=>'kanshu',
     'www.23us.com'=>'dingdian',
     'www.23xs.cc'=>'asxs',
     'www.biquge.tw'=> 'biquge',
-    'www.day66.com'=>'day66',
+    'www.71wx.net'=>'qywx',
     'www.ddshu.net'=>'ddshu',
-    'www.hkslg.com'=>'hkslg',
+    'www.hkslg520.com'=>'hkslg',
     'www.jjwxc.net'=>'jjwxc',
-    'www.kanshu8.net'=>'kanshu8',
-    'www.kanshuge.com'=>'kanshuge',
+    'www.kanshuge.la'=>'kanshuge',
     'www.kanunu8.com'=>'kanunu',
     'www.luoqiu.com'=>'luoqiu',
-    'www.my285.com'=>'my285',
     'www.qqxs.cc'=>'qqxs',
     'www.shunong.com'=>'shunong',
     'www.snwx.com'=>'snwx',
@@ -95,8 +94,6 @@ sub detect_site {
     return $site;
 } ## end sub detect_site
 
-sub site_type { 'novel' }
-sub base_url { }
 
 sub get_item_info {
     my ( $self, $index_url ) = @_;
@@ -140,49 +137,173 @@ sub get_novel_ref {
     return $r;
 }
 
+######## {{{
+
 sub get_index_ref {
+
     my ( $self, $url, %opt ) = @_;
 
-    my $r;
-    if ( $url and $url !~ /^http/ ) {
-        $r = $self->parse_index( $url, %opt );
-    }
-    else {
+    my $r={};
+    if ( $url and $url !~ /^http/ ) { 
+       $r = $self->parse_index( $url, %opt ); 
+   }
+   else {
         my $html = $self->{browser}->request_url($url);
-        $r = $self->parse_index( \$html, %opt ) || {};
-        $r->{chapter_list} ||= $self->parse_chapter_list( $r, \$html ) || [];
+        my $index_xpath = $self->scrape_index();
+        while(my ($xk, $xr) = each %$index_xpath){
+            $r->{$xk} = $self->scrape_element(\$html, $xr);
+        }
+        $r = $self->parse_index( \$html, $r );
+        $r->{chapter_list} ||= $self->parse_chapter_list( \$html, $r ) || [];
         $r->{url} = $url;
     }
 
     $r->{$_} ||= $NULL_INDEX{$_} for keys(%NULL_INDEX);
-    $self->format_hashref_string( $r, $_ ) for qw/writer book/;
-    $r->{chapter_num}  = $self->update_url_list($r->{chapter_list}, $r->{url});
+    $self->tidy_string( $r, $_ ) for qw/writer book/;
 
+    $r->{chapter_num}  = $self->update_url_list($r->{chapter_list}, $r->{url});
     $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
-    $r->{writer}=~s/[[:punct:]]//sg;
-    $r->{book}=~s/[[:punct:]]//sg;
 
     return $r;
 } ## end sub get_index_ref
 
-sub parse_index   { }
+sub parse_index { 
+    my ($self, $h, $r) = @_;
+    $r->{writer}=~s/作\s*者：//;
+    $r->{book}=~s/\s*最新章节\s*$//;
+    return $r;
+}
+
+sub scrape_index { {} }
+
+sub scrape_chapter_list { }
+
+sub parse_chapter_list {
+    my ( $self, $html_ref, $r ) = @_;
+
+    my $path_r = $self->scrape_chapter_list();
+    return [] unless($path_r);
+
+    my $parse_index = scraper {
+        process $path_r->{path},
+        'chapter_list[]' => {
+            'title' => 'TEXT',
+            'url'   => '@href'
+        };
+    };
+    my $ref = $parse_index->scrape($html_ref);
+
+    my @chap = grep { exists $_->{url}  and $_->{url} } @{ $ref->{chapter_list} };
+    return \@chap unless($path_r->{sort});
+
+    my @sort_chap = sort { $a->{url} cmp $b->{url} } @chap;
+    return \@sort_chap;
+}
+
+sub tidy_string {
+    my ( $self, $r, $k ) = @_;
+    $r->{$k} ||= '';
+
+    for ( $r->{$k} ) {
+        s/^\s+|\s+$//gs;
+        s/[\*\/\\\[\(\)]+//g;
+        s/[[:punct:]]//sg;
+        s/[\]\s+]/-/g;
+    }
+
+    $r;
+}
+
+sub update_url_list {
+    my ( $self, $arr , $base_url) = @_;
+
+    my $i   = 0;
+    for my $chap (@$arr) {
+        $chap = { url => $chap || '' } if ( ref($chap) ne 'HASH' );
+        $self->format_abs_url( $chap, $base_url );
+
+        ++$i;
+        $chap->{pid} ||= $i;
+        $chap->{id}  ||= $i;
+    }
+    return $i;
+}
+
+sub format_abs_url {
+    my ( $self, $chap, $base_url ) = @_;
+    $base_url ||= $self->base_url();
+    return $chap if( ! $chap or ! $base_url or $base_url!~/^http/ );
+
+    if(ref($chap) eq 'HASH'){
+        $chap->{url} = URI->new_abs( $chap->{url}, $base_url )->as_string;
+    }else{
+        $chap =  URI->new_abs( $chap, $base_url )->as_string;
+    }
+
+    return $chap;
+}
+
+sub extract_element_sub {
+    my ($self, $reg) = @_;
+    my $s = sub {
+        my ($h) = @_;
+        my ($d) = $$h=~m#$reg#s;
+        return $d;
+    };
+    return $s;
+}
+########## }}}
+
+sub site_type { 'novel' }
+sub charset { 'cp936' }
+sub base_url { }
+
+############
 
 sub get_chapter_ref {
     my ( $self, $src ) = @_;
 
     $src = { url => $src || '' } if ( ref($src) ne 'HASH' );
-    my %m = ( %NULL_CHAPTER, %$src );
     my $html = $self->{browser}->request_url( $src->{url} );
 
-    my $r = $self->parse_chapter( \$html ) || {};
+    my $r = {};
+    my $chapter_xpath = $self->scrape_chapter();
+    while(my ($xk, $xr) = each %$chapter_xpath){
+       $r->{$xk} = $self->scrape_element(\$html, $xr);
+    }
+    $r = $self->parse_chapter( \$html, $r );
 
-    $r->{$_} ||= $m{$_} for keys(%m);
+    $r->{$_} ||= $src->{$_} for keys(%$src);
+    $r->{$_} ||= $NULL_CHAPTER{$_} for keys(%NULL_CHAPTER);
     $self->tidy_chapter_content($r);
 
     return $r;
 } ## end sub get_chapter_ref
 
-sub parse_chapter { }
+sub scrape_chapter { {} }
+
+sub scrape_element {
+    my ($self, $h, $o) = @_;
+    return $o->{sub}->($h) unless($o->{path});
+
+    $o->{extract} ||='TEXT';
+
+    my   $parse = $o->{is_list} ? 
+    scraper { process $o->{path}, 'data[]' => $o->{extract}; } :
+    scraper { process_first $o->{path}, 'data' => $o->{extract}; };
+    my $r = $parse->scrape($h);
+    return unless(defined $r->{data});
+
+    return $r->{data} unless($o->{sub});
+    return $o->{sub}->($r->{data});
+}
+
+sub parse_chapter {
+    my ($self, $h, $r) = @_;
+    return $r;
+}
+
+############
 
 sub get_tiezi_ref {
     my ( $self, $url, %o ) = @_;
@@ -288,20 +409,6 @@ sub parse_query_urls  { }
 
 ####-------------------------
 
-sub update_url_list {
-    my ( $self, $arr , $base_url) = @_;
-
-    my $i   = 0;
-    for my $chap (@$arr) {
-        $chap = { url => $chap || '' } if ( ref($chap) ne 'HASH' );
-        $self->format_abs_url( $chap, $base_url );
-
-        ++$i;
-        $chap->{pid} ||= $i;
-        $chap->{id}  ||= $i;
-    }
-    return $i;
-}
 
 sub is_list_overflow {
     my ( $self, $r, $max ) = @_;
@@ -421,7 +528,7 @@ sub tidy_chapter_content {
     for ( $r->{content} ) {
          s###sg;
          s#<script(\s+[^>]+\>|\>)[^<]*</script>##sg;
-         s#\s*\<[^>]+?\>\s#\n#sg;
+         s#\s*\<[^>]+?\>#\n#sg;
          s{\n\n\n*}{\n}sg;
          s{\s*(\S.*?)\s*\n}{\n<p>$1</p>}sg;
     }
@@ -442,31 +549,7 @@ sub get_inner_html {
     return $h;
 } ## end sub get_inner_html
 
-sub format_abs_url {
-    my ( $self, $chap, $base_url ) = @_;
-    $base_url ||= $self->base_url();
-    return $chap if( ! $chap or ! $base_url or $base_url!~/^http/ );
 
-    if(ref($chap) eq 'HASH'){
-        $chap->{url} = URI->new_abs( $chap->{url}, $base_url )->as_string;
-    }else{
-        $chap =  URI->new_abs( $chap, $base_url )->as_string;
-    }
-
-    return $chap;
-}
-
-sub format_hashref_string {
-    my ( $self, $r, $k ) = @_;
-    $r->{$k} ||= '';
-
-    for ( $r->{$k} ) {
-        s/^\s+|\s+$//gs;
-        s/[\*\/\\\[\(\)]+//g;
-        s/[\]\s+]/-/g;
-    }
-    $r;
-}
 
 sub unescape_js {
     my ($self, $s) = @_;

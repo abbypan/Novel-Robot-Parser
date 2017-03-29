@@ -1,53 +1,35 @@
-# ABSTRACT: 顺隆书院 http://www.hkslg.com/
+# ABSTRACT: http://www.hkslg520.com/
 package Novel::Robot::Parser::hkslg;
 use strict;
 use warnings;
 use utf8;
 
 use base 'Novel::Robot::Parser';
-use Web::Scraper;
 
-our $BASE_URL = 'http://www.hkslg.com';
+sub base_url { 'http://www.hkslg520.com' }
 
-sub charset {
-    'cp936';
+sub scrape_chapter_list {
+    { path => '//td[@class="bookinfo_td"]//div[@class="dccss"]//a' }
 }
 
-sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//td[@class="bookinfo_td"]//div[@class="dccss"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-          process_first '//h1' , 'book' => 'TEXT';
-          process_first '//div[@class="infot"]//span' , 'writer' => 'TEXT';
+sub scrape_index {
+    return {
+        book => { path => '//h1'}, 
+        writer=>{ path => '//div[@class="infot"]//span' }, 
     };
+}
+#$ref->{writer}=~s/作者：//s;
 
-    my $ref = $parse_index->scrape($html_ref);
-
-    $ref->{writer}=~s/作者：//s;
-
-    $ref->{chapter_list} = [
-        grep { $_->{url} } @{ $ref->{chapter_list} }
-    ];
-
-    return $ref;
-} ## end sub parse_index
+sub scrape_chapter {
+    return {
+        title => { path => '//h2' }, 
+        content=>{ path => '//div[@id="content"]/p', extract => 'HTML' }, 
+    };
+}
 
 sub parse_chapter {
+    my ( $self, $html_ref, $ref ) = @_;
 
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//div[@id="content"]/p', 'content' => 'HTML';
-        process_first '//h2', 'title'=> 'TEXT';
-        process_first '//h1', 'book' => 'TEXT';
-    };
-    my $ref = $parse_chapter->scrape($html_ref);
     $ref->{content}=~s/^.*?正文，敬请欣赏！//s;
     $ref->{content}=~s/\(tXT下载WWW.XsHUOTxT.Com\)//sg;
     return $ref;

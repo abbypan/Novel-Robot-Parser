@@ -6,53 +6,24 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-our $BASE_URL = 'http://m.xiaoxiaoshuwu.com';
+sub base_url {  'http://m.xiaoxiaoshuwu.com' }
 
-sub charset {
-    'cp936';
-}
+sub scrape_index {
+    my ($self) = @_;
+    { 
+        book => { path=> '//h3' },
+        writer => { sub => $self->extract_element_sub('是由作家(.+?)所作'), }, 
 
-sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process_first '//h3', 'book'   => 'TEXT';
-    };
-
-    my $ref = $parse_index->scrape($html_ref);
-    ($ref->{writer})= $$html_ref=~m#是由作家(.+?)所作#s;
-
-    return $ref;
+    }
 } ## end sub parse_index
 
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
+sub scrape_chapter_list { { path => '//ul[@class="chapter"]//a' } }
 
-    my $parse_index = scraper {
-        process '//ul[@class="chapter"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-      };
-    my $ref = $parse_index->scrape($html_ref);
-    return $ref->{chapter_list};
-}
-
-sub parse_chapter {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//div[@id="chapterContent"]',     'content' => 'HTML';
-        process_first '//div[@id="nr_title"]',                     'title'   => 'TEXT';
+sub scrape_chapter {
+    return {
+        title => { path => '//div[@id="nr_title"]'}, 
+        content=>{ path => '//div[@id="chapterContent"]', extract => 'HTML' }, 
     };
-    my $ref = $parse_chapter->scrape($html_ref);
-
-    $ref->{content}=~s/<[^>]+?>/<br \/>/sg;
-
-    return $ref;
-} ## end sub parse_chapter
+}
 
 1;

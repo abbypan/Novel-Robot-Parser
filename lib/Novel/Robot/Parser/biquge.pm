@@ -3,53 +3,28 @@ package Novel::Robot::Parser::biquge;
 use strict;
 use warnings;
 use utf8;
+
 use base 'Novel::Robot::Parser';
-use Web::Scraper;
 
-our $BASE_URL = 'http://www.biquge.tw';
+sub base_url { 'http://www.biquge.tw' }
 
-sub charset {
-    'utf8';
-}
+sub charset { 'utf8' }
 
-sub parse_index {
-
-    my ( $self, $hr ) = @_;
-
-    my ($wn) = $$hr=~m#<meta property="og:novel:author" content="(.+?)"/>#s;
-    my ($bn) = $$hr=~m#<meta property="og:title" content="(.+?)"/>#s; 
-    
+sub scrape_index {
+    my ($self) = @_;
     return {
-        writer => $wn, 
-        book => $bn, 
+        writer => { sub => $self->extract_element_sub('<meta property="og:novel:author" content="(.+?)"/>'), }, 
+        book=>{ sub => $self->extract_element_sub('<meta property="og:title" content="(.+?)"/>'), }, 
     };
-} ## end sub parse_index
-
-sub parse_chapter_list {
-    my ( $self, $r, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//div[@id="list"]//dd//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-      };
-    my $ref = $parse_index->scrape($html_ref);
-    return $ref->{chapter_list};
 }
 
-sub parse_chapter {
+sub scrape_chapter_list { { path => '//div[@id="list"]//dd//a' } }
 
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//div[@id="content"]',     'content' => 'HTML';
-        process_first '//h1',                     'title'   => 'TEXT';
+sub scrape_chapter {
+    return {
+        title => { path => '//h1' }, 
+        content=>{ path => '//div[@id="content"]', extract => 'HTML' }, 
     };
-    my $ref = $parse_chapter->scrape($html_ref);
-
-    return $ref;
-} ## end sub parse_chapter
+}
 
 1;

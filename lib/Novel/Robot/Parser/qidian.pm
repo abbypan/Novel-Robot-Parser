@@ -8,26 +8,11 @@ use base 'Novel::Robot::Parser';
 
 use Web::Scraper;
 
-sub base_url {
-'http://read.qidian.com';
-}
+sub base_url { 'http://read.qidian.com' }
 
-sub charset {
-    'utf8';
-}
+sub charset { 'utf8' }
 
-sub parse_chapter_list {
-    my ($self, $r, $html_ref) = @_;
-    my $parse_index = scraper {
-        process '//li[@itemprop="chapter"]//a[@itemprop="url"]',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-        };
-          };
-    my $ref = $parse_index->scrape($html_ref);
-    return $ref->{chapter_list};
-}
+sub scrape_chapter_list { { path => '//li[@itemprop="chapter"]//a[@itemprop="url"]'} }
 
 sub parse_index {
 
@@ -35,8 +20,7 @@ sub parse_index {
 
     my $parse_index = scraper {
           process_first '//div[@class="booktitle"]/h1' , 'book' => 'TEXT';
-          process_first '//div[@class="booktitle"]//a' , 'writer' => 'TEXT',
-          writer_url=>'@href';
+          process_first '//div[@class="booktitle"]//a' , 'writer' => 'TEXT', writer_url=>'@href';
     };
 
     my $ref = $parse_index->scrape($html_ref);
