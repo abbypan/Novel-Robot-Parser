@@ -130,24 +130,6 @@ get forum thread data, 获取贴子内容
 
    my $r = $parser->get_tiezi_ref($url, %opt);
 
-=head2 parse_tiezi 
-
-parse forum thread html content, 解析帖子信息
-
-   my $tz_ref = $parser->parse_tiezi($tz_html_ref);
-
-=head2 parse_tiezi_floors
-
-parse forum thread html floor content, 解析贴子楼层
-
-   my $floors = $parser->parse_tiezi_floors($tz_html_ref);
-
-=head2 parse_tiezi_urls 
-
-get forum thread pages, 获取帖子分页
-
-   my $urls = $parser->parse_tiezi_urls($tz_html_ref);
-
 =head1 BOARD FUNCTION
 
 writer -> multi books
@@ -160,30 +142,6 @@ get writer / board info, 获取版块信息
 
    my $r = $parser->get_board_ref($url, %opt);
 
-=head2 parse_board 
-
-parse writer / fourm board info，解析作者专栏/版块信息
-
-   my $board_ref = $parser->parse_board($board_html_ref);
-
-=head2 parse_board_tiezis 
-
-parse board thread urls, 解析版块内容url
-
-   my $tzs = $parser->parse_board_items($board_html_ref);
-
-=head2 parse_board_urls 
-
-parse board pages, 解析版块分页url
-
-   my $urls = $parser->parse_board_urls($board_html_ref);
-
-=head2 parse_board_subboards 
-
-parse forum subboards, 获取子版块url
-
-   my $subboards = $parser->parse_board_subboards($board_html_ref);
-
 =head1 QUERY FUNCTION
 
 =head2 get_query_ref 
@@ -195,31 +153,5 @@ query info, 获取查询结果
 
     my ($info, $items_ref) = $parser->get_query_ref( $query_keyword, 
         query_type => $query_type );
-
-=head2 make_query_request 指定查询请求
-
-make query http data，查询请求数据
-
-  my ($query_url, $post_data) = 
-        $parser->make_query_request( $query_keyword, 
-        query_type => $query_type );
-
-=head2 parse_query 
-
-parse query html，解析查询结果
-
-  my $query_title = $parser->parse_query($query_html_ref); 
-
-=head2 parse_query_items 
-
-parse query result, for examle, novel/thread url，解析查询结果列表，例如小说url
-
-  my $items_ref = $parser->parse_query_items($query_html_ref); 
-
-=head2 parse_query_urls 
-
-parse query pages, 查询结果为分页url
-
-  my $urls_ref = $parser->parse_query_urls($query_html_ref);
 
 =cut

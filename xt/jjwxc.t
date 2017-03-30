@@ -3,14 +3,10 @@ use utf8;
 use lib '../lib';
 use Novel::Robot::Parser;
 use Test::More ;
-use Data::Dump qw/dump/;
 use Data::Dumper;
 
+## {{{ ljj
 my $pr = Novel::Robot::Parser->new(site=>'jjwxc');
-
-#my $r = $pr->get_chapter_ref('http://m.jjwxc.net/book2/1075041/32');
-#print Dumper($r);
-#exit;
 
 my $index_url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
 my $chapter_url = "http://m.jjwxc.net/book2/2456/1";
@@ -34,5 +30,7 @@ is($cnt, 1, 'writer_book');
 my $query_ref = $pr->get_query_ref('顾漫', query_type=> '作者');
 my $cnt = grep { $_->{url} eq $index_url } @$query_ref;
 is($cnt, 1, 'query_writer');
+
+## }}}
 
 done_testing;

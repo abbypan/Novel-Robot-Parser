@@ -159,7 +159,7 @@ sub parse_board {
     };
     my $ref = $parse_writer->scrape($h);
 
-    $self->format_hashref_string( $ref, 'writer' );
+    $self->tidy_string( $ref, 'writer' );
     return $ref->{writer};
 }
 
@@ -180,7 +180,7 @@ sub parse_board_items {
 
     my $ref = $parse_writer->scrape($h);
 
-    $self->format_hashref_string( $ref, 'writer' );
+    $self->tidy_string( $ref, 'writer' );
     $_->{writer} = $ref->{writer} for @book_list;
 
     return \@book_list;
