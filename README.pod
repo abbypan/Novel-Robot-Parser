@@ -12,73 +12,23 @@ L<Novel::Robot::Parser> - get novel / bbs content from website
 
 =head2 site
 
-=head3 support novel website 支持小说站点
+=head3 support download novel/thread from website 支持小说/论坛站点下载
 
-L<asxs|http://www.23xs.cc>
-
-L<qywx|http://www.qywx.net>
-
-L<ddshu|http://www.ddshu.net>
-
-L<dingdian|http://www.23us.com>
-
-L<hkslg|http://www.hkslg520.com>
-
-L<jjwxc|http://www.jjwxc.net>
-
-L<kanshuge|http://www.kanshuge.com>
-
-L<kanunu|http://www.kanunu8.com>
-
-L<lwxs|http://www.lwxs.com>
-
-L<luoqiu|http://www.luoqiu.com>
-
-L<qidian|http://read.qidian.com>
-
-L<qqxs|http://www.qqxs.cc>
-
-L<shunong|http://book.shunong.com>
-
-L<snwx|http://www.snwx.com>
-
-L<tadu|http://www.tadu.com>
-
-L<ttzw|http://www.ttzw.com>
-
-L<yanqingji|http://www.yanqingji.com>
-
-L<ybdu|http://www.ybdu.com>
-
-L<zhonghuawuxia|http://zhonghuawuxia.com>
-
-L<zilang|http://www.zilang.net>
-
-L<yssm|http://www.yssm.org>
-
-L<xiaoxiaoshuwu|http://m.xiaoxiaoshuwu.com> 
-
-L<biquge|http://www.biquge.tw> 
+%SITE_DOM_NAME in Parser.pm 站点列表
 
 =head3 support txt file 支持处理txt
 
-txt 指定解析txt文件
+txt : 指定解析txt文件
 
 =head3 support raw file 支持处理序列化数据
 
-raw 指定解析经MessagePack压缩的二进制文件
-
-=head3 support forum website 支持论坛站点
-
-L<hjj|http://bbs.jjwxc.net> 红晋江
-
-L<tieba|http://tieba.baidu.com> 百度贴吧
+raw : 指定解析经MessagePack压缩的二进制文件
 
 =head2 new
 
 init funtion, need set sitename，or url  初始化解析模块，需指定站点名称或网址
 
-   #sitename : 直接指定站点
+   #site name : 直接指定站点
    my $parser = Novel::Robot::Parser->new( site => 'jjwxc' );
     
    #url : 通过url自动检测站点

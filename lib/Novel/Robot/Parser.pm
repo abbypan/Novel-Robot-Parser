@@ -14,33 +14,6 @@ use Web::Scraper;
 
 our $VERSION = 0.27;
 
-our %NULL_INDEX = (
-  url          => '',
-  book         => '',
-  writer       => '',
-  writer_url   => '',
-  chapter_list => [],
-
-  intro    => '',
-  series   => '',
-  progress => '',
-  word_num => '',
-);
-
-our %NULL_CHAPTER = (
-  content    => '',
-  id         => 0,
-  pid        => 0,
-  time       => '',
-  title      => '章节为空',
-  url        => '',
-  writer     => '',
-  writer_say => '',
-  abstract   => '',
-  word_num   => '',
-  type       => '',
-);
-
 our %SITE_DOM_NAME = (
   'bbs.jjwxc.net'         => 'hjj',
   'www.kanunu8.com'       => 'kanunu',
@@ -70,6 +43,34 @@ our %SITE_DOM_NAME = (
   'www.zhonghuawuxia.com' => 'zhonghuawuxia',
   'www.zilang.net'        => 'zilang',
 );
+
+our %NULL_INDEX = (
+  url          => '',
+  book         => '',
+  writer       => '',
+  writer_url   => '',
+  chapter_list => [],
+
+  intro    => '',
+  series   => '',
+  progress => '',
+  word_num => '',
+);
+
+our %NULL_CHAPTER = (
+  content    => '',
+  id         => 0,
+  pid        => 0,
+  time       => '',
+  title      => '章节为空',
+  url        => '',
+  writer     => '',
+  writer_say => '',
+  abstract   => '',
+  word_num   => '',
+  type       => '',
+);
+
 
 ### }}}
 
