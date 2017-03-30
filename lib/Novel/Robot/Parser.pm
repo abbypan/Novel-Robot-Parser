@@ -78,7 +78,6 @@ our %SITE_DOM_NAME = (
     'www.lwxs.com'=>'lwxs',
     'www.yanqingji.com'=>'yanqingji',
     'www.ybdu.com'=>'ybdu',
-    'www.yqhhy.cc'=>'yqhhy',
     'www.yssm.org' => 'yssm', 
     'www.zhonghuawuxia.com'=>'zhonghuawuxia',
     'www.zilang.net'=>'zilang',
@@ -169,8 +168,15 @@ sub get_index_ref {
 
 sub parse_index { 
     my ($self, $h, $r) = @_;
+
     $r->{writer}=~s/作\s*者：//;
-    $r->{book}=~s/\s*最新章节\s*$//;
+
+    for($r->{book}){
+        s/\s*最新章节\s*$//;
+        s/全文阅读//;
+        s/^\s*《(.*)》\s*$/$1/;
+    }
+
     return $r;
 }
 

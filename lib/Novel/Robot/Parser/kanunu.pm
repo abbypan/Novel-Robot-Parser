@@ -30,13 +30,10 @@ sub parse_index {
     return $ref;
 } ## end sub parse_index
 
-sub scrape_chapter {
-    my ($self) = @_;
-    return {
+sub scrape_chapter { {
         title => { regex => '<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读' }, 
         content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
-    };
-}
+    } }
 
 #sub parse_chapter {
 #

@@ -5,44 +5,28 @@ use warnings;
 use utf8;
 use base 'Novel::Robot::Parser';
 
-use Web::Scraper;
-
 sub base_url { 'http://www.shunong.com' }
 
 sub scrape_chapter_list { { path => '//div[@class="booklist clearfix"]//a' } }
 
-sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process_first '.author', 'writer' => 'TEXT';
-        process_first 'h1', 'book' => 'TEXT';
+sub scrape_index {
+    return {
+        book => { path => '//h1'}, 
+        writer=>{ path => '.author'}, 
     };
-    my $ref = $parse_index->scrape($html_ref);
-    $ref->{writer}=~s/作者：//;
-    $ref->{book}=~s/全文阅读//;
+}
 
-
-    return $ref;
-} ## end sub parse_index
+sub scrape_chapter {
+    return {
+        title => { path => '//h2'}, 
+        content=>{ path => '//div[@class="bookcontent clearfix"]', extract => 'HTML' }, 
+    };
+}
 
 sub parse_chapter {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '.author', 'writer' => 'TEXT';
-        process_first 'h2', 'book' => 'TEXT';
-        process_first '//div[@class="bookcontent clearfix"]', 'content' => 'HTML';
-    };
-    my $ref = $parse_chapter->scrape($html_ref);
-
+    my ( $self, $html_ref, $ref ) = @_;
     return unless ( defined $ref->{book} );
-    $ref->{writer}=~s/作者：//;
     @{$ref}{'book', 'title'} = $ref->{book}=~/(.+?)最新章节：(.+)/;
-    $ref->{content}=~s#<div[^>]+></div>##sg;
-    $ref->{content}=~s#<script[^>]+></script>##sg;
     $ref->{content}=~s#<a href="http://www.jidubook.com/".+?</a>##sg;
     $ref->{content}=~s#<a href="http://www.shunong.com/".+?</a>##sg;
     return $ref;

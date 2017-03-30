@@ -214,7 +214,7 @@ sub parse_writer_book_info {
     return {
         series => $series,
         book   => "$bookname($progress)",
-        url    => "$BASE_URL/$book_url",
+        url    => $self->base_url()."/$book_url",
     };
 
 }
@@ -232,7 +232,7 @@ sub make_query_request {
         '其他' => '6',
     );
 
-    my $url = qq[$BASE_URL/search.php?kw=$keyword&t=$qt{$opt{query_type}}];
+    my $url = $self->base_url().qq[/search.php?kw=$keyword&t=$qt{$opt{query_type}}];
     $url=encode($self->charset(), $url);
 
     return $url;
@@ -243,7 +243,7 @@ sub parse_query_urls {
     my $parse_query = scraper {
         process '//div[@class="page"]/a', 'urls[]' => sub {
             return unless ( $_[0]->as_text =~ /^\[\d*\]$/ );
-            my $url = $BASE_URL . ( $_[0]->attr('href') );
+            my $url = $self->base_url() . ( $_[0]->attr('href') );
             $url = encode( $self->charset(), $url );
             return $url;
         };

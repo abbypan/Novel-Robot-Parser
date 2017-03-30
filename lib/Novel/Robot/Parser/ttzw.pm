@@ -9,21 +9,16 @@ use Web::Scraper;
 
 sub base_url { 'http://www.ttzw.com' }
 
+sub scrape_chapter_list { { path=>'//div[@id="chapter_list"]//a' } }
+
+sub scrape_index { {
+        book => { path => '//h1' }, 
+        writer=>{ path => '//div[@class="pl40"]//b', extract => 'TEXT' }, 
+    } }
+
 sub parse_index {
 
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//div[@id="chapter_list"]//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-          process_first '//h1' , 'book' => 'TEXT';
-          process_first '//div[@class="pl40"]//b' , 'writer' => 'TEXT';
-    };
-
-    my $ref = $parse_index->scrape($html_ref);
+    my ( $self, $html_ref, $ref ) = @_;
 
     $ref->{chapter_list} = [
         grep { $_->{url}  and $_->{url}!~/\/$/ } @{ $ref->{chapter_list} }
@@ -41,15 +36,17 @@ sub parse_chapter {
         process_first '//div[@id="chapter_title"]', 'title'=> 'TEXT';
     };
     my $ref = $parse_chapter->scrape($html_ref);
+
     ($ref->{content_url}) = $$html_ref=~/<script language="javascript">outputTxt\(.*?(\/.*?)"/s;
-   $ref->{content} = ''; 
-    if($ref->{content_url}){
-    $ref->{content_url}= "http://r.xsjob.net:88/novel$ref->{content_url}";
-    my $c = $self->{browser}->request_url($ref->{content_url});
-    $c=~s#^\s*document.write.*?'\s*##s;
-    $c=~s#'\);\s*$##s;
-    $ref->{content} = $c;
-    }
+    $ref->{content} = ''; 
+
+   if($ref->{content_url}){
+       $ref->{content_url}= "http://r.xsjob.net:88/novel$ref->{content_url}";
+       my $c = $self->{browser}->request_url($ref->{content_url});
+       $c=~s#^\s*document.write.*?'\s*##s;
+       $c=~s#'\);\s*$##s;
+       $ref->{content} = $c;
+   }
 
     return $ref;
 } ## end sub parse_chapter

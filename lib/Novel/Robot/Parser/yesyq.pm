@@ -5,47 +5,30 @@ use warnings;
 use utf8;
 
 use base 'Novel::Robot::Parser';
-use Web::Scraper;
 
-sub base_url { 'http://www.123yq.com'}
+sub base_url { 'http://www.123yq.com' }
+
+sub scrape_chapter_list { { path=>'//div[@id="list"]//dd//a', sort=>1 } }
+
+sub scrape_index { {
+        writer => { path => '//div[@id="info"]//p[1]', }, 
+        book=>{ path => '//h1', }, 
+    } }
 
 sub parse_index {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_index = scraper {
-        process '//div[@id="list"]//dd//a',
-          'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-          };
-          process_first '//h1' , 'book' => 'TEXT';
-          process_first '//div[@id="info"]//p[1]' , 'writer' => 'TEXT';
-    };
-
-    my $ref = $parse_index->scrape($html_ref);
+    my ($self, $h, $ref) = @_;
 
     $ref->{writer}=~s/.*?者：//;
-
-    $ref->{chapter_list} = [
-        sort { $a->{url} cmp $b->{url} } grep { $_->{url} } @{ $ref->{chapter_list} }
-    ];
 
     return $ref;
 } ## end sub parse_index
 
-sub parse_chapter {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_chapter = scraper {
-        process_first '//div[@id="TXT"]', 'content' => 'HTML';
-        process_first '//h1', 'title'=> 'TEXT';
-    };
-    my $ref = $parse_chapter->scrape($html_ref);
-    $ref->{content}=~s#<div[^>]*?>.+?</div>##sg;
-
-    return $ref;
-} ## end sub parse_chapter
-
+sub scrape_chapter { {
+        title => { path => '//h1'}, 
+        content=>{ path => '//div[@id="TXT"]', extract => 'HTML', sub => sub {
+                my ($c) = @_;
+                $c=~s#<div[^>]*?>.+?</div>##sg;
+                return $c;
+            }}, 
+    } }
 1;
