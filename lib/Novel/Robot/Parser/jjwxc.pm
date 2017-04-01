@@ -238,7 +238,7 @@ sub make_query_request {
     return $url;
 } ## end sub make_query_request
 
-sub parse_query_urls {
+sub parse_query_list {
     my ( $self, $h ) = @_;
     my $parse_query = scraper {
         process '//div[@class="page"]/a', 'urls[]' => sub {
@@ -250,7 +250,7 @@ sub parse_query_urls {
     };
     my $r = $parse_query->scrape($h);
     return $r->{urls} || [];
-} ## end sub parse_query_result_urls
+} ## 
 
 sub parse_query_items {
     my ( $self, $h ) = @_;

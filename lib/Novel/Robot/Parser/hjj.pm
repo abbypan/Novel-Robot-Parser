@@ -39,8 +39,8 @@ sub parse_tiezi_floors {
   my ( $self, $h ) = @_;
 
   my @floor;
-  while ( $$h =~ m#(<tr class="reply_\d+">\s+<td colspan="2">.*?<td><font color=99CC00 size="-1">.*?</tr>)#gis ) {
-    my $cell = $1;
+  my @cc = $$h =~ m#(<div id="topic">.*?</div>.*?<td class="authorname">.*?</tr>)#gis;
+  for my $cell (@cc) {
     next unless ( $cell );
 
     my %fl;
@@ -51,7 +51,7 @@ sub parse_tiezi_floors {
     $fl{writer} =~ s/^-*//;
     $fl{writer} ||= 'unknown';
 
-    ( $fl{content} ) = $cell =~ m{<tr>\s*<td[^>]*class="read">\s*<div id="topic">(.*?)\s*</div>\s*</td>\s*</tr>\s*</table>}s;
+    ($fl{content})=$cell=~m#<div id="topic">(.*?)</div>#s;
     for ( $fl{content} ) {
       s#本帖尚未审核,若发布24小时后仍未审核通过会被屏蔽##s;
       s#</?font[^>]*>##isg;
@@ -63,6 +63,7 @@ sub parse_tiezi_floors {
 
     push @floor, \%fl;
   } ## end while ( $$h =~ m#(<tr class="reply_\d+">\s+<td colspan="2">.*?<td><font color=99CC00 size="-1">.*?</tr>)#gis)
+  shift @floor;
 
   return \@floor;
 } ## end sub parse_tiezi_floors
@@ -151,7 +152,6 @@ sub make_query_request {
   my $post_str = $self->{browser}->format_post_content( $post );
 
   my $u = "$url&$post_str";
-  print $u, "\n";
   return $u;
 
 } ## end sub make_query_request

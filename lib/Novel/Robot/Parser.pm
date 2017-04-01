@@ -50,6 +50,7 @@ our %NULL_INDEX = (
   writer       => '',
   writer_url   => '',
   chapter_list => [],
+  floor_list => [],
 
   intro    => '',
   series   => '',
@@ -111,6 +112,7 @@ sub get_item_info {
   return $self->get_index_ref( $index_url ) if ( $bt eq 'novel' );
 
   my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', 'floor', $index_url );
+  $topic->{url} = $index_url;
   return $topic;
 }
 
@@ -139,8 +141,8 @@ sub get_novel_ref {
       my ( $arr ) = @_;
       $self->select_list_range(
         $arr,
-        $o{min_chapter_num},
-        $o{max_chapter_num} );
+        $o{min_item_num},
+        $o{max_item_num} );
     },
     data_sub            => sub { $self->get_chapter_ref( @_ ); },
     no_auto_request_url => 1,
@@ -251,8 +253,8 @@ sub update_url_list {
     $self->format_abs_url( $chap, $base_url );
 
     ++$i;
-    $chap->{pid} ||= $i;
-    $chap->{id}  ||= $i;
+    $chap->{pid} //= $i;
+    $chap->{id}  //= $i;
   }
   return $i;
 }
@@ -346,7 +348,7 @@ sub get_tiezi_ref {
 
   $floor_list = [ reverse @$floor_list ] if ( $o{reverse_content_list} );
   $self->update_url_list( $floor_list, $self->base_url || $url );
-  $floor_list = $self->select_list_range( $floor_list, $o{min_chapter_num}, $o{max_chapter_num} );
+  $floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
 
   if ( !$floor_list->[0]{content} and $o{deal_content_url} ) {
     for my $x ( @$floor_list ) {
@@ -380,7 +382,6 @@ sub scrape_tiezi      { {} }
 
 sub get_iterate_data {
   my ( $self, $class, $item, $url, %o ) = @_;
-
   my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
     $url,
 
@@ -393,11 +394,11 @@ sub get_iterate_data {
     },
     parse_content => sub { $self->can( "parse_${class}_${item}s" )->( $self, @_ ) },
     get_url_list  => sub { $self->can( "parse_${class}_list" )->( $self,     @_ ) },
-    min_page_num  => $o{"min_${class}_page"},
-    max_page_num  => $o{"max_${class}_page"},
+    min_page_num  => $o{"min_page_num"},
+    max_page_num  => $o{"max_page_num"},
     stop_iter     => sub {
       my ( $info, $data_list, $i ) = @_;
-      $self->is_list_overflow( $data_list, $o{"max_${class}_${item}_num"} );
+      $self->is_list_overflow( $data_list, $o{"max_item_num"} );
     },
     %o,
   );
@@ -405,6 +406,7 @@ sub get_iterate_data {
 ### }}}
 
 ### {{{ board
+sub scrape_board { {} }
 sub get_board_ref {
   my ( $self, $url, %o ) = @_;
 
@@ -424,6 +426,7 @@ sub parse_board_list  { }
 ### }}}
 
 ### {{{ query
+sub scrape_query { {} }
 sub get_query_ref {
   my ( $self, $keyword, %o ) = @_;
 
@@ -503,8 +506,8 @@ sub update_floor_list {
 
   $self->calc_content_word_num( $_ ) for @$flist;
 
-  $flist = [ grep { $_->{word_num} >= $o{min_floor_word_num} } @$flist ]
-    if ( $o{min_floor_word_num} );
+  $flist = [ grep { $_->{word_num} >= $o{min_content_word_num} } @$flist ]
+    if ( $o{min_content_word_num} );
 
   $flist = [ grep { $_->{writer} eq $r->{writer} } @$flist ]
     if ( $o{only_poster} );
@@ -515,7 +518,7 @@ sub update_floor_list {
   $flist = [ grep { $_->{content} !~ /$o{filter_content}/s } @$flist ]
     if ( $o{filter_content} );
 
-  $flist->[$_]{id} ||= $_ + 1 for ( 0 .. $#$flist );
+  $flist->[$_]{id} //= $_ + 1 for ( 0 .. $#$flist );
 
   $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || 'unknown' for ( 0 .. $#$flist );
 
