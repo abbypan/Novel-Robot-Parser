@@ -23,6 +23,7 @@ sub parse_chapter {
     my ( $self, $html_ref, $ref ) = @_;
 
     $ref->{title}=~s#^.*>##s;
+    $ref->{content}=~s#<div[^>]+>.+?</div>##sg;
 
     return $ref;
 } ## end sub parse_chapter

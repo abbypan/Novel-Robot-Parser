@@ -10,7 +10,7 @@ use Encode;
 use Web::Scraper;
 use URI::Escape;
 
-our $BASE_URL = 'http://bbs.jjwxc.net';
+sub base_url { 'http://bbs.jjwxc.net' }
 
 sub charset { 'cp936' }
 
@@ -74,7 +74,7 @@ sub parse_tiezi_list {
 
   my ( $page_num, $page_url ) = $page_info =~ m[共(\d+)页.+?<a href=(.+?page=)\d]s;
   my @urls =
-    map { "$BASE_URL/showmsg.php$page_url$_" } ( 1 .. $page_num - 1 );
+    map { $self->base_url()."/showmsg.php$page_url$_" } ( 1 .. $page_num - 1 );
   return \@urls;
 }
 
@@ -100,7 +100,7 @@ sub parse_board_items {
 
     @temp{qw/writer/} = m{</td></tr></table></td>\s+<td>&nbsp;(.+?)</td>}s;
     @temp{qw/time/}   = m{<td align="center"><font size="-1">(.+?)</font></td>}s;
-    $temp{url}        = "$BASE_URL/$temp{url}";
+    $temp{url}        = $self->base_url()."/$temp{url}";
 
     $temp{writer} =~ s/<[^>]+>//sg;
     $temp{title} =~ s#</?font[^>]*>##gs;
@@ -117,21 +117,9 @@ sub parse_board_list {
   my ( $u ) = $$h =~ m{href=(board.php\?[^>]+?page=)\d+\s+><img src="img/anniu1.gif" alt="下一页"}s;
   my ( $n ) = $$h =~ m{共<font color="\#FF0000">(\d+)</font>页}s;
   my @board_urls =
-    map { "$BASE_URL/$u$_" } ( 2 .. $n );
+    map { $self->base_url()."/$u$_" } ( 2 .. $n );
   return \@board_urls;
 }
-##-----------------------------------
-#sub parse_board_subboards {
-#my ( $self, $h ) = @_;
-#my ($jh) =
-#$$h =~ m{<a href="([^"]+?)" target="_blank">精华区</a>}s;
-#my ($th) =
-#$$h =~ m{<a href="([^"]+?)" target="_blank">套红区</a>}s;
-#my ($jx) =
-#$$h =~ m{<a href="([^"]+?)" target="_blank">加☆区</a>}s;
-#my @sub_board_urls = map { "$BASE_URL/$_" } ( $jh, $th, $jx );
-#return \@sub_board_urls;
-#} ## end sub parse_board_subboards
 
 sub make_query_request {
 
@@ -147,7 +135,7 @@ sub make_query_request {
   );
   my $type = $qt{ $opt{query_type} };
 
-  my $url = $BASE_URL . '/search.php?act=search';
+  my $url = $self->base_url() . '/search.php?act=search';
 
   #my $kw = uri_escape(encode($self->charset(),$keyword));
   my $post = {
@@ -172,7 +160,7 @@ sub parse_query_list {
   my ( $self, $h ) = @_;
   my ( $page_num ) = $$h =~ m[var phpCount = (\d+);]si;
   my ( $url )      = $$h =~ m[id="selectpage" onChange="location.href='(.+?)'\+this.value">]si;
-  my @urls = map { encode( $self->charset(), "$BASE_URL$url$_" ) } ( 2 .. $page_num );
+  my @urls = map { encode( $self->charset(), $self->base_url()."$url$_" ) } ( 2 .. $page_num );
 
   return \@urls;
 }
@@ -191,7 +179,7 @@ sub parse_query_items {
     my $r = $_->{info};
     s/^\s+|\s+$//g for @$r;
     $_->{url} =~ s/keyword=[^&]+&//;
-    { url    => "$BASE_URL/$_->{url}",
+    { url    => $self->base_url()."/$_->{url}",
       title  => $r->[1],
       writer => $r->[2],
       time_s => $r->[3],
