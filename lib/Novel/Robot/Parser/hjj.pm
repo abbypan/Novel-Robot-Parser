@@ -35,7 +35,7 @@ sub parse_tiezi {
   return \%t;
 } ## end sub parse_tiezi
 
-sub parse_tiezi_floors {
+sub parse_tiezi_item {
   my ( $self, $h ) = @_;
 
   my @floor;
@@ -66,7 +66,7 @@ sub parse_tiezi_floors {
   shift @floor;
 
   return \@floor;
-} ## end sub parse_tiezi_floors
+} ## end sub parse_tiezi_item
 
 sub parse_tiezi_list {
   my ( $self, $h ) = @_;
@@ -86,7 +86,7 @@ sub parse_board {
   return $title;
 }
 
-sub parse_board_items {
+sub parse_board_item {
   my ( $self, $h ) = @_;
 
   my @tz_list =
@@ -111,7 +111,7 @@ sub parse_board_items {
   }
 
   return \@res;
-} ## end sub parse_board_items
+} ## end sub parse_board_item
 
 sub parse_board_list {
   my ( $self, $h ) = @_;
@@ -165,7 +165,7 @@ sub parse_query_list {
   return \@urls;
 }
 
-sub parse_query_items {
+sub parse_query_item {
   my ( $self, $h ) = @_;
   my $parse_query = scraper {
     process '//table[@cellpadding="2"]//tr', 'tzs[]' => scraper {
@@ -191,6 +191,6 @@ sub parse_query_items {
     $_->{url}
     } @$ref;
   return \@data;
-} ## end sub parse_query_items
+} ## end sub parse_query_item
 
 1;

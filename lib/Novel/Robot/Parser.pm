@@ -111,7 +111,7 @@ sub get_item_info {
   my $bt = $self->site_type();
   return $self->get_index_ref( $index_url ) if ( $bt eq 'novel' );
 
-  my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', 'floor', $index_url );
+  my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', $index_url );
   $topic->{url} = $index_url;
   return $topic;
 }
@@ -138,13 +138,10 @@ sub get_novel_ref {
     $r->{chapter_list},
     %o,
     select_url_sub => sub {
-      my ( $arr ) = @_;
-      $self->select_list_range(
-        $arr,
-        $o{min_item_num},
-        $o{max_item_num} );
+        my ( $arr ) = @_;
+        $self->select_list_range($arr, $o{min_item_num}, $o{max_item_num} );
     },
-    data_sub            => sub { $self->get_chapter_ref( @_ ); },
+    content_sub            => sub { $self->get_chapter_ref( @_ ); },
     no_auto_request_url => 1,
   );
 
@@ -344,7 +341,7 @@ sub parse_chapter {
 sub get_tiezi_ref {
   my ( $self, $url, %o ) = @_;
 
-  my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', 'floor', $url, %o );
+  my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', $url, %o );
 
   $floor_list = [ reverse @$floor_list ] if ( $o{reverse_content_list} );
   $self->update_url_list( $floor_list, $self->base_url || $url );
@@ -376,27 +373,26 @@ sub parse_tiezi {
   return $r;
 }
 
-#sub parse_tiezi_items { }
 sub parse_tiezi_list  { }
 sub scrape_tiezi      { {} }
 
 sub get_iterate_data {
-  my ( $self, $class, $item, $url, %o ) = @_;
+  my ( $self, $class, $url, %o ) = @_;
   my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
     $url,
 
     #post_data     => $o{post_data},
-    parse_info => sub {
+    info_sub => sub {
         $self->extract_elements( @_,
             path => $self->can( "scrape_$class" )->(),
             sub  => $self->can( "parse_$class" ),
         );
     },
-    parse_content => sub { $self->can( "parse_${class}_${item}s" )->( $self, @_ ) },
-    get_url_list  => sub { $self->can( "parse_${class}_list" )->( $self,     @_ ) },
-    min_page_num  => $o{"min_page_num"},
-    max_page_num  => $o{"max_page_num"},
-    stop_iter     => sub {
+    content_sub => sub { $self->can( "parse_${class}_item" )->( $self, @_ ) },
+    url_list_sub  => sub { $self->can( "parse_${class}_list" )->( $self,     @_ ) },
+    #min_page_num  => $o{"min_page_num"},
+    #max_page_num  => $o{"max_page_num"},
+    stop_sub     => sub {
       my ( $info, $data_list, $i ) = @_;
       $self->is_list_overflow( $data_list, $o{"max_item_num"} );
     },
@@ -410,7 +406,7 @@ sub scrape_board { {} }
 sub get_board_ref {
   my ( $self, $url, %o ) = @_;
 
-  my ( $topic, $item_list ) = $self->get_iterate_data( 'board', 'item', $url, %o );
+  my ( $topic, $item_list ) = $self->get_iterate_data( 'board', $url, %o );
 
   $self->update_url_list( $item_list, $url );
 
@@ -432,7 +428,7 @@ sub get_query_ref {
 
   my ( $url, $post_data ) = $self->make_query_request( $keyword, %o );
 
-  my ( $info, $item_list ) = $self->get_iterate_data( 'query', 'item', $url, %o, post_data => $post_data );
+  my ( $info, $item_list ) = $self->get_iterate_data( 'query', $url, %o, post_data => $post_data );
 
   $self->update_url_list( $item_list, $url );
 

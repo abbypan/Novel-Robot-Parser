@@ -21,7 +21,7 @@ sub scrape_tiezi {
   };
 }
 
-sub parse_tiezi_floors {
+sub parse_tiezi_item {
   my ( $self, $h ) = @_;
 
   my $parse_query = scraper {
@@ -48,7 +48,7 @@ sub parse_tiezi_floors {
     push @floors, $f;
   }
   return \@floors;
-} ## end sub parse_tiezi_floors
+} ## end sub parse_tiezi_item
 
 sub parse_tiezi_list {
     my ( $self, $h ) = @_;

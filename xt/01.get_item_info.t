@@ -7,11 +7,10 @@ use Data::Dumper;
 use Encode;
 
 my $tz = Novel::Robot::Parser->new( site => 'dingdian' );
-
 my $url = 'http://www.23us.com/html/0/202/';
+my $inf = $tz->get_item_info($url);
 
-my $topic = $tz->get_item_info($url);
-print $topic->{writer}, "\n";
-print $topic->{title} || $topic->{book},"\n";
+is($inf->{writer}, '蝴蝶蓝', 'writer');
+is($inf->{book}, '全职高手','book');
 
 done_testing;
