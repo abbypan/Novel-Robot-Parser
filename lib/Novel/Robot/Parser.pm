@@ -516,7 +516,7 @@ sub update_floor_list {
 
   $flist->[$_]{id} //= $_ + 1 for ( 0 .. $#$flist );
 
-  $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || 'unknown' for ( 0 .. $#$flist );
+  $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
 
   $r->{floor_list} = $flist;
 
