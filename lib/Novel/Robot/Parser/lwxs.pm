@@ -15,17 +15,17 @@ sub scrape_index { {
 sub scrape_chapter_list { { path => '//div[@id="list"]//dd//a' } }
 
 sub scrape_chapter { {
-        title => { path => '//div[@class="con_top"]'}, 
-        content=>{ path => '//div[@id="TXT"]', extract => 'HTML' }, 
+        title => { path => '//div[@class="con_top"]', sub => sub {
+                my ($c) = @_;
+                $c=~s#^.*>##s;
+                return $c;
+            }, }, 
+        content=>{ path => '//div[@id="TXT"]', extract => 'HTML', sub => sub {
+                my ($c) = @_;
+                $c=~s#<div class="bottem">.*$##s;
+                return $c;
+            }, 
+        }, 
     } }
-
-sub parse_chapter {
-    my ( $self, $html_ref, $ref ) = @_;
-
-    $ref->{title}=~s#^.*>##s;
-    $ref->{content}=~s#<div[^>]+>.+?</div>##sg;
-
-    return $ref;
-} ## end sub parse_chapter
 
 1;

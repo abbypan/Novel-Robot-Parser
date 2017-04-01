@@ -20,6 +20,7 @@ my $chapter_ref = $xs->get_chapter_ref($chapter_url);
 is($chapter_ref->{title}=~/引仙台/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/甲/ ? 1 : 0, 1 , 'chapter_content');
 # }
+ exit;
 
 # { luoqiu 
 my $xs = Novel::Robot::Parser->new( site=> 'luoqiu' );
