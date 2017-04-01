@@ -187,11 +187,15 @@ sub get_index_ref {
 sub parse_index {
   my ( $self, $h, $r ) = @_;
 
-  $r->{writer} =~ s/作\s*者：//;
+  for ( $r->{writer} ) {
+      s/作\s*者：//;
+      s/小说全集//;
+  }
 
   for ( $r->{book} ) {
     s/\s*最新章节\s*$//;
     s/全文阅读//;
+    s/在线阅读//;
     s/^\s*《(.*)》\s*$/$1/;
   }
 

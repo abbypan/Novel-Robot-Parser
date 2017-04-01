@@ -6,6 +6,23 @@ use Data::Dumper;
 use utf8;
 
 
+# { shunong 
+my $xs = Novel::Robot::Parser->new( site=> 'shunong' );
+my $index_url = 'http://www.shunong.com/wx/8558/';
+my $chapter_url = 'http://www.shunong.com/wx/8558/267184.html';
+
+my $index_ref = $xs->get_index_ref($index_url);
+is($index_ref->{book}=~/^青崖白鹿记$/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '沈璎璎', 'writer');
+is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
+
+my $chapter_ref = $xs->get_chapter_ref($chapter_url);
+is($chapter_ref->{title}=~/^第1章$/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/树入天台石路新/ ? 1 : 0, 1 , 'chapter_content');
+# }
+
+ exit;
+
 # { lwxs 
 my $xs = Novel::Robot::Parser->new( site=> 'lwxs' );
 my $index_url = 'http://www.lwxs.com/shu/5/5242/';
@@ -20,7 +37,6 @@ my $chapter_ref = $xs->get_chapter_ref($chapter_url);
 is($chapter_ref->{title}=~/引仙台/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/甲/ ? 1 : 0, 1 , 'chapter_content');
 # }
- exit;
 
 # { luoqiu 
 my $xs = Novel::Robot::Parser->new( site=> 'luoqiu' );
