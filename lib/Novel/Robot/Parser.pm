@@ -12,7 +12,7 @@ use Web::Scraper;
 
 ### {{{ data
 
-our $VERSION = 0.27;
+our $VERSION = 0.28;
 
 our %SITE_DOM_NAME = (
   'bbs.jjwxc.net'         => 'hjj',
