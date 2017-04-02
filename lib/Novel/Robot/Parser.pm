@@ -105,16 +105,16 @@ sub charset   { 'cp936' }
 sub base_url  { }
 
 sub get_item_info {
-    my ( $self, $url ) = @_;
-    my $c = $self->{browser}->request_url( $url );
-    my $r = $self->extract_elements(
-        \$c,
-        path => $self->can( "scrape_novel" )->(),
-        sub  => $self->can( "parse_novel" ),
-    );
-    $r->{chapter_list} = $self->parse_novel_list( \$c, $r );
-    $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $url );
-    return $r;
+  my ( $self, $url ) = @_;
+  my $c = $self->{browser}->request_url( $url );
+  my $r = $self->extract_elements(
+    \$c,
+    path => $self->can( "scrape_novel" )->(),
+    sub  => $self->can( "parse_novel" ),
+  );
+  $r->{chapter_list} = $self->parse_novel_list( \$c, $r );
+  $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $url );
+  return $r;
 }
 
 sub get_item_ref {
@@ -390,32 +390,32 @@ sub extract_regex_element {
 }
 
 sub update_floor_list {
-  my ( $self, $r, %o ) = @_;
+    my ( $self, $r, %o ) = @_;
 
-  my $flist = $r->{floor_list};
-  $r->{raw_floor_num} = scalar( @$flist );
+    my $flist = $r->{floor_list};
+    $r->{raw_floor_num} = scalar( @$flist );
+    $flist->[$_]{id} //= $_ + 1 for ( 0 .. $#$flist );
+    $flist->[$_]{title} //= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
 
-  $self->calc_content_wordnum( $_ ) for @$flist;
+    $flist = [ grep { $self->{browser}->is_item_in_range( $_->{id}, $o{min_item_num}, $o{max_item_num} ) } @$flist ];
 
-  $flist = [ grep { $_->{word_num} >= $o{min_content_word_num} } @$flist ]
+    $self->calc_content_wordnum( $_ ) for @$flist;
+
+    $flist = [ grep { $_->{word_num} >= $o{min_content_word_num} } @$flist ]
     if ( $o{min_content_word_num} );
 
-  $flist = [ grep { $_->{writer} eq $r->{writer} } @$flist ]
+    $flist = [ grep { $_->{writer} eq $r->{writer} } @$flist ]
     if ( $o{only_poster} );
 
-  $flist = [ grep { $_->{content} =~ /$o{grep_content}/s } @$flist ]
+    $flist = [ grep { $_->{content} =~ /$o{grep_content}/s } @$flist ]
     if ( $o{grep_content} );
 
-  $flist = [ grep { $_->{content} !~ /$o{filter_content}/s } @$flist ]
+    $flist = [ grep { $_->{content} !~ /$o{filter_content}/s } @$flist ]
     if ( $o{filter_content} );
 
-  $flist->[$_]{id} //= $_ + 1 for ( 0 .. $#$flist );
+    $r->{floor_list} = $flist;
 
-  $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
-
-  $r->{floor_list} = [ grep { $self->{browser}->is_item_in_range( $_->{id}, $o{min_item_num}, $o{max_item_num} ) } @$flist ];
-
-  return $self;
+    return $self;
 } ## end sub update_floor_list
 
 sub calc_content_wordnum {
@@ -476,115 +476,6 @@ sub unescape_js {
 }
 
 ### }}}
-
-### {{{ deprecate
-#sub get_index_ref {
-    #my ( $self, $url, %opt ) = @_;
-    #my $c = $self->{browser}->request_url( $url );
-    #my $r = $self->extract_elements(
-        #\$c,
-        #path => $self->can( "scrape_novel" )->(),
-        #sub  => $self->can( "parse_novel" ),
-    #);
-    #$r->{chapter_list} = $self->parse_novel_list( \$c, $r );
-    #$r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $url );
-    #return $r;
-#}
-
-#sub get_chapter_ref {
-    #my ( $self, $src ) = @_;
-
-    #$src = { url => $src || '' } if ( ref( $src ) ne 'HASH' );
-    #my $html = $self->{browser}->request_url( $src->{url} );
-
-    #my $r = $self->extract_elements(
-        #\$html,
-        #path => $self->scrape_novel_item(),
-        #sub  => $self->can( 'parse_novel_item' ),
-    #);
-
-    #$r->{$_} ||= $src->{$_} for keys( %$src );
-    #$r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
-    #$self->tidy_content( $r );
-
-    #return $r;
-#}
-
-#sub is_list_overflow {
-#my ( $self, $r, $max ) = @_;
-
-#return unless ( $max );
-
-#my $floor_num = scalar( @$r );
-#my $id = $r->[-1]{id} // $floor_num;
-
-#return if ( $id < $max );
-
-#$#{$r} = $max - 1;
-#return 1;
-#}
-#
-#sub select_list_range {
-#my ( $self, $src, $s_min, $s_max ) = @_;
-
-#my $have_id;
-#{
-#my $ref = ref( $src->[0] );
-#$have_id = ( $ref and $ref eq 'HASH' and exists $src->[0]{id} );
-#}
-
-#my $default_sub = sub {
-#my ( $hashref, $fallback ) = @_;
-#return $fallback unless $have_id;
-#return $hashref->{id} // $fallback;
-#};
-
-#my $id_sub = sub {
-#my ( $id, $default ) = @_;
-#return ( $id and $id =~ /\S/ ) ? $id : $default if $have_id;
-#return ( $id - 1 ) if ( $id and $id =~ /^\d+$/ );
-#return $default;
-#};
-
-#my $min = $id_sub->( $s_min, $default_sub->( $src->[0],  0 ) );
-#my $max = $id_sub->( $s_max, $default_sub->( $src->[-1], $#$src ) );
-
-#my @chap_list =
-#map { $src->[$_] }
-#grep {
-#my $j = $have_id ? ( $src->[$_]{id} // $_ ) : $_;
-#$j >= $min and $j <= $max
-#} ( 0 .. $#$src );
-
-#return \@chap_list;
-#}
-#
-#sub is_empty_chapter {
-#my ( $self, $chap_r ) = @_;
-#return if ( $chap_r and $chap_r->{content} );
-#return 1;
-#}
-#sub get_nth_chapter_list {
-#my ( $self, $index_ref, $n ) = @_;
-#my $r = $index_ref->{chapter_list}[ $n - 1 ];
-#return $r;
-#}
-#sub get_chapter_ids {
-#my ( $self, $index_ref, $o ) = @_;
-
-#my $chap_ids = $o->{chapter_ids} || [ 1 .. $index_ref->{chapter_num} ];
-
-#my @sort_chap_ids = sort { $a <=> $b } @$chap_ids;
-#return \@sort_chap_ids;
-#}
-#sub merge_hashref {
-#my ( $self, $h, $model ) = @_;
-#return unless ( ref( $model ) eq 'HASH' and ref( $h ) eq 'HASH' );
-#$h->{$_} ||= $model->{$_} for keys( %$model );
-#return $h;
-#}
-#}}}
-#}}}
 
 1;
 
