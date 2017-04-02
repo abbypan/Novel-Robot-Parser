@@ -23,11 +23,11 @@ use Encode;
 
 sub base_url { 'http://www.ddshu.net' }
 
-sub parse_index {
+sub parse_novel {
 
     my ( $self, $html_ref ) = @_;
 
-    my $parse_index =
+    my $parse_novel =
 
       $$html_ref =~ /<h2 id="lc">/
       ? scraper {
@@ -52,7 +52,7 @@ sub parse_index {
         process_first '.bookintro', 'intro' => 'HTML';
       };
 
-    my $ref = $parse_index->scrape($html_ref);
+    my $ref = $parse_novel->scrape($html_ref);
 
     $ref->{intro} = $self->get_inner_html( $ref->{intro} );
     $ref->{intro} =~ s#<script[^>]*?>.*?</script>##sig;
@@ -63,9 +63,9 @@ sub parse_index {
     ( $ref->{book_opt_url} = $ref->{url} ) =~ s#index.html$#opf.html#;
 
     return $ref;
-} ## end sub parse_index
+} ## end sub parse_novel
 
-sub parse_chapter_list {
+sub parse_novel_list {
     my ( $self, $html_ref, $index_ref ) = @_;
 
     my $h = $self->{browser}->request_url( $index_ref->{book_opt_url} );
@@ -80,20 +80,20 @@ sub parse_chapter_list {
 
     my $r = $refine_engine->scrape( \$h );
     return $r->{chapter_list};
-} ## end sub parse_chapter_list
+} ## end sub parse_novel_list
 
-sub parse_chapter {
+sub parse_novel_item {
 
     my ( $self, $html_ref ) = @_;
 
     $$html_ref =~ s#\<img[^>]+dou\.gif[^>]+\>#，#g;
 
-    my $parse_chapter = scraper {
+    my $parse_novel_item = scraper {
         process '//div[@id="toplink"]//a', 'book_info[]' => 'TEXT';
         process_first '.mytitle',          'title'       => 'TEXT';
         process_first '#content',          'content'     => 'HTML';
     };
-    my $ref = $parse_chapter->scrape($html_ref);
+    my $ref = $parse_novel_item->scrape($html_ref);
     return unless($ref->{content}); 
     #@{$ref}{ 'book', 'writer' } = @{ $ref->{book_info} }[ 3, 4 ];
     for ( $ref->{content} ) {
@@ -103,7 +103,7 @@ sub parse_chapter {
     $ref->{title} =~ s/^\s*//;
 
     return $ref;
-} ## end sub parse_chapter
+} ## end sub parse_novel_item
 
 sub parse_board {
     my ( $self, $html_ref ) = @_;
@@ -116,7 +116,7 @@ sub parse_board {
     return $ref->{writer};
 }
 
-sub parse_board_items {
+sub parse_board_item {
 
     my ( $self, $html_ref ) = @_;
 
@@ -165,7 +165,7 @@ sub make_query_request {
 
 } ## end sub make_query_request
 
-sub parse_query_items {
+sub parse_query_item {
     my ( $self, $html_ref ) = @_;
 
     my $parse_query = scraper {

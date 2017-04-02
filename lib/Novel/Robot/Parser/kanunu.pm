@@ -10,45 +10,45 @@ use Web::Scraper;
 sub base_url { 'http://www.kanunu8.com' }
 
 
-sub scrape_chapter_list { { path => '//tr[@bgcolor="#ffffff"]//td//a',  } }
+sub scrape_novel_list { { path => '//tr[@bgcolor="#ffffff"]//td//a',  } }
 
-sub parse_index {
+sub parse_novel {
 
     my ( $self, $html_ref ) = @_;
 
-    my $parse_index = scraper {
+    my $parse_novel = scraper {
         process_first '//h2',        'book_h2' => 'TEXT';
         process_first '//h1',        'book_h1' => 'TEXT';
         #process_first '//font//strong', 'writer'  => 'TEXT';
     };
 
-    my $ref = $parse_index->scrape($html_ref);
+    my $ref = $parse_novel->scrape($html_ref);
     $ref->{book} = $ref->{book_h2} || $ref->{book_h1};
 
     ($ref->{writer})= $$html_ref=~/作者：(\S+) 发布时间：/s;
 
     return $ref;
-} ## end sub parse_index
+} ## end sub parse_novel
 
-sub scrape_chapter { {
+sub scrape_novel_item { {
         title => { regex => '<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读' }, 
         content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
     } }
 
-#sub parse_chapter {
+#sub parse_novel_item {
 #
 #    my ( $self, $h ) = @_;
 #
-#    my $parse_chapter = scraper {
+#    my $parse_novel_item = scraper {
 #        process_first '//td[@width="820"]', 'content' => 'HTML';
 #    };
-#    my $ref = $parse_chapter->scrape($h);
+#    my $ref = $parse_novel_item->scrape($h);
 #
 #    ( $ref->{title} ) =
 #      $$h =~ m#<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读#s;
 #
 #    return $ref;
-#} ## end sub parse_chapter
+#} ## end sub parse_novel_item
 
 sub parse_board {
 
@@ -64,7 +64,7 @@ sub parse_board {
     return $ref->{writer};
 } ## end sub parse_writer
 
-sub parse_board_items {
+sub parse_board_item {
     my ( $self, $html_ref ) = @_;
 
     my $parse_writer = scraper {

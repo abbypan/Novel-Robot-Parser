@@ -25,7 +25,7 @@ use Encode;
 
 sub base_url { 'http://www.jjwxc.net' }
 
-sub parse_chapter {
+sub parse_novel_item {
     my ( $self, $h ) = @_;
 
     my $pr = scraper {
@@ -42,12 +42,12 @@ sub parse_chapter {
     return $r;
 }
 
-sub parse_index {
+sub parse_novel {
 
     my ( $self, $h ) = @_;
     return if ( $$h =~ /自动进入被锁文章的作者专栏/ );
 
-    my $parse_index = scraper {
+    my $parse_novel = scraper {
         process_first '//h1[@itemprop="name"]',     'book'       => 'TEXT';
         process_first '//h2/a',                     'writer_url' => '@href';
         process_first '//span[@itemprop="author"]', 'writer'     => 'TEXT';
@@ -55,8 +55,8 @@ sub parse_index {
           'intro' => sub { $self->parse_intro(@_); };
     };
 
-    my $r = $parse_index->scrape($h);
-    return $self->parse_index_nolist($h) unless ( $r->{book} );
+    my $r = $parse_novel->scrape($h);
+    return $self->parse_novel_single($h) unless ( $r->{book} );
 
     for ($$h) {
         ( $r->{series} )   = m{<span>所属系列：</span>(.*?)</li>}s;
@@ -66,7 +66,7 @@ sub parse_index {
     $r->{$_} =~ s/^\s+|<[^>]+>|\s+$//gs for qw/series progress/;
 
     return $r;
-} ## end sub parse_index
+} ## end sub parse_novel
 
 sub parse_intro {
     my ( $self, $e ) = @_;
@@ -82,7 +82,7 @@ sub parse_intro {
     return $h;
 }
 
-sub parse_index_nolist {
+sub parse_novel_single {
 
     #just single chapter content on index page
     my ( $self, $h ) = @_;
@@ -115,7 +115,7 @@ sub parse_index_nolist {
 
 } ## end unless ( $ref->{title} )
 
-sub parse_chapter_list {
+sub parse_novel_list {
     my ( $self, $h, $index_ref ) = @_;
 
     my $s = scraper {
@@ -163,7 +163,7 @@ sub parse_board {
     return $ref->{writer};
 }
 
-sub parse_board_items {
+sub parse_board_item {
     my ( $self, $h ) = @_;
     my @book_list;
     my $series = '未分类';
@@ -252,7 +252,7 @@ sub parse_query_list {
     return $r->{urls} || [];
 } ## 
 
-sub parse_query_items {
+sub parse_query_item {
     my ( $self, $h ) = @_;
 
     my $parse_query = scraper {

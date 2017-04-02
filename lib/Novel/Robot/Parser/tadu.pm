@@ -9,20 +9,20 @@ sub base_url { 'http://www.tadu.com' }
 
 sub charset { 'utf8' }
 
-sub scrape_chapter_list { { path=>'//div[@class="catalogList"]//a' } }
+sub scrape_novel_list { { path=>'//div[@class="catalogList"]//a' } }
 
-sub scrape_index {
+sub scrape_novel {
     return {
         book => { path => '//div[@class="c_title"]//h3'}, 
         writer=>{ path => '//div[@class="catalog_top"]//a'}, 
     };
 }
 
-sub scrape_chapter { {
+sub scrape_novel_item { {
         title => { path => '//div[@class="title"]//h2' }, 
     } }
 
-sub parse_chapter {
+sub parse_novel_item {
     my ($self, $h, $r) = @_;
     ($r->{content}) = $$h=~/\$\("#partContent"\)\.html\(unescape\("(.+?)"\)\)/s;
     return $self->unescape_js($r->{content});

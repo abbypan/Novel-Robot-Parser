@@ -8,22 +8,22 @@ use base 'Novel::Robot::Parser';
 
 sub base_url { 'http://www.123yq.com' }
 
-sub scrape_chapter_list { { path=>'//div[@id="list"]//dd//a', sort=>1 } }
+sub scrape_novel_list { { path=>'//div[@id="list"]//dd//a', sort=>1 } }
 
-sub scrape_index { {
+sub scrape_novel { {
         writer => { path => '//div[@id="info"]//p[1]', }, 
         book=>{ path => '//h1', }, 
     } }
 
-sub parse_index {
+sub parse_novel {
     my ($self, $h, $ref) = @_;
 
     $ref->{writer}=~s/.*?者：//;
 
     return $ref;
-} ## end sub parse_index
+} ## end sub parse_novel
 
-sub scrape_chapter { {
+sub scrape_novel_item { {
         title => { path => '//h1'}, 
         content=>{ path => '//div[@id="TXT"]', extract => 'HTML', sub => sub {
                 my ($c) = @_;

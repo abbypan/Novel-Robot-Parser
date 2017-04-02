@@ -53,38 +53,21 @@ get novel index info / forum thread first page info
 
 =head1 NOVEL FUNCTION
 
-=head2  get_novel_ref 
+=head2  get_item_ref 
 
-get novel data, 获取小说内容
+get item data, 获取小说/贴子内容
 
-   my $r = $parser->get_novel_ref($url, %opt);
+   my $r = $parser->get_item_ref($url, %opt);
 
-=head2 get_index_ref 
+=head2 get_item_info
 
-get novel index data, 获取目录页信息
+get item info, 获取小说/贴子信息
 
-   my $index_ref = $parser->get_index_ref($index_url, %opt);
-
-=head2 get_chapter_ref 
-
-get novel chapter data, 获取章节页信息
-
-    my $chapter_url = 'http://m.jjwxc.net/book2/2456/2';
-    my $chapter_ref = $parser->get_chapter_ref($chapter_url, 2);
-
-=head1 TIEZI FUNCTION
-
-=head2 get_tiezi_ref
-
-get forum thread data, 获取贴子内容
-
-   my $r = $parser->get_tiezi_ref($url, %opt);
+   my $inf = $parser->get_item_info($url, %opt);
 
 =head1 BOARD FUNCTION
 
-writer -> multi books
-
-forum board -> multi threads
+writer -> multi books, forum -> multi threads
 
 =head2 get_board_ref 
 

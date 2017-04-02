@@ -50,7 +50,7 @@ our %NULL_INDEX = (
   writer       => '',
   writer_url   => '',
   chapter_list => [],
-  floor_list => [],
+  floor_list   => [],
 
   intro    => '',
   series   => '',
@@ -71,7 +71,6 @@ our %NULL_CHAPTER = (
   word_num   => '',
   type       => '',
 );
-
 
 ### }}}
 
@@ -98,7 +97,6 @@ sub detect_site {
 
   return $site;
 }
-
 ### }}}
 
 ### {{{ common
@@ -108,12 +106,14 @@ sub base_url  { }
 
 sub get_item_info {
   my ( $self, $index_url ) = @_;
-  my $bt = $self->site_type();
-  return $self->get_index_ref( $index_url ) if ( $bt eq 'novel' );
 
-  my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', $index_url );
-  $topic->{url} = $index_url;
-  return $topic;
+  my $c = $self->{browser}->request_url( $index_url );
+
+  return $self->extract_elements(
+    \$c,
+    path => $self->can( "scrape_novel" )->(),
+    sub  => $self->can( "parse_novel" ),
+  );
 }
 
 sub get_item_ref {
@@ -122,76 +122,23 @@ sub get_item_ref {
   my $name = "get_${bt}_ref";
   $self->$name( $index_url, %o );
 }
-
 ### }}}
 
 ### {{{ novel
+sub scrape_novel      { {} }
+sub scrape_novel_item { {} }
+sub scrape_novel_list { {} }
 
-sub get_novel_ref {
-  my ( $self, $index_url, %o ) = @_;
-
-  my $r = $self->get_index_ref( $index_url, %o );
-  return unless ( $r );
-  return $r if ( $r->{floor_list} and scalar( @{ $r->{floor_list} } ) > 0 );
-
-  $r->{floor_list} = $self->{browser}->request_urls(
-    $r->{chapter_list},
-    %o,
-    select_url_sub => sub {
-        my ( $arr ) = @_;
-        $self->select_list_range($arr, $o{min_item_num}, $o{max_item_num} );
-    },
-    content_sub            => sub { $self->get_chapter_ref( @_ ); },
-    no_auto_request_url => 1,
-  );
-
-  $self->update_floor_list( $r, %o );
-
-  return $r;
-} ## end sub get_novel_ref
-
-### }}}
-
-### {{{ index
-
-sub get_index_ref {
-
-  my ( $self, $url, %opt ) = @_;
-
-  my $r = {};
-  if ( $url and $url !~ /^http/ ) {
-    $r = $self->parse_index( $url, %opt );
-  } else {
-    my $html = $self->{browser}->request_url( $url );
-
-    $r = $self->extract_elements(
-      \$html,
-      path => $self->scrape_index(),
-      sub  => $self->can( 'parse_index' ),
-    );
-
-    $r->{chapter_list} ||= $self->parse_chapter_list( \$html, $r ) || [];
-    $r->{url} = $url;
-  }
-
-  $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
-  $self->tidy_string( $r, $_ ) for qw/writer book/;
-
-  $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $r->{url} );
-  $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
-
-  return $r;
-} ## end sub get_index_ref
-
-sub parse_index {
+sub parse_novel {
   my ( $self, $h, $r ) = @_;
 
   for ( $r->{writer} ) {
-      s/作\s*者：//;
-      s/小说全集//;
+    s/作\s*者：//;
+    s/小说全集//;
   }
 
-  for ( $r->{book} ) {
+  for ( $r->{book}, $r->{title} ) {
+    next unless $_;
     s/\s*最新章节\s*$//;
     s/全文阅读//;
     s/在线阅读//;
@@ -199,33 +146,183 @@ sub parse_index {
   }
 
   return $r;
+} ## end sub parse_novel
+
+sub parse_novel_item {
+  my ( $self, $h, $r ) = @_;
+  $r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
+  $self->tidy_chapter_content( $r );
+  return $r;
 }
 
-sub scrape_index { {} }
+sub parse_novel_list {
+  my ( $self, $h, $r ) = @_;
 
-sub scrape_chapter_list { }
+  my $path_r = $self->scrape_novel_list();
+  return [] unless ( $path_r );
 
-sub parse_chapter_list {
-    my ( $self, $html_ref, $r ) = @_;
+  my $parse_novel = scraper {
+    process $path_r->{path},
+      'chapter_list[]' => {
+      'title' => 'TEXT',
+      'url'   => '@href'
+      };
+  };
+  my $ref = $parse_novel->scrape( $h );
 
-    my $path_r = $self->scrape_chapter_list();
-    return [] unless ( $path_r );
+  my @chap = grep { exists $_->{url} and $_->{url} } @{ $ref->{chapter_list} };
+  #$self->update_url_list( \@chap, $r->{url} );
 
-    my $parse_index = scraper {
-        process $path_r->{path},
-        'chapter_list[]' => {
-            'title' => 'TEXT',
-            'url'   => '@href'
-        };
-    };
-    my $ref = $parse_index->scrape( $html_ref );
+  return \@chap unless ( $path_r->{sort} );
 
-    my @chap = grep { exists $_->{url} and $_->{url} } @{ $ref->{chapter_list} };
-    return \@chap unless ( $path_r->{sort} );
+  my @sort_chap = sort { $a->{url} cmp $b->{url} } @chap;
+  return \@sort_chap;
+} ## end sub parse_novel_list
 
-    my @sort_chap = sort { $a->{url} cmp $b->{url} } @chap;
-    return \@sort_chap;
-} ## end sub parse_chapter_list
+sub get_novel_ref {
+    my ( $self, $index_url, %o ) = @_;
+    if ( $index_url !~ /^https?:/ ) {
+        return $self->parse_novel( $index_url, %o );
+    }
+
+    my ( $r, $floor_list ) = $self->{browser}->request_urls(
+        $index_url,
+        info_sub => sub {
+            $self->extract_elements(
+                @_,
+                path => $self->can( "scrape_novel" )->(),
+                sub  => $self->can( "parse_novel" ),
+            );
+        },
+        content_sub  => sub { $self->can( "parse_novel_item" )->( $self, @_ ) },
+        url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
+        %o,
+    );
+
+    $r->{url}         = $index_url;
+    $r->{floor_list}  = $floor_list unless ( exists $r->{floor_list} and @{ $r->{floor_list} } );
+    $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $r->{url} );
+    $self->update_floor_list( $r, %o );
+    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
+
+    $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
+    $self->tidy_string( $r, $_ ) for qw/writer book/;
+
+    return $r;
+} ## end sub get_novel_ref
+
+### }}}
+
+### {{{ tiezi
+sub get_tiezi_ref {
+  my ( $self, $url, %o ) = @_;
+
+  my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
+
+  $floor_list = [ reverse @$floor_list ] if ( $o{reverse_content_list} );
+  $self->update_url_list( $floor_list, $self->base_url || $url );
+  $floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
+
+  if ( !$floor_list->[0]{content} and $o{deal_content_url} ) {
+    for my $x ( @$floor_list ) {
+      my $u = $x->{url};
+      my $h = $self->{browser}->request_url( $u );
+      $x->{content} = $o{deal_content_url}->( $h );
+    }
+  }
+
+  unshift @$floor_list, $topic if ( $topic->{content} );
+  my %r = (
+    %$topic,
+    book       => $topic->{title},
+    title      => $topic->{title},
+    url        => $url,
+    floor_list => $floor_list,
+  );
+  $self->update_floor_list( \%r, %o );
+
+  return \%r;
+} ## end sub get_tiezi_ref
+
+sub get_iterate_data {
+  my ( $self, $class, $url, %o ) = @_;
+  my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
+    $url,
+
+    #post_data     => $o{post_data},
+    info_sub => sub {
+      $self->extract_elements(
+        @_,
+        path => $self->can( "scrape_$class" )->(),
+        sub  => $self->can( "parse_$class" ),
+      );
+    },
+    content_sub  => sub { $self->can( "parse_${class}_item" )->( $self, @_ ) },
+    url_list_sub => sub { $self->can( "parse_${class}_list" )->( $self, @_ ) },
+
+    #min_page_num  => $o{"min_page_num"},
+    #max_page_num  => $o{"max_page_num"},
+    stop_sub => sub {
+      my ( $info, $data_list, $i ) = @_;
+      $self->is_list_overflow( $data_list, $o{"max_item_num"} );
+    },
+    %o,
+  );
+} ## end sub get_iterate_data
+### }}}
+
+### {{{ board
+sub scrape_board      { {} }
+sub scrape_board_item { {} }
+sub scrape_board_list { {} }
+
+sub parse_board {
+  my ( $self, $h, $r ) = @_;
+  return $r;
+}
+sub parse_board_item { }
+sub parse_board_list { }
+
+sub get_board_ref {
+  my ( $self, $url, %o ) = @_;
+
+  my ( $topic, $item_list ) = $self->get_iterate_data( 'board', $url, %o );
+
+  $self->update_url_list( $item_list, $url );
+
+  return ( $topic, $item_list );
+}
+### }}}
+
+### {{{ query
+sub scrape_query      { {} }
+sub scrape_query_item { {} }
+sub scrape_query_list { {} }
+
+sub parse_query {
+  my ( $self, $h, $r ) = @_;
+  return $r;
+}
+sub parse_query_item { }
+sub parse_query_list { }
+
+sub get_query_ref {
+  my ( $self, $keyword, %o ) = @_;
+
+  my ( $url, $post_data ) = $self->make_query_request( $keyword, %o );
+
+  my ( $info, $item_list ) = $self->get_iterate_data( 'query', $url, %o, post_data => $post_data );
+
+  $self->update_url_list( $item_list, $url );
+
+  return ( $info, $item_list );
+}
+
+sub make_query_request { }
+
+### }}}
+
+### {{{ base
 
 sub tidy_string {
   my ( $self, $r, $k ) = @_;
@@ -270,31 +367,6 @@ sub format_abs_url {
   return $chap;
 }
 
-### }}}
-
-### {{{ chapter
-
-sub get_chapter_ref {
-  my ( $self, $src ) = @_;
-
-  $src = { url => $src || '' } if ( ref( $src ) ne 'HASH' );
-  my $html = $self->{browser}->request_url( $src->{url} );
-
-  my $r = $self->extract_elements(
-    \$html,
-    path => $self->scrape_chapter(),
-    sub  => $self->can( 'parse_chapter' ),
-  );
-
-  $r->{$_} ||= $src->{$_} for keys( %$src );
-  $r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
-  $self->tidy_chapter_content( $r );
-
-  return $r;
-} ## end sub get_chapter_ref
-
-sub scrape_chapter { {} }
-
 sub extract_elements {
   my ( $self, $h, %o ) = @_;
   $o{path} ||= {};
@@ -330,123 +402,6 @@ sub extract_regex_element {
   return $d;
 }
 
-sub parse_chapter {
-  my ( $self, $h, $r ) = @_;
-  return $r;
-}
-
-### }}}
-
-### {{{ tiezi
-sub get_tiezi_ref {
-  my ( $self, $url, %o ) = @_;
-
-  my ( $topic, $floor_list ) = $self->get_iterate_data( 'tiezi', $url, %o );
-
-  $floor_list = [ reverse @$floor_list ] if ( $o{reverse_content_list} );
-  $self->update_url_list( $floor_list, $self->base_url || $url );
-  $floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
-
-  if ( !$floor_list->[0]{content} and $o{deal_content_url} ) {
-    for my $x ( @$floor_list ) {
-      my $u = $x->{url};
-      my $h = $self->{browser}->request_url( $u );
-      $x->{content} = $o{deal_content_url}->( $h );
-    }
-  }
-
-  unshift @$floor_list, $topic if ( $topic->{content} );
-  my %r = (
-    %$topic,
-    book       => $topic->{title},
-    title      => $topic->{title},
-    url        => $url,
-    floor_list => $floor_list,
-  );
-  $self->update_floor_list( \%r, %o );
-
-  return \%r;
-} ## end sub get_tiezi_ref
-
-sub parse_tiezi {
-  my ( $self, $h, $r ) = @_;
-  return $r;
-}
-
-sub parse_tiezi_list  { }
-sub scrape_tiezi      { {} }
-
-sub get_iterate_data {
-  my ( $self, $class, $url, %o ) = @_;
-  my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
-    $url,
-
-    #post_data     => $o{post_data},
-    info_sub => sub {
-        $self->extract_elements( @_,
-            path => $self->can( "scrape_$class" )->(),
-            sub  => $self->can( "parse_$class" ),
-        );
-    },
-    content_sub => sub { $self->can( "parse_${class}_item" )->( $self, @_ ) },
-    url_list_sub  => sub { $self->can( "parse_${class}_list" )->( $self,     @_ ) },
-    #min_page_num  => $o{"min_page_num"},
-    #max_page_num  => $o{"max_page_num"},
-    stop_sub     => sub {
-      my ( $info, $data_list, $i ) = @_;
-      $self->is_list_overflow( $data_list, $o{"max_item_num"} );
-    },
-    %o,
-  );
-} ## end sub get_iterate_data
-### }}}
-
-### {{{ board
-sub scrape_board { {} }
-sub get_board_ref {
-  my ( $self, $url, %o ) = @_;
-
-  my ( $topic, $item_list ) = $self->get_iterate_data( 'board', $url, %o );
-
-  $self->update_url_list( $item_list, $url );
-
-  return ( $topic, $item_list );
-}
-
-sub parse_board {
-  my ( $self, $h, $r ) = @_;
-  return $r;
-}
-sub parse_board_items { }
-sub parse_board_list  { }
-### }}}
-
-### {{{ query
-sub scrape_query { {} }
-sub get_query_ref {
-  my ( $self, $keyword, %o ) = @_;
-
-  my ( $url, $post_data ) = $self->make_query_request( $keyword, %o );
-
-  my ( $info, $item_list ) = $self->get_iterate_data( 'query', $url, %o, post_data => $post_data );
-
-  $self->update_url_list( $item_list, $url );
-
-  return ( $info, $item_list );
-}
-
-sub make_query_request { }
-
-sub parse_query {
-  my ( $self, $h, $r ) = @_;
-  return $r;
-}
-sub parse_query_items { }
-sub parse_query_list  { }
-
-### }}}
-
-### {{{ assist
 sub is_list_overflow {
   my ( $self, $r, $max ) = @_;
 
@@ -594,6 +549,41 @@ sub unescape_js {
 }
 
 ### }}}
+
+### {{{ deprecate
+sub get_index_ref {
+  my ( $self, $url, %opt ) = @_;
+  my $c = $self->{browser}->request_url( $url );
+  my $r = $self->extract_elements(
+    \$c,
+    path => $self->can( "scrape_novel" )->(),
+    sub  => $self->can( "parse_novel" ),
+  );
+  $r->{chapter_list} = $self->parse_novel_list( \$c, $r );
+  return $r;
+}
+
+sub get_chapter_ref {
+  my ( $self, $src ) = @_;
+
+  $src = { url => $src || '' } if ( ref( $src ) ne 'HASH' );
+  my $html = $self->{browser}->request_url( $src->{url} );
+
+  my $r = $self->extract_elements(
+    \$html,
+    path => $self->scrape_novel_item(),
+    sub  => $self->can( 'parse_novel_item' ),
+  );
+
+  $r->{$_} ||= $src->{$_} for keys( %$src );
+  $r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
+  $self->tidy_chapter_content( $r );
+
+  return $r;
+} ## end sub get_chapter_ref
+
+#}}}
+#}}}
 
 1;
 

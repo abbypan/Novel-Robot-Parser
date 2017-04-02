@@ -16,8 +16,8 @@ sub charset { 'cp936' }
 
 sub site_type { 'tiezi' }
 
-sub parse_tiezi {
-  my ( $self, $h ) = @_;
+sub parse_novel {
+  my ( $self, $h , $r) = @_;
   my %t;
   for ( $$h ) {
     ( $t{title} )   = m{<td bgcolor="\#E8F3FF"><div [^>]+?style="float: left;">\s*主题：(.+?)\s*<font color="\#999999" size="-1">}s;
@@ -33,9 +33,9 @@ sub parse_tiezi {
   }
 
   return \%t;
-} ## end sub parse_tiezi
+} ## end sub parse_novel
 
-sub parse_tiezi_item {
+sub parse_novel_item {
   my ( $self, $h ) = @_;
 
   my @floor;
@@ -66,9 +66,9 @@ sub parse_tiezi_item {
   shift @floor;
 
   return \@floor;
-} ## end sub parse_tiezi_item
+} ## end sub parse_novel_item
 
-sub parse_tiezi_list {
+sub parse_novel_list {
   my ( $self, $h ) = @_;
   my ( $page_info ) = $$h =~ m[<div id="pager_top" align="center" style="padding:10px;">(.+?)</div>]s;
   return unless ( $page_info );

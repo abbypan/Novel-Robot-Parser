@@ -9,14 +9,14 @@ use Web::Scraper;
 
 sub base_url { 'http://www.ttzw.com' }
 
-sub scrape_chapter_list { { path=>'//div[@id="chapter_list"]//a' } }
+sub scrape_novel_list { { path=>'//div[@id="chapter_list"]//a' } }
 
-sub scrape_index { {
+sub scrape_novel { {
         book => { path => '//h1' }, 
         writer=>{ path => '//div[@class="pl40"]//b', extract => 'TEXT' }, 
     } }
 
-sub parse_index {
+sub parse_novel {
 
     my ( $self, $html_ref, $ref ) = @_;
 
@@ -25,17 +25,17 @@ sub parse_index {
     ];
 
     return $ref;
-} ## end sub parse_index
+} ## end sub parse_novel
 
-sub parse_chapter {
+sub parse_novel_item {
 
     my ( $self, $html_ref ) = @_;
 
-    my $parse_chapter = scraper {
+    my $parse_novel_item = scraper {
         process_first '//div[@id="text_area"]//script', 'content_url' => 'HTML';
         process_first '//div[@id="chapter_title"]', 'title'=> 'TEXT';
     };
-    my $ref = $parse_chapter->scrape($html_ref);
+    my $ref = $parse_novel_item->scrape($html_ref);
 
     ($ref->{content_url}) = $$html_ref=~/<script language="javascript">outputTxt\(.*?(\/.*?)"/s;
     $ref->{content} = ''; 
@@ -49,6 +49,6 @@ sub parse_chapter {
    }
 
     return $ref;
-} ## end sub parse_chapter
+} ## end sub parse_novel_item
 
 1;

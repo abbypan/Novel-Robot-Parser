@@ -8,11 +8,11 @@ use base 'Novel::Robot::Parser';
 
 sub base_url { 'http://www.hkslg520.com' }
 
-sub scrape_chapter_list {
+sub scrape_novel_list {
     { path => '//td[@class="bookinfo_td"]//div[@class="dccss"]//a' }
 }
 
-sub scrape_index {
+sub scrape_novel {
     return {
         book => { path => '//h1'}, 
         writer=>{ path => '//div[@class="infot"]//span' }, 
@@ -20,19 +20,19 @@ sub scrape_index {
 }
 #$ref->{writer}=~s/作者：//s;
 
-sub scrape_chapter {
+sub scrape_novel_item {
     return {
         title => { path => '//h2' }, 
         content=>{ path => '//div[@id="content"]/p', extract => 'HTML' }, 
     };
 }
 
-sub parse_chapter {
+sub parse_novel_item {
     my ( $self, $html_ref, $ref ) = @_;
 
     $ref->{content}=~s/^.*?正文，敬请欣赏！//s;
     $ref->{content}=~s/\(tXT下载WWW.XsHUOTxT.Com\)//sg;
     return $ref;
-} ## end sub parse_chapter
+} ## end sub parse_novel_item
 
 1;

@@ -5,11 +5,11 @@
 
 =head1 FUNCTION
 
-=head2 parse_index
+=head2 parse_novel
 
 解析txt
   
-  my $txt_content_ref = $self->parse_index(
+  my $txt_content_ref = $self->parse_novel(
     [ '/somedir/', '/someotherdir/somefile.txt' ], 
 	writer => 'some_writer',
     book => 'some_book',
@@ -30,7 +30,7 @@ use Encode::Detect::CJK qw/detect/;
 use utf8;
 
 
-sub parse_index {
+sub parse_novel {
     my ($self, $path, %opt) = @_;
     $opt{chapter_regex} ||= get_default_chapter_regex();
 

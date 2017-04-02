@@ -7,14 +7,14 @@ use base 'Novel::Robot::Parser';
 
 sub base_url {  'http://www.zilang.net'}
 
-sub scrape_chapter_list { { path=>'//div[@class="list"]//a', sort=>1 } }
+sub scrape_novel_list { { path=>'//div[@class="list"]//a', sort=>1 } }
 
-sub scrape_index { {
+sub scrape_novel { {
         writer => { path => '//div[@class="book"]//span', }, 
         book=>{ path => '//h1', }, 
     } }
 
-sub scrape_chapter { {
+sub scrape_novel_item { {
         title => { path => '//h1'}, 
         content=>{ path => '//div[@id="text_area"]', extract => 'HTML'}, 
     } }

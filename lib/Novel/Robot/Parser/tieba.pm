@@ -21,7 +21,7 @@ sub scrape_tiezi {
   };
 }
 
-sub parse_tiezi_item {
+sub parse_novel_item {
   my ( $self, $h ) = @_;
 
   my $parse_query = scraper {
@@ -48,9 +48,9 @@ sub parse_tiezi_item {
     push @floors, $f;
   }
   return \@floors;
-} ## end sub parse_tiezi_item
+} ## end sub parse_novel_item
 
-sub parse_tiezi_list {
+sub parse_novel_list {
     my ( $self, $h ) = @_;
     my $parse_query = scraper {
         process_first '//link[@rel="canonical"]',   'base' => '@href';

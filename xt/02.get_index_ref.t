@@ -5,6 +5,26 @@ use Test::More ;
 use Data::Dumper;
 use utf8;
 
+# { asxs
+my $xs = Novel::Robot::Parser->new( site=> 'asxs' );
+my $index_url = 'http://www.23xs.cc/book/169/index.html';
+my $chapter_url = 'http://www.23xs.cc/book/169/85538.html';
+
+my $index_ref = $xs->get_index_ref($index_url);
+is($index_ref->{book}=~/^死人经/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '冰临神下', 'writer');
+is($chapter_url=~/$index_ref->{chapter_list}[0]{url}/ ? 1 : 0, 1, 'chapter_url');
+print $index_ref->{chapter_list}[0]{url},"\n";
+
+my $chapter_ref = $xs->get_chapter_ref($chapter_url);
+is($chapter_ref->{title}=~/杀手/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/顶尖/ ? 1 : 0, 1 , 'chapter_content');
+# }
+
+done_testing;
+
+exit;
+
 # { lwxs 
 my $xs = Novel::Robot::Parser->new( site=> 'lwxs' );
 my $index_url = 'http://www.lwxs.com/shu/5/5242/';
@@ -19,11 +39,7 @@ my $chapter_ref = $xs->get_chapter_ref($chapter_url);
 is($chapter_ref->{title}=~/引仙台/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/甲/ ? 1 : 0, 1 , 'chapter_content');
 # }
-
-done_testing;
-
-exit;
-
+#
 # { lwxs 
 my $xs = Novel::Robot::Parser->new( site=> 'lwxs' );
 my $index_url = 'http://www.lwxs.com/shu/5/5242/';

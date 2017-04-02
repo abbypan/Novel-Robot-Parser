@@ -8,16 +8,16 @@ use base 'Novel::Robot::Parser';
 
 sub base_url { 'http://www.yanqingji.net' }
 
-sub scrape_chapter_list { { path=>'//div[@class="book_main"]//td/a'} }
+sub scrape_novel_list { { path=>'//div[@class="book_main"]//td/a'} }
 
-sub scrape_index {
+sub scrape_novel {
     return {
         book => { path => '//h1'}, 
         writer=>{ path => '//h2/a'}, 
     };
 }
 
-sub scrape_chapter {
+sub scrape_novel_item {
     return {
         title => { path => '//div[@class="book_title"]/h1[2]'}, 
         content=>{ path => '//p[@id="zoom"]', extract => 'HTML' }, 

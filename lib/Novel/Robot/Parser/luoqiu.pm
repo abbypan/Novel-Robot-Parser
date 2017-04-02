@@ -8,14 +8,14 @@ use base 'Novel::Robot::Parser';
 
 sub base_url { 'http://www.luoqiu.com' };
 
-sub scrape_chapter_list { { path => '//div[@id="container_bookinfo"]//a' } }
+sub scrape_novel_list { { path => '//div[@id="container_bookinfo"]//a' } }
 
-sub scrape_index { { 
+sub scrape_novel { { 
         book => { path=> '//h1//a' },
         writer => { regex => '<meta name="author" content="(.+?)" />', }, 
 } }
 
-sub scrape_chapter { {
+sub scrape_novel_item { {
         title => { path => '//h1[@class="bname_content"]'}, 
         content=>{ path => '//div[@id="content"]', extract => 'HTML' }, 
     } }

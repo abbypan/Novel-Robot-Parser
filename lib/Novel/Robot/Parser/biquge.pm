@@ -10,7 +10,7 @@ sub base_url { 'http://www.biquge.tw' }
 
 sub charset { 'utf8' }
 
-sub scrape_index {
+sub scrape_novel {
     my ($self) = @_;
     return {
         writer => { regex => '<meta property="og:novel:author" content="(.+?)"/>', }, 
@@ -18,9 +18,9 @@ sub scrape_index {
     };
 }
 
-sub scrape_chapter_list { { path => '//div[@id="list"]//dd//a' } }
+sub scrape_novel_list { { path => '//div[@id="list"]//dd//a' } }
 
-sub scrape_chapter {
+sub scrape_novel_item {
     return {
         title => { path => '//h1' }, 
         content=>{ path => '//div[@id="content"]', extract => 'HTML' }, 

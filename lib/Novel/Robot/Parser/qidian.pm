@@ -12,34 +12,34 @@ sub base_url { 'http://read.qidian.com' }
 
 sub charset { 'utf8' }
 
-sub scrape_chapter_list { { path => '//li[@itemprop="chapter"]//a[@itemprop="url"]'} }
+sub scrape_novel_list { { path => '//li[@itemprop="chapter"]//a[@itemprop="url"]'} }
 
-sub parse_index {
+sub parse_novel {
 
     my ( $self, $html_ref ) = @_;
 
-    my $parse_index = scraper {
+    my $parse_novel = scraper {
           process_first '//div[@class="booktitle"]/h1' , 'book' => 'TEXT';
           process_first '//div[@class="booktitle"]//a' , 'writer' => 'TEXT', writer_url=>'@href';
     };
 
-    my $ref = $parse_index->scrape($html_ref);
+    my $ref = $parse_novel->scrape($html_ref);
     $ref->{book}=~s/\s*试玩得起点币.*//sg;
 
     return $ref;
-} ## end sub parse_index
+} ## end sub parse_novel
 
-sub parse_chapter {
+sub parse_novel_item {
 
     my ( $self, $html_ref ) = @_;
 
-    my $parse_chapter = scraper {
+    my $parse_novel_item = scraper {
         process_first '//div[@id="content"]//script', 'content_url' => '@src', 'content_charset' => '@charset';
         process_first '//span[@itemprop="headline"]', 'title'=> 'TEXT';
         process_first '//span[@itemprop="articleSection"]', 'book' => 'TEXT';
         process_first '//span[@class="info"]//i[2]', 'writer' => 'TEXT';
     };
-    my $ref = $parse_chapter->scrape($html_ref);
+    my $ref = $parse_novel_item->scrape($html_ref);
     $ref->{writer} ||='';
     
     my $c = $self->{browser}->request_url($ref->{content_url});
@@ -50,6 +50,6 @@ sub parse_chapter {
     $ref->{content} = $c;
 
     return $ref;
-} ## end sub parse_chapter
+} ## end sub parse_novel_item
 
 1;
