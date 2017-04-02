@@ -413,7 +413,7 @@ sub update_floor_list {
 
   $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
 
-  $r->{floor_list} = [ grep { $self->{browser}->is_item_in_range( $_, $o{min_item_num}, $o{max_item_num} ) } @$flist ];
+  $r->{floor_list} = [ grep { $self->{browser}->is_item_in_range( $_->{id}, $o{min_item_num}, $o{max_item_num} ) } @$flist ];
 
   return $self;
 } ## end sub update_floor_list
