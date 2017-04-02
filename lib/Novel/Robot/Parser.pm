@@ -219,7 +219,6 @@ sub get_tiezi_ref {
 
   my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
 
-  $floor_list = [ reverse @$floor_list ] if ( $o{reverse_content_list} );
   $self->update_url_list( $floor_list, $self->base_url || $url );
   $floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
 
