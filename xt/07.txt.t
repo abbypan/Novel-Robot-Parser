@@ -2,7 +2,7 @@
 use lib '../lib';
 use Novel::Robot::Parser;
 use Test::More ;
-use Data::Dump qw/dump/;
+use Data::Dumper;
 use utf8;
 
 my $xs = Novel::Robot::Parser->new(site => 'txt');
@@ -12,6 +12,6 @@ my $r = $xs->get_item_ref('txt.txt',
     book => 'yyy',
 );
 
-dump($r);
+print Dumper($r);
 
 done_testing;

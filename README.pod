@@ -35,6 +35,8 @@ init funtion, need set sitename，or url  初始化解析模块，需指定站�
    my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
    my $parser = Novel::Robot::Parser->new( site => $url );
 
+=head1 NOVEL FUNCTION
+
 =head2  get_item_ref 
 
 get novel / forum thread data hash ref 
@@ -50,20 +52,6 @@ get novel index info / forum thread first page info
 获取小说/贴子首页信息
 
    my $r = $parser->get_item_info($url);
-
-=head1 NOVEL FUNCTION
-
-=head2  get_item_ref 
-
-get item data, 获取小说/贴子内容
-
-   my $r = $parser->get_item_ref($url, %opt);
-
-=head2 get_item_info
-
-get item info, 获取小说/贴子信息
-
-   my $inf = $parser->get_item_info($url, %opt);
 
 =head1 BOARD FUNCTION
 

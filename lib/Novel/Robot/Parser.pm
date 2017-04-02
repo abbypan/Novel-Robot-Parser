@@ -105,15 +105,16 @@ sub charset   { 'cp936' }
 sub base_url  { }
 
 sub get_item_info {
-  my ( $self, $index_url ) = @_;
-
-  my $c = $self->{browser}->request_url( $index_url );
-
-  return $self->extract_elements(
-    \$c,
-    path => $self->can( "scrape_novel" )->(),
-    sub  => $self->can( "parse_novel" ),
-  );
+    my ( $self, $url ) = @_;
+    my $c = $self->{browser}->request_url( $url );
+    my $r = $self->extract_elements(
+        \$c,
+        path => $self->can( "scrape_novel" )->(),
+        sub  => $self->can( "parse_novel" ),
+    );
+    $r->{chapter_list} = $self->parse_novel_list( \$c, $r );
+    $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $url );
+    return $r;
 }
 
 sub get_item_ref {
@@ -151,7 +152,7 @@ sub parse_novel {
 sub parse_novel_item {
   my ( $self, $h, $r ) = @_;
   $r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
-  $self->tidy_chapter_content( $r );
+  $self->tidy_content( $r );
   return $r;
 }
 
@@ -171,7 +172,6 @@ sub parse_novel_list {
   my $ref = $parse_novel->scrape( $h );
 
   my @chap = grep { exists $_->{url} and $_->{url} } @{ $ref->{chapter_list} };
-  #$self->update_url_list( \@chap, $r->{url} );
 
   return \@chap unless ( $path_r->{sort} );
 
@@ -180,35 +180,36 @@ sub parse_novel_list {
 } ## end sub parse_novel_list
 
 sub get_novel_ref {
-    my ( $self, $index_url, %o ) = @_;
-    if ( $index_url !~ /^https?:/ ) {
-        return $self->parse_novel( $index_url, %o );
-    }
+  my ( $self, $index_url, %o ) = @_;
+  if ( $index_url !~ /^https?:/ ) {
+    return $self->parse_novel( $index_url, %o );
+  }
 
-    my ( $r, $floor_list ) = $self->{browser}->request_urls(
-        $index_url,
-        info_sub => sub {
-            $self->extract_elements(
-                @_,
-                path => $self->can( "scrape_novel" )->(),
-                sub  => $self->can( "parse_novel" ),
-            );
-        },
-        content_sub  => sub { $self->can( "parse_novel_item" )->( $self, @_ ) },
-        url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
-        %o,
-    );
+  my ( $r, $floor_list ) = $self->{browser}->request_urls(
+    $index_url,
+    info_sub => sub {
+      $self->extract_elements(
+        @_,
+        path => $self->can( "scrape_novel" )->(),
+        sub  => $self->can( "parse_novel" ),
+      );
+    },
+    content_sub  => sub { $self->can( "parse_novel_item" )->( $self, @_ ) },
+    url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
+    %o,
+  );
 
-    $r->{url}         = $index_url;
-    $r->{floor_list}  = $floor_list unless ( exists $r->{floor_list} and @{ $r->{floor_list} } );
-    $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $r->{url} );
-    $self->update_floor_list( $r, %o );
-    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
+  $r->{url}         = $index_url;
+  $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $r->{url} );
+  $r->{floor_list}  = $floor_list unless ( exists $r->{floor_list} and @{ $r->{floor_list} } );
 
-    $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
-    $self->tidy_string( $r, $_ ) for qw/writer book/;
+  $self->update_floor_list( $r, %o );
+  $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
 
-    return $r;
+  $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
+  $self->tidy_string( $r, $_ ) for qw/writer book/;
+
+  return $r;
 } ## end sub get_novel_ref
 
 ### }}}
@@ -220,15 +221,16 @@ sub get_tiezi_ref {
   my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
 
   $self->update_url_list( $floor_list, $self->base_url || $url );
-  $floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
 
-  if ( !$floor_list->[0]{content} and $o{deal_content_url} ) {
-    for my $x ( @$floor_list ) {
-      my $u = $x->{url};
-      my $h = $self->{browser}->request_url( $u );
-      $x->{content} = $o{deal_content_url}->( $h );
-    }
-  }
+  #$floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
+
+  #if ( !$floor_list->[0]{content} and $o{deal_content_url} ) {
+  #for my $x ( @$floor_list ) {
+  #my $u = $x->{url};
+  #my $h = $self->{browser}->request_url( $u );
+  #$x->{content} = $o{deal_content_url}->( $h );
+  #}
+  #}
 
   unshift @$floor_list, $topic if ( $topic->{content} );
   my %r = (
@@ -263,7 +265,7 @@ sub get_iterate_data {
     #max_page_num  => $o{"max_page_num"},
     stop_sub => sub {
       my ( $info, $data_list, $i ) = @_;
-      $self->is_list_overflow( $data_list, $o{"max_item_num"} );
+      $self->{browser}->is_list_overflow( $data_list, $o{"max_item_num"} );
     },
     %o,
   );
@@ -322,20 +324,6 @@ sub make_query_request { }
 ### }}}
 
 ### {{{ base
-
-sub tidy_string {
-  my ( $self, $r, $k ) = @_;
-  $r->{$k} ||= '';
-
-  for ( $r->{$k} ) {
-    s/^\s+|\s+$//gs;
-    s/[\*\/\\\[\(\)]+//g;
-    s/[[:punct:]]//sg;
-    s/[\]\s+]/-/g;
-  }
-
-  $r;
-}
 
 sub update_url_list {
   my ( $self, $arr, $base_url ) = @_;
@@ -401,60 +389,13 @@ sub extract_regex_element {
   return $d;
 }
 
-sub is_list_overflow {
-  my ( $self, $r, $max ) = @_;
-
-  return unless ( $max );
-
-  my $floor_num = scalar( @{$r} );
-  return if ( $floor_num < $max );
-
-  $#{$r} = $max - 1;
-  return 1;
-}
-
-sub select_list_range {
-  my ( $self, $src, $s_min, $s_max ) = @_;
-
-  my $have_id;
-  {
-    my $ref = ref( $src->[0] );
-    $have_id = ( $ref and $ref eq 'HASH' and exists $src->[0]{id} );
-  }
-
-  my $default_sub = sub {
-    my ( $hashref, $fallback ) = @_;
-    return $fallback unless $have_id;
-    return $hashref->{id} // $fallback;
-  };
-
-  my $id_sub = sub {
-    my ( $id, $default ) = @_;
-    return ( $id and $id =~ /\S/ ) ? $id : $default if $have_id;
-    return ( $id - 1 ) if ( $id and $id =~ /^\d+$/ );
-    return $default;
-  };
-
-  my $min = $id_sub->( $s_min, $default_sub->( $src->[0],  0 ) );
-  my $max = $id_sub->( $s_max, $default_sub->( $src->[-1], $#$src ) );
-
-  my @chap_list =
-    map { $src->[$_] }
-    grep {
-    my $j = $have_id ? ( $src->[$_]{id} // $_ ) : $_;
-    $j >= $min and $j <= $max
-    } ( 0 .. $#$src );
-
-  return \@chap_list;
-} ## end sub select_list_range
-
 sub update_floor_list {
   my ( $self, $r, %o ) = @_;
 
   my $flist = $r->{floor_list};
   $r->{raw_floor_num} = scalar( @$flist );
 
-  $self->calc_content_word_num( $_ ) for @$flist;
+  $self->calc_content_wordnum( $_ ) for @$flist;
 
   $flist = [ grep { $_->{word_num} >= $o{min_content_word_num} } @$flist ]
     if ( $o{min_content_word_num} );
@@ -472,49 +413,36 @@ sub update_floor_list {
 
   $flist->[$_]{title} ||= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
 
-  $r->{floor_list} = $flist;
+  $r->{floor_list} = [ grep { $self->{browser}->is_item_in_range( $_, $o{min_item_num}, $o{max_item_num} ) } @$flist ];
 
   return $self;
 } ## end sub update_floor_list
 
-sub is_empty_chapter {
-  my ( $self, $chap_r ) = @_;
-  return if ( $chap_r and $chap_r->{content} );
-  return 1;
-}
-
-sub get_nth_chapter_list {
-  my ( $self, $index_ref, $n ) = @_;
-  my $r = $index_ref->{chapter_list}[ $n - 1 ];
-  return $r;
-}
-
-sub get_chapter_ids {
-  my ( $self, $index_ref, $o ) = @_;
-
-  my $chap_ids = $o->{chapter_ids} || [ 1 .. $index_ref->{chapter_num} ];
-
-  my @sort_chap_ids = sort { $a <=> $b } @$chap_ids;
-  return \@sort_chap_ids;
-}
-
-sub calc_content_word_num {
+sub calc_content_wordnum {
   my ( $self, $f ) = @_;
   return if ( $f->{word_num} );
   my $wd = $f->{content} || '';
   $wd =~ s/<[^>]+>//gs;
+  $wd =~ s/\s+//sg;
   $f->{word_num} = $wd =~ s/\S//gs;
   return $f;
 }
 
-sub merge_hashref {
-  my ( $self, $h, $model ) = @_;
-  return unless ( ref( $model ) eq 'HASH' and ref( $h ) eq 'HASH' );
-  $h->{$_} ||= $model->{$_} for keys( %$model );
-  return $h;
+sub tidy_string {
+  my ( $self, $r, $k ) = @_;
+  $r->{$k} ||= '';
+
+  for ( $r->{$k} ) {
+    s/^\s+|\s+$//gs;
+    s/[\*\/\\\[\(\)]+//g;
+    s/[[:punct:]]//sg;
+    s/[\]\s+]/-/g;
+  }
+
+  $r;
 }
 
-sub tidy_chapter_content {
+sub tidy_content {
   my ( $self, $r ) = @_;
   for ( $r->{content} ) {
     s###sg;
@@ -550,37 +478,111 @@ sub unescape_js {
 ### }}}
 
 ### {{{ deprecate
-sub get_index_ref {
-  my ( $self, $url, %opt ) = @_;
-  my $c = $self->{browser}->request_url( $url );
-  my $r = $self->extract_elements(
-    \$c,
-    path => $self->can( "scrape_novel" )->(),
-    sub  => $self->can( "parse_novel" ),
-  );
-  $r->{chapter_list} = $self->parse_novel_list( \$c, $r );
-  return $r;
-}
+#sub get_index_ref {
+    #my ( $self, $url, %opt ) = @_;
+    #my $c = $self->{browser}->request_url( $url );
+    #my $r = $self->extract_elements(
+        #\$c,
+        #path => $self->can( "scrape_novel" )->(),
+        #sub  => $self->can( "parse_novel" ),
+    #);
+    #$r->{chapter_list} = $self->parse_novel_list( \$c, $r );
+    #$r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $url );
+    #return $r;
+#}
 
-sub get_chapter_ref {
-  my ( $self, $src ) = @_;
+#sub get_chapter_ref {
+    #my ( $self, $src ) = @_;
 
-  $src = { url => $src || '' } if ( ref( $src ) ne 'HASH' );
-  my $html = $self->{browser}->request_url( $src->{url} );
+    #$src = { url => $src || '' } if ( ref( $src ) ne 'HASH' );
+    #my $html = $self->{browser}->request_url( $src->{url} );
 
-  my $r = $self->extract_elements(
-    \$html,
-    path => $self->scrape_novel_item(),
-    sub  => $self->can( 'parse_novel_item' ),
-  );
+    #my $r = $self->extract_elements(
+        #\$html,
+        #path => $self->scrape_novel_item(),
+        #sub  => $self->can( 'parse_novel_item' ),
+    #);
 
-  $r->{$_} ||= $src->{$_} for keys( %$src );
-  $r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
-  $self->tidy_chapter_content( $r );
+    #$r->{$_} ||= $src->{$_} for keys( %$src );
+    #$r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
+    #$self->tidy_content( $r );
 
-  return $r;
-} ## end sub get_chapter_ref
+    #return $r;
+#}
 
+#sub is_list_overflow {
+#my ( $self, $r, $max ) = @_;
+
+#return unless ( $max );
+
+#my $floor_num = scalar( @$r );
+#my $id = $r->[-1]{id} // $floor_num;
+
+#return if ( $id < $max );
+
+#$#{$r} = $max - 1;
+#return 1;
+#}
+#
+#sub select_list_range {
+#my ( $self, $src, $s_min, $s_max ) = @_;
+
+#my $have_id;
+#{
+#my $ref = ref( $src->[0] );
+#$have_id = ( $ref and $ref eq 'HASH' and exists $src->[0]{id} );
+#}
+
+#my $default_sub = sub {
+#my ( $hashref, $fallback ) = @_;
+#return $fallback unless $have_id;
+#return $hashref->{id} // $fallback;
+#};
+
+#my $id_sub = sub {
+#my ( $id, $default ) = @_;
+#return ( $id and $id =~ /\S/ ) ? $id : $default if $have_id;
+#return ( $id - 1 ) if ( $id and $id =~ /^\d+$/ );
+#return $default;
+#};
+
+#my $min = $id_sub->( $s_min, $default_sub->( $src->[0],  0 ) );
+#my $max = $id_sub->( $s_max, $default_sub->( $src->[-1], $#$src ) );
+
+#my @chap_list =
+#map { $src->[$_] }
+#grep {
+#my $j = $have_id ? ( $src->[$_]{id} // $_ ) : $_;
+#$j >= $min and $j <= $max
+#} ( 0 .. $#$src );
+
+#return \@chap_list;
+#}
+#
+#sub is_empty_chapter {
+#my ( $self, $chap_r ) = @_;
+#return if ( $chap_r and $chap_r->{content} );
+#return 1;
+#}
+#sub get_nth_chapter_list {
+#my ( $self, $index_ref, $n ) = @_;
+#my $r = $index_ref->{chapter_list}[ $n - 1 ];
+#return $r;
+#}
+#sub get_chapter_ids {
+#my ( $self, $index_ref, $o ) = @_;
+
+#my $chap_ids = $o->{chapter_ids} || [ 1 .. $index_ref->{chapter_num} ];
+
+#my @sort_chap_ids = sort { $a <=> $b } @$chap_ids;
+#return \@sort_chap_ids;
+#}
+#sub merge_hashref {
+#my ( $self, $h, $model ) = @_;
+#return unless ( ref( $model ) eq 'HASH' and ref( $h ) eq 'HASH' );
+#$h->{$_} ||= $model->{$_} for keys( %$model );
+#return $h;
+#}
 #}}}
 #}}}
 
