@@ -9,7 +9,6 @@ use Web::Scraper;
 
 sub base_url { 'http://www.kanunu8.com' }
 
-
 sub scrape_novel_list { { path => '//tr[@bgcolor="#ffffff"]//td//a',  } }
 
 sub parse_novel {
@@ -31,23 +30,26 @@ sub parse_novel {
 } ## end sub parse_novel
 
 sub scrape_novel_item { {
-        title => { regex => '<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读' }, 
+        title => { regex => '<title>\s*(.+?)_.+?_.*?在线阅读' }, 
         content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
     } }
 
 #sub parse_novel_item {
-#
-#    my ( $self, $h ) = @_;
-#
-#    my $parse_novel_item = scraper {
-#        process_first '//td[@width="820"]', 'content' => 'HTML';
-#    };
-#    my $ref = $parse_novel_item->scrape($h);
-#
-#    ( $ref->{title} ) =
-#      $$h =~ m#<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读#s;
-#
-#    return $ref;
+
+    #my ( $self, $h, $r ) = @_;
+#print $r->{title};
+#print $r->{content};
+    #return $r;
+
+    #my $parse_novel_item = scraper {
+        #process_first '//td[@width="820"]', 'content' => 'HTML';
+    #};
+    #my $ref = $parse_novel_item->scrape($h);
+
+    #( $ref->{title} ) =
+      #$$h =~ m#<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读#s;
+
+    #return $ref;
 #} ## end sub parse_novel_item
 
 sub parse_board {

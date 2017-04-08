@@ -5,6 +5,30 @@ use Test::More ;
 use Data::Dumper;
 use utf8;
 
+# { kanunu
+my $xs = Novel::Robot::Parser->new( site=> 'kanunu' );
+#my $index_url = 'http://www.kanunu8.com/book/4559/';
+#my $chapter_url = 'http://www.kanunu8.com/book/4559/62299.html';
+my $index_url = 'http://www.kanunu8.com/wuxia/201103/2337.html';
+my $chapter_url = 'http://www.kanunu8.com/wuxia/201103/2337/68465.html';
+
+my $index_ref = $xs->get_item_info($index_url);
+is($index_ref->{book}=~/^武林/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '古龙', 'writer');
+is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
+print Dumper($index_ref);
+
+my $html = $xs->{browser}->request_url( $chapter_url );
+my $chapter_ref = $xs->extract_elements(
+    \$html,
+    path => $xs->scrape_novel_item(),
+    sub  => $xs->can( 'parse_novel_item' ),
+);
+is($chapter_ref->{title}=~/风雪/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/怒雪威寒/ ? 1 : 0, 1 , 'chapter_content');
+# }
+ exit;
+
 # { asxs
 my $xs = Novel::Robot::Parser->new( site=> 'asxs' );
 my $index_url = 'http://www.23xs.cc/book/169/index.html';
@@ -91,20 +115,6 @@ is($chapter_ref->{title}=~/杀手/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/顶尖/ ? 1 : 0, 1 , 'chapter_content');
 # }
 
-# { kanunu
-my $xs = Novel::Robot::Parser->new( site=> 'kanunu' );
-my $index_url = 'http://www.kanunu8.com/book/4559/';
-my $chapter_url = 'http://www.kanunu8.com/book/4559/62299.html';
-
-my $index_ref = $xs->get_item_info($index_url);
-is($index_ref->{book}=~/^武林/ ? 1 : 0, 1,'book');
-is($index_ref->{writer}, '古龙', 'writer');
-is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
-
-my $chapter_ref = $xs->get_chapter_ref($chapter_url);
-is($chapter_ref->{title}=~/风雪/ ? 1 : 0, 1 , 'chapter_title');
-is($chapter_ref->{content}=~/怒雪威寒/ ? 1 : 0, 1 , 'chapter_content');
-# }
 
 # { kanshuge 
 my $xs = Novel::Robot::Parser->new( site=> 'kanshuge' );

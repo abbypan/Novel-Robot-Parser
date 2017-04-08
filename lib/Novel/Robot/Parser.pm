@@ -194,7 +194,13 @@ sub get_novel_ref {
         sub  => $self->can( "parse_novel" ),
       );
     },
-    content_sub  => sub { $self->can( "parse_novel_item" )->( $self, @_ ) },
+    content_sub  => sub { 
+      $self->extract_elements(
+        @_,
+        path => $self->can( "scrape_novel_item" )->(),
+        sub  => $self->can( "parse_novel_item" ),
+      );
+    },
     url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
     %o,
   );
