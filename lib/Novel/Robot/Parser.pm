@@ -42,6 +42,7 @@ our %SITE_DOM_NAME = (
   'www.yssm.org'          => 'yssm',
   'www.zhonghuawuxia.com' => 'zhonghuawuxia',
   'www.zilang.net'        => 'zilang',
+  'www.bxwx9.org' => 'bxwx9', 
 );
 
 our %NULL_INDEX = (

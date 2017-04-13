@@ -5,6 +5,29 @@ use Test::More ;
 use Data::Dumper;
 use utf8;
 
+# { dingdian
+my $xs = Novel::Robot::Parser->new( site=> 'dingdian' );
+my $index_url = 'http://www.23us.com/html/0/202/';
+my $chapter_url = 'http://www.23us.com/html/0/202/15973286.html';
+
+my $index_ref = $xs->get_item_info($index_url);
+is($index_ref->{book}=~/^全职高手/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '蝴蝶蓝', 'writer');
+is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
+
+my $html = $xs->{browser}->request_url( $chapter_url );
+my $chapter_ref = $xs->extract_elements(
+    \$html,
+    path => $xs->scrape_novel_item(),
+    sub  => $xs->can( 'parse_novel_item' ),
+);
+is($chapter_ref->{title}=~/被驱逐/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/灵巧/ ? 1 : 0, 1 , 'chapter_content');
+# }
+
+done_testing;
+exit;
+
 # { kanunu
 my $xs = Novel::Robot::Parser->new( site=> 'kanunu' );
 #my $index_url = 'http://www.kanunu8.com/book/4559/';
@@ -46,14 +69,10 @@ my $chapter_ref = $xs->extract_elements(
     path => $xs->scrape_novel_item(),
     sub  => $xs->can( 'parse_novel_item' ),
 );
-#my $chapter_ref = $xs->get_chapter_ref($chapter_url);
 is($chapter_ref->{title}=~/杀手/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/顶尖/ ? 1 : 0, 1 , 'chapter_content');
 # }
 
-done_testing;
-
-exit;
 
 # { lwxs 
 my $xs = Novel::Robot::Parser->new( site=> 'lwxs' );
@@ -222,19 +241,5 @@ is($chapter_ref->{title}=~/杀手/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/顶尖/ ? 1 : 0, 1 , 'chapter_content');
 # }
 
-# { dingdian
-my $xs = Novel::Robot::Parser->new( site=> 'dingdian' );
-my $index_url = 'http://www.23us.com/html/5/5189/';
-my $chapter_url = 'http://www.23us.com/html/5/5189/1598544.html';
-
-my $index_ref = $xs->get_item_info($index_url);
-is($index_ref->{book}=~/^武林/ ? 1 : 0, 1,'book');
-is($index_ref->{writer}, '古龙', 'writer');
-is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
-
-my $chapter_ref = $xs->get_chapter_ref($chapter_url);
-is($chapter_ref->{title}=~/风雪/ ? 1 : 0, 1 , 'chapter_title');
-is($chapter_ref->{content}=~/怒雪威寒/ ? 1 : 0, 1 , 'chapter_content');
-# }
 
 done_testing;
