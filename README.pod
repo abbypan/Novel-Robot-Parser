@@ -14,7 +14,7 @@ get novel / bbs content from website
 =head1 SUPPORT SITE
 
 
-=head2 support download novel/thread from website
+=head2 support download novel from website
 
 
 支持小说/论坛站点下载
