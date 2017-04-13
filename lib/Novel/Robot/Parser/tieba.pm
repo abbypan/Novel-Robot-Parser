@@ -15,7 +15,7 @@ sub charset { 'utf8' }
 
 sub site_type { 'tiezi' }
 
-sub scrape_tiezi {
+sub scrape_novel {
   { title  => { path => '//h3' },
     writer => { path => '//li[@class="d_name"]' },
   };

@@ -223,33 +223,23 @@ sub get_novel_ref {
 
 ### {{{ tiezi
 sub get_tiezi_ref {
-  my ( $self, $url, %o ) = @_;
+    my ( $self, $url, %o ) = @_;
 
-  my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
+    my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
 
-  $self->update_url_list( $floor_list, $self->base_url || $url );
+    $self->update_url_list( $floor_list, $self->base_url || $url );
 
-  #$floor_list = $self->select_list_range( $floor_list, $o{min_item_num}, $o{max_item_num} );
+    unshift @$floor_list, $topic if ( $topic->{content} );
+    my %r = (
+        %$topic,
+        writer => $o{writer} || $topic->{writer}, 
+        book       => $o{book} || $topic->{book} || $topic->{title},
+        url        => $url,
+        floor_list => $floor_list,
+    );
+    $self->update_floor_list( \%r, %o );
 
-  #if ( !$floor_list->[0]{content} and $o{deal_content_url} ) {
-  #for my $x ( @$floor_list ) {
-  #my $u = $x->{url};
-  #my $h = $self->{browser}->request_url( $u );
-  #$x->{content} = $o{deal_content_url}->( $h );
-  #}
-  #}
-
-  unshift @$floor_list, $topic if ( $topic->{content} );
-  my %r = (
-    %$topic,
-    book       => $topic->{title},
-    title      => $topic->{title},
-    url        => $url,
-    floor_list => $floor_list,
-  );
-  $self->update_floor_list( \%r, %o );
-
-  return \%r;
+    return \%r;
 } ## end sub get_tiezi_ref
 
 sub get_iterate_data {
