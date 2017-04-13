@@ -8,21 +8,27 @@ L<Novel::Robot::Parser> - get novel / bbs content from website
 
 小说站点解析引擎
 
-=head1 INIT
+=head1 SUPPORT SITE
 
-=head2 site
+=head2 support download novel/thread from website
 
-=head3 support download novel/thread from website 支持小说/论坛站点下载
+支持小说/论坛站点下载
 
 %SITE_DOM_NAME in Parser.pm 站点列表
 
-=head3 support txt file 支持处理txt
+=head2 support txt file
+
+支持处理txt
 
 txt : 指定解析txt文件
 
-=head3 support raw file 支持处理序列化数据
+=head2 support raw file
+
+支持处理序列化数据
 
 raw : 指定解析经MessagePack压缩的二进制文件
+
+=head1 INIT
 
 =head2 new
 
