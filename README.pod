@@ -4,7 +4,9 @@
 
 =head1 NAME
 
-L<Novel::Robot::Parser> - get novel / bbs content from website
+L<Novel::Robot::Parser>
+
+get novel / bbs content from website
 
 小说站点解析引擎
 
@@ -34,22 +36,22 @@ raw : 指定解析经MessagePack压缩的二进制文件
 
 init funtion, need set sitename，or url  初始化解析模块，需指定站点名称或网址
 
-   #site name : 直接指定站点
-   my $parser = Novel::Robot::Parser->new( site => 'jjwxc' );
-    
-   #url : 通过url自动检测站点
-   my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
-   my $parser = Novel::Robot::Parser->new( site => $url );
+       #site name : 直接指定站点
+       my $parser = Novel::Robot::Parser->new( site => 'jjwxc' );
+        
+       #url : 通过url自动检测站点
+       my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
+       my $parser = Novel::Robot::Parser->new( site => $url );
 
 =head1 NOVEL FUNCTION
 
-=head2  get_item_ref 
+=head2 get_item_ref
 
 get novel / forum thread data hash ref 
 
 获取小说/贴子内容，返回一个hash引用
 
-   my $r = $parser->get_item_ref($url, %opt);
+       my $r = $parser->get_item_ref($url, %opt);
 
 =head2 get_item_info
 
@@ -57,7 +59,7 @@ get novel index info / forum thread first page info
 
 获取小说/贴子首页信息
 
-   my $r = $parser->get_item_info($url);
+       my $r = $parser->get_item_info($url);
 
 =head1 BOARD FUNCTION
 
@@ -67,7 +69,7 @@ writer -> multi books, forum -> multi threads
 
 get writer / board info, 获取版块信息
 
-   my $r = $parser->get_board_ref($url, %opt);
+       my $r = $parser->get_board_ref($url, %opt);
 
 =head1 QUERY FUNCTION
 
@@ -75,10 +77,10 @@ get writer / board info, 获取版块信息
 
 query info, 获取查询结果
 
-    my $query_type = '作者';
-    my $query_keyword = '顾漫';
+        my $query_type = '作者';
+        my $query_keyword = '顾漫';
 
-    my ($info, $items_ref) = $parser->get_query_ref( $query_keyword, 
-        query_type => $query_type );
+        my ($info, $items_ref) = $parser->get_query_ref( $query_keyword, 
+            query_type => $query_type );
 
 =cut
