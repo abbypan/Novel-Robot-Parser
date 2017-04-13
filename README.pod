@@ -10,13 +10,17 @@ get novel / bbs content from website
 
 小说站点解析引擎
 
+
 =head1 SUPPORT SITE
 
+
 =head2 support download novel/thread from website
+
 
 支持小说/论坛站点下载
 
 %SITE_DOM_NAME in Parser.pm 站点列表
+
 
 =head2 support txt file
 
@@ -24,13 +28,16 @@ get novel / bbs content from website
 
 txt : 指定解析txt文件
 
+
 =head2 support raw file
 
 支持处理序列化数据
 
 raw : 指定解析经MessagePack压缩的二进制文件
 
+
 =head1 INIT
+
 
 =head2 new
 
@@ -43,7 +50,9 @@ init funtion, need set sitename，or url  初始化解析模块，需指定站�
        my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
        my $parser = Novel::Robot::Parser->new( site => $url );
 
+
 =head1 NOVEL FUNCTION
+
 
 =head2 get_item_ref
 
@@ -53,6 +62,7 @@ get novel / forum thread data hash ref
 
        my $r = $parser->get_item_ref($url, %opt);
 
+
 =head2 get_item_info
 
 get novel index info / forum thread first page info
@@ -61,9 +71,11 @@ get novel index info / forum thread first page info
 
        my $r = $parser->get_item_info($url);
 
+
 =head1 BOARD FUNCTION
 
 writer -> multi books, forum -> multi threads
+
 
 =head2 get_board_ref 
 
@@ -71,7 +83,9 @@ get writer / board info, 获取版块信息
 
        my $r = $parser->get_board_ref($url, %opt);
 
+
 =head1 QUERY FUNCTION
+
 
 =head2 get_query_ref 
 
@@ -82,5 +96,6 @@ query info, 获取查询结果
 
         my ($info, $items_ref) = $parser->get_query_ref( $query_keyword, 
             query_type => $query_type );
+
 
 =cut
