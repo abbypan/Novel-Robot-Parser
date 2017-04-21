@@ -92,7 +92,7 @@ sub get_tiezi_ref {
 
     $info->{url}        = $url;
     $info->{floor_list} = $floor_list;
-    print "last_chapter_id : $info->{floor_list}[-1]{id}\n";
+    #print "last_chapter_id : $info->{floor_list}[-1]{id}\n";
     return $info;
 } ## end sub get_tiezi_ref
 
