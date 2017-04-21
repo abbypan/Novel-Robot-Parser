@@ -1,11 +1,11 @@
-# ABSTRACT: http://www.snwx.com
+# ABSTRACT: http://www.snwx8.com
 package Novel::Robot::Parser::snwx;
 use strict;
 use warnings;
 use utf8;
 use base 'Novel::Robot::Parser';
 
-sub base_url { 'http://www.snwx.com' }
+sub base_url { 'http://www.snwx8.com' }
 
 sub scrape_novel_list { { path=>'//div[@id="list"]//a', sort=>1 } }
 
