@@ -390,7 +390,8 @@ sub update_floor_list {
     my ( $self, $r, %o ) = @_;
 
     my $flist = $r->{floor_list};
-    $r->{raw_floor_num} = scalar( @$flist );
+    $r->{chapter_num} //= scalar( @$flist );
+
     $flist->[$_]{id} //= $_ + 1 for ( 0 .. $#$flist );
     $flist->[$_]{title} //= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
 
@@ -410,7 +411,7 @@ sub update_floor_list {
     $flist = [ grep { $_->{content} !~ /$o{filter_content}/s } @$flist ]
     if ( $o{filter_content} );
 
-    $r->{floor_list} = $flist;
+    $r->{floor_list} = $flist || [];
 
     return $self;
 } ## end sub update_floor_list
