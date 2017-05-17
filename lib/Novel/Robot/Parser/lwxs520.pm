@@ -23,7 +23,8 @@ sub scrape_novel_list { { path => '//td[@class="bookinfo_td"]//td//a' } }
 
 sub scrape_novel_item { {
         title => { path => '//h1', }, 
-        content=>{ path => '//div[@id="content"]', extract => 'HTML' }, 
+        #content=>{ path => '//div[@id="content"]', extract => 'HTML' }, 
+        content => { regex=> '<DIV id=content name="content">.*?<P>(.+?)</P>' }, 
     } }
 
 1;
