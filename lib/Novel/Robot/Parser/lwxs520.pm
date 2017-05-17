@@ -12,6 +12,13 @@ sub scrape_novel { {
         writer => { path => '//div[@class="infot"]//span', }, 
     } }
 
+sub parse_novel {
+    my ( $self, $h, $r ) = @_;
+    $r->{writer}=~s#\/.*$##;
+    return $r;
+}
+
+
 sub scrape_novel_list { { path => '//td[@class="bookinfo_td"]//td//a' } }
 
 sub scrape_novel_item { {
