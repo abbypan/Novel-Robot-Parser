@@ -9,7 +9,7 @@ use base 'Novel::Robot::Parser';
 sub base_url { 'http://www.bxwx9.org' }
 
 sub scrape_novel_list {
-    { path=> '//div[@id="TabCss"]//dd//a'}
+    { path=> '//div[@id="TabCss"]//dd//a', sort => 1, }
 }
 
 sub scrape_novel {
