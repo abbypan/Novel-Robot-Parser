@@ -21,7 +21,7 @@ sub scrape_novel {
 
 sub scrape_novel_item {
     return {
-        title => { path => '//h1'}, 
+        title => { path => '//input[@class="title"]', extract => '@value' }, 
         content=>{ path => '//pre[@id="content"]', extract => 'HTML' }, 
     };
 }
