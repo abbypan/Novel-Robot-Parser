@@ -1,4 +1,4 @@
-# ABSTRACT: http://www.biquge.tw
+# ABSTRACT: http://www.xs.la
 package Novel::Robot::Parser::biquge;
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ use utf8;
 
 use base 'Novel::Robot::Parser';
 
-sub base_url { 'http://www.biquge.tw' }
+sub base_url { 'http://www.xs.la' }
 
 sub charset { 'utf8' }
 

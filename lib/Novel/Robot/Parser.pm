@@ -23,7 +23,8 @@ our %SITE_DOM_NAME = (
   'www.123yq.com'         => 'yesyq',
   'www.23us.com'          => 'dingdian',
   'www.23xs.cc'           => 'asxs',
-  'www.biquge.tw'         => 'biquge',
+  'www.xs.la'         => 'biquge',
+  'www.shushu8.com' => 'shushu8', 
   'www.71wx.net'          => 'qywx',
   'www.ddshu.net'         => 'ddshu',
   'www.hkslg520.com'      => 'hkslg',
@@ -139,6 +140,7 @@ sub parse_novel {
   for ( $r->{writer} ) {
     s/作\s*者：//;
     s/小说全集//;
+    s/作品全集//;
   }
 
   for ( $r->{book}, $r->{title} ) {
