@@ -18,6 +18,7 @@ our %SITE_DOM_NAME = (
   'bbs.jjwxc.net'         => 'hjj',
   'www.kanunu8.com'       => 'kanunu',
   'm.xiaoxiaoshuwu.com'   => 'xiaoxiaoshuwu',
+  'www.siluke.tw' => 'siluke', 
   'read.qidian.com'       => 'qidian',
   'tieba.baidu.com'       => 'tieba',
   'www.123yq.com'         => 'yesyq',
@@ -179,10 +180,11 @@ sub parse_novel_list {
 
   my @chap = grep { exists $_->{url} and $_->{url} } @{ $ref->{chapter_list} };
 
-  return \@chap unless ( $path_r->{sort} );
+  if($path_r->{sort}){
+      @chap = sort { $a->{url} cmp $b->{url} } @chap;
+  }
 
-  my @sort_chap = sort { $a->{url} cmp $b->{url} } @chap;
-  return \@sort_chap;
+  return \@chap;
 } ## end sub parse_novel_list
 
 sub get_novel_ref {
@@ -397,8 +399,10 @@ sub update_floor_list {
     my $flist = $r->{floor_list};
     $r->{chapter_num} //= scalar( @$flist );
 
-    $flist->[$_]{id} //= $_ + 1 for ( 0 .. $#$flist );
-    $flist->[$_]{title} //= $r->{chapter_list}[$_]{title} || ' ' for ( 0 .. $#$flist );
+    for my $i ( 0 .. $#$flist ){
+        $flist->[$i]{id} ||= $r->{chapter_list}[$i]{id} || ( $i + 1 );
+        $flist->[$i]{title} ||= $r->{chapter_list}[$i]{title} || ' ';
+    }
 
     $flist = [ grep { $self->{browser}->is_item_in_range( $_->{id}, $o{min_item_num}, $o{max_item_num} ) } @$flist ];
 
