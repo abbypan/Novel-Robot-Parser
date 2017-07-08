@@ -5,6 +5,48 @@ use Test::More ;
 use Data::Dumper;
 use utf8;
 
+
+# { tmetb
+my $xs = Novel::Robot::Parser->new( site=> 'tmetb' );
+my $index_url = 'http://www.tmetb.com/0/271/';
+my $chapter_url = 'http://www.tmetb.com/0/271/18340.html';
+
+my $index_ref = $xs->get_item_info($index_url);
+is($index_ref->{book}=~/^上古/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '星零', 'writer');
+is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
+
+my $html = $xs->{browser}->request_url( $chapter_url );
+my $chapter_ref = $xs->extract_elements(
+    \$html,
+    path => $xs->scrape_novel_item(),
+    sub  => $xs->can( 'parse_novel_item' ),
+);
+is($chapter_ref->{title}=~/前奏/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/仙地/ ? 1 : 0, 1 , 'chapter_content');
+# }
+done_testing;
+exit;
+# { dingdian
+my $xs = Novel::Robot::Parser->new( site=> 'dingdian' );
+my $index_url = 'http://www.23us.com/html/27/27686/';
+my $chapter_url = 'http://www.23us.com/html/27/27686/17354510.html';
+
+my $index_ref = $xs->get_item_info($index_url);
+is($index_ref->{book}=~/^奥术/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '爱潜水的乌贼', 'writer');
+is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
+
+my $html = $xs->{browser}->request_url( $chapter_url );
+my $chapter_ref = $xs->extract_elements(
+    \$html,
+    path => $xs->scrape_novel_item(),
+    sub  => $xs->can( 'parse_novel_item' ),
+);
+is($chapter_ref->{title}=~/火刑/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/浓烟/ ? 1 : 0, 1 , 'chapter_content');
+# }
+
 # { shushu8
 my $xs = Novel::Robot::Parser->new( site=> 'shushu8' );
 my $index_url = 'http://www.shushu8.com/tianxiananxuijieluding/';
@@ -24,8 +66,6 @@ my $chapter_ref = $xs->extract_elements(
 is($chapter_ref->{title}=~/穿越/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/苏/ ? 1 : 0, 1 , 'chapter_content');
 # }
-done_testing;
-exit;
 # { lwxs520
 my $xs = Novel::Robot::Parser->new( site=> 'lwxs520' );
 my $index_url = 'http://www.lwxs520.com/books/21/21457/index.html';
@@ -47,25 +87,6 @@ is($chapter_ref->{content}=~/世界到底有多大/ ? 1 : 0, 1 , 'chapter_conten
 # }
 
 
-# { dingdian
-my $xs = Novel::Robot::Parser->new( site=> 'dingdian' );
-my $index_url = 'http://www.23us.com/html/0/202/';
-my $chapter_url = 'http://www.23us.com/html/0/202/15973286.html';
-
-my $index_ref = $xs->get_item_info($index_url);
-is($index_ref->{book}=~/^全职高手/ ? 1 : 0, 1,'book');
-is($index_ref->{writer}, '蝴蝶蓝', 'writer');
-is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
-
-my $html = $xs->{browser}->request_url( $chapter_url );
-my $chapter_ref = $xs->extract_elements(
-    \$html,
-    path => $xs->scrape_novel_item(),
-    sub  => $xs->can( 'parse_novel_item' ),
-);
-is($chapter_ref->{title}=~/被驱逐/ ? 1 : 0, 1 , 'chapter_title');
-is($chapter_ref->{content}=~/灵巧/ ? 1 : 0, 1 , 'chapter_content');
-# }
 
 # { kanunu
 my $xs = Novel::Robot::Parser->new( site=> 'kanunu' );
