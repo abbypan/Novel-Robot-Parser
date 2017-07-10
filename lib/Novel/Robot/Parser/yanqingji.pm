@@ -1,4 +1,4 @@
-# ABSTRACT: 言情记 http://www.yanqingji.com
+# ABSTRACT: http://www.yanqingji.com
 package Novel::Robot::Parser::yanqingji;
 use strict;
 use warnings;

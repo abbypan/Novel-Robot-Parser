@@ -1,5 +1,5 @@
 # ABSTRACT: http://www.xs.la
-package Novel::Robot::Parser::biquge;
+package Novel::Robot::Parser::xs;
 use strict;
 use warnings;
 use utf8;

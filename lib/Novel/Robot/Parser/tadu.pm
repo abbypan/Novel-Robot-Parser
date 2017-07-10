@@ -1,4 +1,4 @@
-# ABSTRACT: 塔读文学 http://www.tadu.com
+# ABSTRACT: http://www.tadu.com
 package Novel::Robot::Parser::tadu;
 use strict;
 use warnings;

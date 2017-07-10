@@ -1,4 +1,4 @@
-# ABSTRACT: 123yq http://www.123yq.com
+# ABSTRACT: http://www.123yq.com
 package Novel::Robot::Parser::yesyq;
 use strict;
 use warnings;

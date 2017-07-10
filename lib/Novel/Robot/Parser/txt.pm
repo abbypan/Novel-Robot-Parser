@@ -1,4 +1,4 @@
-# ABSTRACT: 解析txt
+# ABSTRACT: txt parser
 =pod
 
 =encoding utf8

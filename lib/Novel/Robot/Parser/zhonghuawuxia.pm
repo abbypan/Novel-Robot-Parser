@@ -1,4 +1,4 @@
-# ABSTRACT: zhonghuawuxia.pm http://www.zhonghuawuxia.com
+# ABSTRACT: http://www.zhonghuawuxia.com
 package Novel::Robot::Parser::zhonghuawuxia;
 use strict;
 use warnings;

@@ -1,4 +1,4 @@
-# ABSTRACT: 千千小说
+# ABSTRACT: http://www.qqxs.cc
 package Novel::Robot::Parser::qqxs;
 use strict;
 use warnings;

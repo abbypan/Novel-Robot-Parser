@@ -1,4 +1,4 @@
-# ABSTRACT: 起点小说 http://read.qidian.com
+# ABSTRACT: http://read.qidian.com
 package Novel::Robot::Parser::qidian;
 use strict;
 use warnings;

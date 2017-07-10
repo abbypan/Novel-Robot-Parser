@@ -1,5 +1,5 @@
 # ABSTRACT: http://www.23xs.cc
-package Novel::Robot::Parser::asxs;
+package Novel::Robot::Parser::esxs;
 use strict;
 use warnings;
 use utf8;

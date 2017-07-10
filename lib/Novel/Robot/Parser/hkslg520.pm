@@ -1,5 +1,5 @@
 # ABSTRACT: http://www.hkslg520.com/
-package Novel::Robot::Parser::hkslg;
+package Novel::Robot::Parser::hkslg520;
 use strict;
 use warnings;
 use utf8;

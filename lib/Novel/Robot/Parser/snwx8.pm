@@ -1,5 +1,5 @@
 # ABSTRACT: http://www.snwx8.com
-package Novel::Robot::Parser::snwx;
+package Novel::Robot::Parser::snwx8;
 use strict;
 use warnings;
 use utf8;

@@ -1,5 +1,5 @@
 # ABSTRACT: http://www.23us.com
-package Novel::Robot::Parser::dingdian;
+package Novel::Robot::Parser::esus;
 use strict;
 use warnings;
 use utf8;

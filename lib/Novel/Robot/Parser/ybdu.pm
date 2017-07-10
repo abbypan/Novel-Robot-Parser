@@ -1,4 +1,4 @@
-# ABSTRACT: 一本读 http://www.ybdu.com
+# ABSTRACT: http://www.ybdu.com
 package Novel::Robot::Parser::ybdu;
 use strict;
 use warnings;

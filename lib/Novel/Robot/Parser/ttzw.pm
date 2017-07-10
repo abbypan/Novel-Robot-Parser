@@ -1,4 +1,4 @@
-# ABSTRACT: 天天中文 http://www.ttzw.com
+# ABSTRACT: http://www.ttzw.com
 package Novel::Robot::Parser::ttzw;
 use strict;
 use warnings;

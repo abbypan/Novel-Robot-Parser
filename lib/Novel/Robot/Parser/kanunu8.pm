@@ -1,5 +1,5 @@
 # ABSTRACT: http://www.kanunu8.com
-package Novel::Robot::Parser::kanunu;
+package Novel::Robot::Parser::kanunu8;
 use strict;
 use warnings;
 use utf8;

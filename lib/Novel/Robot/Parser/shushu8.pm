@@ -1,4 +1,4 @@
-# ABSTRACT: 言情记 http://www.shushu8.com
+# ABSTRACT: http://www.shushu8.com
 package Novel::Robot::Parser::shushu8;
 use strict;
 use warnings;

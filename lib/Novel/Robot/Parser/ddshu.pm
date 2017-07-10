@@ -1,4 +1,4 @@
-# ABSTRACT: 豆豆小说阅读网 http://www.dddshu.net
+# ABSTRACT: http://www.dddshu.net
 =pod
 
 =encoding utf8
