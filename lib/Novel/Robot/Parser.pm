@@ -19,10 +19,10 @@ our %SITE_DOM_NAME = (
     'tieba.baidu.com'       => 'tieba',
 
     'www.123yq.com'         => 'yesyq',
-    'www.23us.com'          => 'esus',
     'www.23xs.cc'           => 'esxs',
     'www.71wx.net'          => 'qywx',
 
+    'www.x23us.com'          => 'x23us',
     'm.xiaoxiaoshuwu.com'   => 'xiaoxiaoshuwu',
     'read.qidian.com'       => 'qidian',
     'www.bxwx9.org'         => 'bxwx9', 

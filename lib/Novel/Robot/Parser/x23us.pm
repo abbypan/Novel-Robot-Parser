@@ -1,11 +1,11 @@
-# ABSTRACT: http://www.23us.com
-package Novel::Robot::Parser::esus;
+# ABSTRACT: http://www.x23us.com
+package Novel::Robot::Parser::x23us;
 use strict;
 use warnings;
 use utf8;
 use base 'Novel::Robot::Parser';
 
-sub base_url { 'http://www.23us.com' }
+sub base_url { 'http://www.x23us.com' }
 
 sub scrape_novel { {
         writer => { regex => '<meta name="og:novel:author" content="(.+?)"/>', }, 
