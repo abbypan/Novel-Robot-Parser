@@ -5,6 +5,26 @@ use Test::More ;
 use Data::Dumper;
 use utf8;
 
+# { tadu
+my $xs = Novel::Robot::Parser->new( site=> 'tadu' );
+my $index_url = 'http://www.tadu.com/book/catalogue/394959';
+my $chapter_url = 'http://www.tadu.com/book/394959/26793462/';
+
+my $index_ref = $xs->get_item_info($index_url);
+is($index_ref->{book}=~/^凰图/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '寐语者', 'writer');
+is($index_ref->{chapter_list}[0]{url}, $chapter_url, 'chapter_url');
+
+my $html = $xs->{browser}->request_url( $chapter_url );
+my $chapter_ref = $xs->extract_elements(
+    \$html,
+    path => $xs->scrape_novel_item(),
+    sub  => $xs->can( 'parse_novel_item' ),
+);
+is($chapter_ref->{title}=~/章目-楔子/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/华/ ? 1 : 0, 1 , 'chapter_content');
+# }
+ exit;
 
 # { tmetb
 my $xs = Novel::Robot::Parser->new( site=> 'tmetb' );
