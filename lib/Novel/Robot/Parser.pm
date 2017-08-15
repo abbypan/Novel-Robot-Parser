@@ -22,6 +22,7 @@ our %SITE_DOM_NAME = (
     'www.23xs.cc'           => 'esxs',
     'www.71wx.net'          => 'qywx',
 
+    'www.bearead.com' => 'bearead', 
     'www.x23us.com'          => 'x23us',
     'm.xiaoxiaoshuwu.com'   => 'xiaoxiaoshuwu',
     'read.qidian.com'       => 'qidian',
@@ -190,42 +191,45 @@ sub parse_novel_list {
 } ## end sub parse_novel_list
 
 sub get_novel_ref {
-  my ( $self, $index_url, %o ) = @_;
-  if ( $index_url !~ /^https?:/ ) {
-    return $self->parse_novel( $index_url, %o );
-  }
+    my ( $self, $index_url, %o ) = @_;
 
-  my ( $r, $floor_list ) = $self->{browser}->request_urls(
-    $index_url,
-    info_sub => sub {
-      $self->extract_elements(
-        @_,
-        path => $self->can( "scrape_novel" )->(),
-        sub  => $self->can( "parse_novel" ),
-      );
-    },
-    content_sub  => sub { 
-      $self->extract_elements(
-        @_,
-        path => $self->can( "scrape_novel_item" )->(),
-        sub  => $self->can( "parse_novel_item" ),
-      );
-    },
-    url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
-    %o,
-  );
+    my ( $r, $floor_list );
+    if ( $index_url !~ /^https?:/ ) {
+        $r = $self->parse_novel( $index_url, %o );
+    } else {
 
-  $r->{url}         = $index_url;
-  $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $r->{url} );
-  $r->{floor_list}  = $floor_list unless ( exists $r->{floor_list} and @{ $r->{floor_list} } );
+        ( $r, $floor_list ) = $self->{browser}->request_urls(
+            $index_url,
+            info_sub => sub {
+                $self->extract_elements(
+                    @_,
+                    path => $self->can( "scrape_novel" )->(),
+                    sub  => $self->can( "parse_novel" ),
+                );
+            },
+            content_sub => sub {
+                $self->extract_elements(
+                    @_,
+                    path => $self->can( "scrape_novel_item" )->(),
+                    sub  => $self->can( "parse_novel_item" ),
+                );
+            },
+            url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
+            %o,
+        );
 
-  $self->update_floor_list( $r, %o );
-  $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
+        $r->{url}         = $index_url;
+        $r->{chapter_num} = $self->update_url_list( $r->{chapter_list}, $r->{url} );
+        $r->{floor_list}  = $floor_list unless ( exists $r->{floor_list} and @{ $r->{floor_list} } );
+    } ## end else [ if ( $index_url !~ /^https?:/)]
 
-  $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
-  $self->tidy_string( $r, $_ ) for qw/writer book/;
+    $self->update_floor_list( $r, %o );
+    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
 
-  return $r;
+    $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
+    $self->tidy_string( $r, $_ ) for qw/writer book/;
+
+    return $r;
 } ## end sub get_novel_ref
 
 ### }}}
@@ -402,6 +406,7 @@ sub update_floor_list {
     $r->{chapter_num} //= scalar( @$flist );
 
     for my $i ( 0 .. $#$flist ){
+        $self->tidy_content($flist->[$i]);
         $flist->[$i]{id} ||= $r->{chapter_list}[$i]{id} || ( $i + 1 );
         $flist->[$i]{title} ||= $r->{chapter_list}[$i]{title} || ' ';
     }

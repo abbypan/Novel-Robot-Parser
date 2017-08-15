@@ -5,6 +5,30 @@ use Test::More ;
 use Data::Dumper;
 use utf8;
 
+# { bearead
+#my $r = 'xxx';
+#print ref($r), "\n";
+#exit;
+my $xs = Novel::Robot::Parser->new( site=> 'bearead' );
+my $index_url = 'https://www.bearead.com/reader.html?bid=b10097021&bookListNum=1';
+my $chapter_url = { url => 'https://www.bearead.com/api/book/chapter/content', post_data => 'bid=b10097021&cid=354932' };
+
+my $index_ref = $xs->parse_novel($index_url);
+is($index_ref->{book}=~/^苏/ ? 1 : 0, 1,'book');
+is($index_ref->{writer}, '飘灯', 'writer');
+is($index_ref->{chapter_list}[0]{post_data}, $chapter_url->{post_data}, 'chapter_url');
+
+my $html = $xs->{browser}->request_url( $chapter_url->{url}, $chapter_url->{post_data} );
+my $chapter_ref = $xs->extract_elements(
+    \$html,
+    path => $xs->scrape_novel_item(),
+    sub  => $xs->can( 'parse_novel_item' ),
+);
+is($chapter_ref->{title}=~/沽/ ? 1 : 0, 1 , 'chapter_title');
+is($chapter_ref->{content}=~/苏/ ? 1 : 0, 1 , 'chapter_content');
+# }
+exit;
+
 # { tadu
 my $xs = Novel::Robot::Parser->new( site=> 'tadu' );
 my $index_url = 'http://www.tadu.com/book/catalogue/394959';
@@ -24,7 +48,6 @@ my $chapter_ref = $xs->extract_elements(
 is($chapter_ref->{title}=~/章目-楔子/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/华/ ? 1 : 0, 1 , 'chapter_content');
 # }
- exit;
 
 # { tmetb
 my $xs = Novel::Robot::Parser->new( site=> 'tmetb' );
