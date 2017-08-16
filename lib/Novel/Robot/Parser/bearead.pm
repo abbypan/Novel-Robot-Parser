@@ -9,21 +9,24 @@ use base 'Novel::Robot::Parser';
 
 sub base_url { 'https://www.bearead.com' }
 
+sub generate_novel_url {
+  my ( $self, $index_url ) = @_;
+  my ( $bid ) = $index_url =~ m#bid=(.+?)&#;
+  return ( 'https://www.bearead.com/api/book/detail', post_data => "bid=$bid" );
+}
+
 sub parse_novel {
-  my ( $self, $bid, $rr ) = @_;
-  my $c = $self->{browser}->request_url( 'https://www.bearead.com/api/book/detail', "bid=$bid" );
-  my $r = decode_json( $c );
+  my ( $self, $h, $rr ) = @_;
+  my $r = decode_json( $$h );
   $r = $r->{data};
   my %res;
   $res{book}         = $r->{name};
   $res{writer}       = $r->{author}{nickname};
-  $res{floor_list} = [
-    map {
-    my $c = $self->{browser}->request_url('https://www.bearead.com/api/book/chapter/content', "bid=$_->{bid}&cid=$_->{cid}");
-    my $cr = $self->parse_novel_item(\$c);
-    $cr->{title} = $_->{name};
-    $cr;
-    } @{ $r->{chapter} } ];
+  $res{chapter_list} = [
+    map { { url       => 'https://www.bearead.com/api/book/chapter/content',
+        post_data => "bid=$_->{bid}&cid=$_->{cid}",
+        title     => $_->{name},
+      } } @{ $r->{chapter} } ];
   return \%res;
 }
 

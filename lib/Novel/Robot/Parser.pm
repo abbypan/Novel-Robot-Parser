@@ -137,6 +137,10 @@ sub get_item_ref {
 sub scrape_novel      { {} }
 sub scrape_novel_item { {} }
 sub scrape_novel_list { {} }
+sub generate_novel_url {
+    my ($self, $index_url, @args) =@_;
+    return ($index_url, @args);
+}
 
 sub parse_novel {
   my ( $self, $h, $r ) = @_;
@@ -169,6 +173,8 @@ sub parse_novel_item {
 sub parse_novel_list {
   my ( $self, $h, $r ) = @_;
 
+  return $r->{chapter_list} if(exists $r->{chapter_list});
+
   my $path_r = $self->scrape_novel_list();
   return [] unless ( $path_r );
 
@@ -197,9 +203,11 @@ sub get_novel_ref {
     if ( $index_url !~ /^https?:/ ) {
         $r = $self->parse_novel( $index_url, %o );
     } else {
+        my ($i_url, %post_data) = $self->generate_novel_url($index_url);
 
         ( $r, $floor_list ) = $self->{browser}->request_urls(
-            $index_url,
+            $i_url,
+            %post_data,
             info_sub => sub {
                 $self->extract_elements(
                     @_,
