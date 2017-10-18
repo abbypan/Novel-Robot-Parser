@@ -9,6 +9,8 @@ use Novel::Robot::Browser;
 use URI;
 use Encode;
 use Web::Scraper;
+use HTML::TreeBuilder;
+use Data::Dumper;
 
 ### {{{ data
 
@@ -17,39 +19,20 @@ our $VERSION = 0.29;
 our %SITE_DOM_NAME = (
     'bbs.jjwxc.net'         => 'hjj',
     'tieba.baidu.com'       => 'tieba',
-
-    'www.123yq.com'         => 'yesyq',
-    'www.23xs.cc'           => 'esxs',
-    'www.71wx.net'          => 'qywx',
-
     'www.bearead.com' => 'bearead', 
-    'www.x23us.com'          => 'x23us',
-    'm.xiaoxiaoshuwu.com'   => 'xiaoxiaoshuwu',
-    'read.qidian.com'       => 'qidian',
-    'www.bxwx9.org'         => 'bxwx9', 
+    'www.bookben.com' => 'bookben',
     'www.ddshu.net'         => 'ddshu',
-    'www.hkslg520.com'      => 'hkslg520',
     'www.jjwxc.net'         => 'jjwxc',
-    'www.kanshuge.la'       => 'kanshuge',
     'www.kanunu8.com'       => 'kanunu8',
-    'www.luoqiu.com'        => 'luoqiu',
-    'www.lwxs.com'          => 'lwxs',
-    'www.lwxs520.com'          => 'lwxs520',
-    'www.lwxs8.com'          => 'lwxs8',
-    'www.qqxs.cc'           => 'qqxs',
     'www.shunong.com'       => 'shunong',
     'www.shushu8.com' => 'shushu8', 
-    'www.siluke.tw' => 'siluke', 
-    'www.snwx8.com'          => 'snwx8',
     'www.tadu.com'          => 'tadu',
-    'www.tmetb.com' => 'tmetb', 
+    'www.tmetb.net' => 'tmetb', 
     'www.ttzw.com'          => 'ttzw',
-    'www.xs.la'         => 'xs',
-    'www.yanqingji.com'     => 'yanqingji',
+    'www.tushumi.com'          => 'tushumi',
     'www.ybdu.com'          => 'ybdu',
-    'www.yssm.org'          => 'yssm',
     'www.zhonghuawuxia.com' => 'zhonghuawuxia',
-    'www.zilang.net'        => 'zilang',
+    'read.qidian.com'       => 'qidian',
 );
 
 our %NULL_INDEX = (
@@ -71,7 +54,7 @@ our %NULL_CHAPTER = (
   id         => 0,
   pid        => 0,
   time       => '',
-  title      => '章节为空',
+  title      => '',
   url        => '',
   writer     => '',
   writer_say => '',
@@ -101,7 +84,7 @@ sub detect_site {
   return $url unless ( $url =~ /^http/ );
 
   my ( $dom ) = $url =~ m#^.*?\/\/(.+?)/#;
-  my $site = exists $SITE_DOM_NAME{$dom} ? $SITE_DOM_NAME{$dom} : 'unknown';
+  my $site = exists $SITE_DOM_NAME{$dom} ? $SITE_DOM_NAME{$dom} : 'default';
 
   return $site;
 }
@@ -136,19 +119,48 @@ sub get_item_ref {
 ### {{{ novel
 sub scrape_novel      { {} }
 sub scrape_novel_item { {} }
-sub scrape_novel_list { {} }
+sub scrape_novel_list {  }
 sub generate_novel_url {
     my ($self, $index_url, @args) =@_;
     return ($index_url, @args);
 }
 
+sub guess_novel {
+    my ($self, $h, $r) = @_;
+
+    $r->{book} ||= $self->scrape_element($h, { path=> '//meta[@name="og:novel:book_name"]', extract => '@content' });
+    $r->{book} ||= $self->scrape_element($h, { path=> '//meta[@property="og:novel:book_name"]', extract => '@content' });
+    $r->{book} ||= $self->scrape_element($h, { path=> '//meta[@property="og:title"]', extract => '@content' });
+    $r->{book} ||= $self->scrape_element( $h, { path => '//h1', extract=>'TEXT'} );
+    $r->{book} ||= $self->scrape_element( $h, { path => '//div[@id="title"]', extract=>'TEXT'} );
+
+    $r->{writer} ||= $self->scrape_element($h, { path=> '//meta[@name="author"]', extract => '@content' });
+    $r->{writer} ||= $self->scrape_element($h, { path=> '//meta[@name="og:novel:author"]', extract => '@content' });
+    $r->{writer} ||= $self->scrape_element($h, { path=> '//meta[@property="og:novel:author"]', extract => '@content' });
+    $r->{writer} ||= $self->scrape_element($h, { path=> '//*[@class="author"]', extract => 'TEXT' });
+    unless($r->{writer}){
+        my ($w_span) = $$h=~m#<span>作者：([^<]+)</span>#si;
+        my ($w_span_2) = $$h=~m#作者：<span>([^<]+)</span>#si; 
+        my ($w_em) = $$h=~m#<(?:em|i|h3)>作者：([^<]+)</(?:em|i|h3)>#si; 
+        my ($w_a) = $$h=~m#作者：(?:<span>)?<a[^>]*>([^<]+)</a>#si;
+        $r->{writer} = $w_span || $w_span_2 || $w_em || $w_a;
+    }
+
+    #print "$r->{writer}, $r->{book}\n";
+
+    return $r;
+}
+
 sub parse_novel {
   my ( $self, $h, $r ) = @_;
+
+  $r = $self->guess_novel($h, $r) unless($r->{writer} and $r->{book});
 
   for ( $r->{writer} ) {
     s/作\s*者：//;
     s/小说全集//;
     s/作品全集//;
+    s/^.*版权属于作者([^,]+)$/$1/;
   }
 
   for ( $r->{book}, $r->{title} ) {
@@ -157,6 +169,7 @@ sub parse_novel {
     s/全文阅读//;
     s/在线阅读//;
     s/全集下载//;
+    s/章节目录//;
     s/^\s*《(.*)》\s*$/$1/;
   }
 
@@ -165,10 +178,38 @@ sub parse_novel {
 
 sub parse_novel_item {
   my ( $self, $h, $r ) = @_;
+    
+  $r = $self->guess_novel_item($h) unless($r->{content});
   $r->{$_} ||= $NULL_CHAPTER{$_} for keys( %NULL_CHAPTER );
   $self->tidy_content( $r );
   return $r;
 }
+
+sub guess_novel_item {
+    my ($self, $h, %opt) = @_;
+
+    my $tree = HTML::TreeBuilder->new();
+    $tree->parse($$h);
+
+    my @links = $tree->look_down('text', undef);
+    for my $x (@links){
+        $x = { content=>$x->as_HTML('<>&') };
+    }
+
+    #use Data::Dumper;
+    #print Dumper($links[0]);
+
+    my @out_links = sort { length($b->{content}) <=> length($a->{content}) } @links;
+    #print $out_links[0]{content};
+    for my $r (@out_links){
+        next if($r->{content}=~/(上|下)一(章|页|篇)/s);
+        next if($r->{content}=~m#</h(2|1)>#s);
+        #print $r->{content}, "\n";
+        return $r;
+    }
+    return {};
+}
+
 
 sub parse_novel_list {
   my ( $self, $h, $r ) = @_;
@@ -176,7 +217,7 @@ sub parse_novel_list {
   return $r->{chapter_list} if(exists $r->{chapter_list});
 
   my $path_r = $self->scrape_novel_list();
-  return [] unless ( $path_r );
+  return $self->guess_novel_list($h) unless ( $path_r );
 
   my $parse_novel = scraper {
     process $path_r->{path},
@@ -195,6 +236,79 @@ sub parse_novel_list {
 
   return \@chap;
 } ## end sub parse_novel_list
+
+sub guess_novel_list {
+    my ($self, $h, %opt) = @_;
+
+    my $tree = HTML::TreeBuilder->new();
+    $tree->parse($$h);
+
+    my @links = $tree->look_down('_tag', 'a');
+    for my $x (@links){
+        $x = { depth=>$x->depth(), url=>$x->attr('href'), title=>$x->as_text() };
+    }
+
+    my @out_links;
+    my @temp_arr = ($links[0]);
+    my $depth = $links[0]{depth};
+    for(my $i=1;$i<=$#links;$i++){
+        if($depth==$links[$i]{depth}){
+            push @temp_arr, $links[$i];
+        }else{
+            push @out_links, [ @temp_arr ];
+            @temp_arr = ($links[$i]);
+            $depth = $links[$i]{depth};
+        }
+    }
+
+    push @out_links, \@temp_arr if(@temp_arr);
+
+
+    @out_links = sort { scalar(@$b) <=> scalar(@$a) } @out_links;
+
+    my $res_arr;
+    my $title_regex = qr/引子|楔子|内容简介|正文|序言|文案|第\s*[０１２３４５６７８９零○〇一二三四五六七八九十百千\d]+\s*章|(^[0-9]+)/;
+    for my $arr (@out_links){
+        my $x = $arr->[0];
+        my $y = $arr->[1];
+        my $z = $arr->[-1];
+        #print "$y->{title}, $y->{url}\n";
+        #print Dumper($arr->[0], $arr->[1], $arr->[-1]);
+
+        $res_arr=$arr if($opt{chapter_url_regex} and $x->{url}=~/$opt{chapter_url_regex}/);
+        $res_arr=$arr if($opt{chapter_title_regex} and $x->{title}=~/$opt{chapter_title_regex}/);
+        $res_arr=$arr if($x->{title}=~/$title_regex/ or ($y and $y->{title}=~/$title_regex/) or ($z and $z->{title}=~/$title_regex/));
+        last if($res_arr);
+    }
+
+    #remove not chapter url
+    while(1){
+        my $x = $res_arr->[0];
+        my $y = $res_arr->[-1];
+        if($y->{title}=~/$title_regex/ and $y->{url}=~/\.html$/ and $x->{url}!~/\.html$/){
+            shift(@$res_arr);
+        }elsif($y->{title}=~/$title_regex/ and $y->{url}=~/\/?\d+\.html$/ and $x->{url}!~/\/?\d+\.html$/){
+            shift(@$res_arr);
+        }else{
+            last;
+        }
+    }
+
+    #sort chapter url
+    if($res_arr and $res_arr->[0]{url}=~/\/?\d+\.html$/){
+        my $trim_sub = sub { my $s=$_[0];$s=~s/^.+\///; $s=~s/\.html$//; return $s };
+        my @sort_arr = sort { $trim_sub->($a->{url}) <=> $trim_sub->($b->{url}) } @$res_arr;
+        my @s = map { $trim_sub->($_->{url}) } @sort_arr;
+        my $random_sort=0;
+        for my $i ( 0 .. $#s-1 ){
+            $random_sort=1 if($s[$i]>$s[$i+1]);
+            last if($random_sort); 
+        }
+        return \@sort_arr if($random_sort==0);
+    }
+
+    return $res_arr || [];
+}
 
 sub get_novel_ref {
     my ( $self, $index_url, %o ) = @_;
@@ -232,7 +346,7 @@ sub get_novel_ref {
     } ## end else [ if ( $index_url !~ /^https?:/)]
 
     $self->update_floor_list( $r, %o );
-    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $self->base_url );
+    $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $index_url );
 
     $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
     $self->tidy_string( $r, $_ ) for qw/writer book/;
@@ -248,7 +362,7 @@ sub get_tiezi_ref {
 
     my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
 
-    $self->update_url_list( $floor_list, $self->base_url || $url );
+    $self->update_url_list( $floor_list, $url );
 
     unshift @$floor_list, $topic if ( $topic->{content} );
     my %r = (
@@ -360,7 +474,6 @@ sub update_url_list {
 
 sub format_abs_url {
   my ( $self, $chap, $base_url ) = @_;
-  $base_url ||= $self->base_url();
   return $chap if ( !$chap or !$base_url or $base_url !~ /^http/ );
 
   if ( ref( $chap ) eq 'HASH' ) {
@@ -416,7 +529,7 @@ sub update_floor_list {
     for my $i ( 0 .. $#$flist ){
         $self->tidy_content($flist->[$i]);
         $flist->[$i]{id} ||= $r->{chapter_list}[$i]{id} || ( $i + 1 );
-        $flist->[$i]{title} ||= $r->{chapter_list}[$i]{title} || ' ';
+        $flist->[$i]{title} = $r->{chapter_list}[$flist->[$i]{id} - 1]{title} || $flist->[$i]{title} || ' ';
     }
 
     $flist = [ grep { $self->{browser}->is_item_in_range( $_->{id}, $o{min_item_num}, $o{max_item_num} ) } @$flist ];

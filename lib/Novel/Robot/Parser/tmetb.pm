@@ -1,4 +1,4 @@
-# ABSTRACT: http://www.tmetb.com
+# ABSTRACT: http://www.tmetb.net
 package Novel::Robot::Parser::tmetb;
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ use utf8;
 
 use base 'Novel::Robot::Parser';
 
-sub base_url { 'http://www.tmetb.com' }
+sub base_url { 'http://www.tmetb.net' }
 
 sub charset { 'cp936' }
 

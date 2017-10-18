@@ -6,24 +6,8 @@ use utf8;
 
 use base 'Novel::Robot::Parser';
 
-sub base_url { 'http://www.shushu8.com' }
-
-sub charset { 'cp936' }
 
 sub scrape_novel_list { { path=>'//ul/li/a'} }
 
-sub scrape_novel {
-    return {
-        book => { path => '//h1'}, 
-        writer=>{ path => '//h6/a'}, 
-    };
-}
-
-sub scrape_novel_item {
-    return {
-        title => { path => '//input[@class="title"]', extract => '@value' }, 
-        content=>{ path => '//pre[@id="content"]', extract => 'HTML' }, 
-    };
-}
 
 1;

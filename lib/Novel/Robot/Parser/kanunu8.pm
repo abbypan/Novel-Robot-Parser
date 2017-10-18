@@ -34,24 +34,6 @@ sub scrape_novel_item { {
         content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
     } }
 
-#sub parse_novel_item {
-
-    #my ( $self, $h, $r ) = @_;
-#print $r->{title};
-#print $r->{content};
-    #return $r;
-
-    #my $parse_novel_item = scraper {
-        #process_first '//td[@width="820"]', 'content' => 'HTML';
-    #};
-    #my $ref = $parse_novel_item->scrape($h);
-
-    #( $ref->{title} ) =
-      #$$h =~ m#<title>\s*(.+?)_.+?_\s*.+? 小说在线阅读#s;
-
-    #return $ref;
-#} ## end sub parse_novel_item
-
 sub parse_board {
 
     my ( $self, $html_ref ) = @_;

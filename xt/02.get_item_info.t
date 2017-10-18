@@ -13,7 +13,9 @@ my $xs = Novel::Robot::Parser->new( site=> 'bearead' );
 my $index_url = 'https://www.bearead.com/reader.html?bid=b10097021&bookListNum=1';
 my $chapter_url = { url => 'https://www.bearead.com/api/book/chapter/content', post_data => 'bid=b10097021&cid=354932' };
 
-my $index_ref = $xs->parse_novel($index_url);
+my ($i_url, %post_data) = $xs->generate_novel_url($index_url);
+my $c = $xs->{browser}->request_url($i_url, $post_data{post_data});
+my $index_ref = $xs->parse_novel(\$c);
 is($index_ref->{book}=~/^苏/ ? 1 : 0, 1,'book');
 is($index_ref->{writer}, '飘灯', 'writer');
 is($index_ref->{chapter_list}[0]{post_data}, $chapter_url->{post_data}, 'chapter_url');
@@ -24,6 +26,7 @@ my $chapter_ref = $xs->extract_elements(
     path => $xs->scrape_novel_item(),
     sub  => $xs->can( 'parse_novel_item' ),
 );
+print $chapter_ref->{title}, "\n";
 is($chapter_ref->{title}=~/沽/ ? 1 : 0, 1 , 'chapter_title');
 is($chapter_ref->{content}=~/苏/ ? 1 : 0, 1 , 'chapter_content');
 # }

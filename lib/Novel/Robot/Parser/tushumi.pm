@@ -1,11 +1,9 @@
-# ABSTRACT: http://www.lwxs.com
-package Novel::Robot::Parser::lwxs;
+# ABSTRACT: http://www.tushumi.com
+package Novel::Robot::Parser::tushumi;
 use strict;
 use warnings;
 use utf8;
 use base 'Novel::Robot::Parser';
-
-sub base_url { 'http://www.lwxs.com' }
 
 sub scrape_novel { { 
         book => { path=> '//h1' },

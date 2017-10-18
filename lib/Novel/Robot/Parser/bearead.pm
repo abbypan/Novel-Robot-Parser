@@ -11,7 +11,7 @@ sub base_url { 'https://www.bearead.com' }
 
 sub generate_novel_url {
   my ( $self, $index_url ) = @_;
-  my ( $bid ) = $index_url =~ m#bid=(.+?)&#;
+  my ( $bid ) = $index_url =~ m#bid=([^&]+)#;
   return ( 'https://www.bearead.com/api/book/detail', post_data => "bid=$bid" );
 }
 
