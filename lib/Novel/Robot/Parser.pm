@@ -24,9 +24,7 @@ our %SITE_DOM_NAME = (
     'www.ddshu.net'         => 'ddshu',
     'www.jjwxc.net'         => 'jjwxc',
     'www.kanunu8.com'       => 'kanunu8',
-    'www.tadu.com'          => 'tadu',
     'www.tmetb.net' => 'tmetb', 
-    'www.ttzw.com'          => 'ttzw',
     'www.tushumi.com'          => 'tushumi',
     'www.ybdu.com'          => 'ybdu',
     'www.zhonghuawuxia.com' => 'zhonghuawuxia',
@@ -131,6 +129,10 @@ sub guess_novel {
     $r->{book} ||= $self->scrape_element($h, { path=> '//meta[@property="og:title"]', extract => '@content' });
     $r->{book} ||= $self->scrape_element( $h, { path => '//h1', extract=>'TEXT'} );
     $r->{book} ||= $self->scrape_element( $h, { path => '//div[@id="title"]', extract=>'TEXT'} );
+    unless($r->{book}){
+        my ($b_title) = $$h=~m#<title>.*?([^,]+?)全文阅读,#si;
+        $r->{book} = $b_title;
+    }
 
     $r->{writer} ||= $self->scrape_element($h, { path=> '//meta[@name="author"]', extract => '@content' });
     $r->{writer} ||= $self->scrape_element($h, { path=> '//meta[@name="og:novel:author"]', extract => '@content' });
@@ -141,8 +143,9 @@ sub guess_novel {
         my ($w_span_2) = $$h=~m#作者：<span>([^<]+)</span>#si; 
         my ($w_em) = $$h=~m#<(?:em|i|h3|span)>作者：([^<]+)</(?:em|i|h3|span)>#si; 
         my ($w_a) = $$h=~m#作者：(?:<span>)?<a[^>]*>([^<]+)</a>#si;
-        my ($w_p) = $$h=~m#<p>作(?:(&nbsp;)*)者：([^<]+)</p>#si;
-        $r->{writer} = $w_span_2 || $w_em || $w_a || $w_p;
+        my ($w_p) = $$h=~m#<p>作(?:&nbsp;|\s)*者：([^<]+)</p>#si;
+        my ($w_title) = $$h=~m#<title>[^,]+?最新章节\((.+?)\),#si;
+        $r->{writer} = $w_span_2 || $w_em || $w_a || $w_p || $w_title;
     }
 
     #print "$r->{writer}, $r->{book}\n";
