@@ -24,8 +24,6 @@ our %SITE_DOM_NAME = (
     'www.ddshu.net'         => 'ddshu',
     'www.jjwxc.net'         => 'jjwxc',
     'www.kanunu8.com'       => 'kanunu8',
-    'www.shunong.com'       => 'shunong',
-    'www.shushu8.com' => 'shushu8', 
     'www.tadu.com'          => 'tadu',
     'www.tmetb.net' => 'tmetb', 
     'www.ttzw.com'          => 'ttzw',
@@ -139,11 +137,12 @@ sub guess_novel {
     $r->{writer} ||= $self->scrape_element($h, { path=> '//meta[@property="og:novel:author"]', extract => '@content' });
     $r->{writer} ||= $self->scrape_element($h, { path=> '//*[@class="author"]', extract => 'TEXT' });
     unless($r->{writer}){
-        my ($w_span) = $$h=~m#<span>作者：([^<]+)</span>#si;
+        #my ($w_span) = $$h=~m#<span>作者：([^<]+)</span>#si;
         my ($w_span_2) = $$h=~m#作者：<span>([^<]+)</span>#si; 
-        my ($w_em) = $$h=~m#<(?:em|i|h3)>作者：([^<]+)</(?:em|i|h3)>#si; 
+        my ($w_em) = $$h=~m#<(?:em|i|h3|span)>作者：([^<]+)</(?:em|i|h3|span)>#si; 
         my ($w_a) = $$h=~m#作者：(?:<span>)?<a[^>]*>([^<]+)</a>#si;
-        $r->{writer} = $w_span || $w_span_2 || $w_em || $w_a;
+        my ($w_p) = $$h=~m#<p>作(?:(&nbsp;)*)者：([^<]+)</p>#si;
+        $r->{writer} = $w_span_2 || $w_em || $w_a || $w_p;
     }
 
     #print "$r->{writer}, $r->{book}\n";
@@ -193,18 +192,22 @@ sub guess_novel_item {
 
     my @links = $tree->look_down('text', undef);
     for my $x (@links){
+        #my @href = $x->look_down('_tag', 'a');
         $x = { content=>$x->as_HTML('<>&') };
     }
 
-    #use Data::Dumper;
     #print Dumper($links[0]);
 
     my @out_links = sort { length($b->{content}) <=> length($a->{content}) } @links;
-    #print $out_links[0]{content};
+
+    #print "$_->{content}\n------------\n" for @out_links;
+
     for my $r (@out_links){
+        #next if($r->{href_cnt}>5);
         next if($r->{content}=~/(上|下)一(章|页|篇)/s);
         next if($r->{content}=~m#</h(2|1)>#s);
-        #print $r->{content}, "\n";
+        next if($r->{content}=~m#(.+?</a>){5,}#s);
+        #print $r->{content}, "\n-----------------\n";
         return $r;
     }
     return {};
@@ -266,6 +269,8 @@ sub guess_novel_list {
 
     @out_links = sort { scalar(@$b) <=> scalar(@$a) } @out_links;
 
+    #print Dumper(\@out_links);
+
     my $res_arr;
     my $title_regex = qr/引子|楔子|内容简介|正文|序言|文案|第\s*[０１２３４５６７８９零○〇一二三四五六七八九十百千\d]+\s*章|(^[0-9]+)/;
     for my $arr (@out_links){
@@ -278,8 +283,12 @@ sub guess_novel_list {
         $res_arr=$arr if($opt{chapter_url_regex} and $x->{url}=~/$opt{chapter_url_regex}/);
         $res_arr=$arr if($opt{chapter_title_regex} and $x->{title}=~/$opt{chapter_title_regex}/);
         $res_arr=$arr if($x->{title}=~/$title_regex/ or ($y and $y->{title}=~/$title_regex/) or ($z and $z->{title}=~/$title_regex/));
+        $res_arr= $arr if( ($x->{url}=~/\/?\d+\.html$/ or $z->{url}=~/\/?\d+\.html$/) and scalar(@$arr)>50);
+        $res_arr= $arr if( ($x->{url}=~/\/?\d+$/ or $z->{url}=~/\/?\d+$/) and scalar(@$arr)>50);
         last if($res_arr);
     }
+
+    #print Dumper($res_arr);
 
     #remove not chapter url
     while(1){
@@ -297,7 +306,7 @@ sub guess_novel_list {
     #sort chapter url
     if($res_arr and $res_arr->[0]{url}=~/\/?\d+\.html$/){
         my $trim_sub = sub { my $s=$_[0];$s=~s/^.+\///; $s=~s/\.html$//; return $s };
-        my @sort_arr = sort { $trim_sub->($a->{url}) <=> $trim_sub->($b->{url}) } @$res_arr;
+        my @sort_arr = sort { $trim_sub->($a->{url}) <=> $trim_sub->($b->{url}) } grep { $_->{url}=~/\d+\.html$/ } @$res_arr;
         my @s = map { $trim_sub->($_->{url}) } @sort_arr;
         my $random_sort=0;
         for my $i ( 0 .. $#s-1 ){
