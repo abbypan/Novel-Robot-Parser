@@ -107,7 +107,7 @@ sub parse_novel_single {
         num      => $r->{word_num},
         url      => $chap_url,
     );
-    push @{ $r->{chapter_list} }, \%chap;
+    push @{ $r->{floor_list} }, \%chap;
 
     delete( $r->{chap_title} );
 
