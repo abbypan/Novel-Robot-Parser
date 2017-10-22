@@ -60,14 +60,13 @@ our %NULL_CHAPTER = (
 sub new {
   my ( $self, %opt ) = @_;
 
-  $opt{site} = $self->detect_site( $opt{site} ) || 'jjwxc';
+  $opt{site} = $self->detect_site( $opt{site} );
+
   my $module = "Novel::Robot::Parser::$opt{site}";
+  eval "require $module;";
 
   my $browser = Novel::Robot::Browser->new( %opt );
-
-  eval "require $module;";
   bless { browser => $browser, %opt }, $module;
-
 }
 
 sub detect_site {

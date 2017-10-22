@@ -159,8 +159,8 @@ my @check_site_conf = (
   },
 );
 
-check_site($_) for @check_site_conf;
-#check_site( $check_site_conf[-1] );
+#check_site($_) for @check_site_conf;
+check_site( $check_site_conf[-1] );
 done_testing;
 
 sub check_site {

@@ -8,38 +8,35 @@ use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
 sub parse_board {
-    my ( $self, $html_ref ) = @_;
+  my ( $self, $html_ref ) = @_;
 
-    my $parse_writer = scraper {
-        process_first '//h2/b', writer => 'TEXT';
-    };
+  my $parse_writer = scraper {
+    process_first '//h2/b', writer => 'TEXT';
+  };
 
-    my $ref = $parse_writer->scrape($html_ref);
+  my $ref = $parse_writer->scrape( $html_ref );
 
-    $ref->{writer} =~ s/作品集//;
-    return $ref->{writer};
-} ## end sub parse_writer
+  $ref->{writer} =~ s/作品集//;
+  return $ref->{writer};
+}
 
 sub parse_board_item {
-    my ( $self, $html_ref ) = @_;
+  my ( $self, $html_ref ) = @_;
 
-    my $parse_writer = scraper {
-        process '//tr//td//a',
-          'booklist[]' => {
-            url  => '@href',
-            book => 'TEXT'
-          };
-    };
+  my $parse_writer = scraper {
+    process '//tr//td//a',
+      'booklist[]' => {
+      url  => '@href',
+      book => 'TEXT'
+      };
+  };
 
-    my $ref = $parse_writer->scrape($html_ref);
+  my $ref = $parse_writer->scrape( $html_ref );
 
-    my @books = grep {
-        $_->{url}
-          and
-          ( $_->{url} =~ /index.html$/ or $_->{url} =~ m#/\d+/$# )
-    } @{ $ref->{booklist} };
-    return \@books;
+  my @books =
+    grep { $_->{url} and ( $_->{url} =~ /index.html$/ or $_->{url} =~ m#/\d+/$# ) } @{ $ref->{booklist} };
+  return \@books;
 
-}
+} ## end sub parse_board_item
 
 1;
