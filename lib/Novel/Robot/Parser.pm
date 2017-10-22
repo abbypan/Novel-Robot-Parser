@@ -14,7 +14,7 @@ use Data::Dumper;
 
 ### {{{ data
 
-our $VERSION = 0.29;
+our $VERSION = 0.30;
 
 our %SITE_DOM_NAME = (
   'bbs.jjwxc.net'   => 'hjj',
@@ -86,7 +86,7 @@ sub charset   { 'cp936' }
 sub base_url  { }
 
 sub get_item_info {
-  my ( $self, $url ) = @_;
+  my ( $self,  $url )       = @_;
   my ( $i_url, $post_data ) = $self->generate_novel_url( $url );
   my $c = $self->{browser}->request_url( $i_url, $post_data );
   my $r = $self->extract_elements(
@@ -393,7 +393,7 @@ sub get_novel_ref {
     ( $r, $floor_list ) = $self->{browser}->request_urls(
       $i_url,
       post_data => $post_data,
-      info_sub => sub {
+      info_sub  => sub {
         $self->extract_elements(
           @_,
           path => $self->can( "scrape_novel" )->(),
