@@ -7,35 +7,7 @@ use utf8;
 use base 'Novel::Robot::Parser';
 use Web::Scraper;
 
-sub base_url { 'http://www.kanunu8.com' }
-
-sub scrape_novel_list { { path => '//tr[@bgcolor="#ffffff"]//td//a',  } }
-
-sub parse_novel {
-
-    my ( $self, $html_ref ) = @_;
-
-    my $parse_novel = scraper {
-        process_first '//h2',        'book_h2' => 'TEXT';
-        process_first '//h1',        'book_h1' => 'TEXT';
-        #process_first '//font//strong', 'writer'  => 'TEXT';
-    };
-
-    my $ref = $parse_novel->scrape($html_ref);
-    $ref->{book} = $ref->{book_h2} || $ref->{book_h1};
-
-    ($ref->{writer})= $$html_ref=~/作者：(\S+) 发布时间：/s;
-
-    return $ref;
-} ## end sub parse_novel
-
-sub scrape_novel_item { {
-        title => { regex => '<title>\s*(.+?)_.+?_.*?在线阅读' }, 
-        content=>{ path => '//td[@width="820"]', extract => 'HTML' }, 
-    } }
-
 sub parse_board {
-
     my ( $self, $html_ref ) = @_;
 
     my $parse_writer = scraper {

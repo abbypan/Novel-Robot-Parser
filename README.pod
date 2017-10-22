@@ -50,6 +50,10 @@ init funtion, need set sitename，or url  初始化解析模块，需指定站�
        my $url = 'http://www.jjwxc.net/onebook.php?novelid=2456';
        my $parser = Novel::Robot::Parser->new( site => $url );
 
+       #site name : default，不明确指定站点名称
+       my $url = 'http://www.zhonghuawuxia.com/book/71';
+       my $parser = Novel::Robot::Parser->new( site => 'default' );
+
 
 =head1 NOVEL FUNCTION
 
