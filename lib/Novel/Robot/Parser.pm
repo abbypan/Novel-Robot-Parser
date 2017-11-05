@@ -468,26 +468,20 @@ sub update_url_list {
   my $i = 0;
   for my $chap ( @$arr ) {
     $chap = { url => $chap || '' } if ( ref( $chap ) ne 'HASH' );
-    $self->format_abs_url( $chap, $base_url );
+
+    $chap->{url} = $self->format_abs_url( $chap->{url}, $base_url );
 
     ++$i;
-    $chap->{pid} //= $i;
-    $chap->{id}  //= $i;
+    $chap->{pid} //= $i; #page id
+    $chap->{id}  //= $i; #floor id
   }
   return $i;
 }
 
 sub format_abs_url {
-  my ( $self, $chap, $base_url ) = @_;
-  return $chap if ( !$chap or !$base_url or $base_url !~ /^http/ );
-
-  if ( ref( $chap ) eq 'HASH' ) {
-    $chap->{url} = URI->new_abs( $chap->{url}, $base_url )->as_string;
-  } else {
-    $chap = URI->new_abs( $chap, $base_url )->as_string;
-  }
-
-  return $chap;
+    my ( $self, $url, $base_url ) = @_;
+    return $url unless($base_url);
+    my $abs_url = URI->new_abs( $url, $base_url )->as_string;
 }
 
 sub extract_elements {
