@@ -189,7 +189,8 @@ sub parse_novel {
       { regex => qr#作者：<span>([^<]+)</span>#si, },
       { regex => qr#<(?:em|i|h3|h2|span)>作者：([^<]+)</(?:em|i|h3|h2|span)>#si, },
       { regex => qr#作者：(?:<span>)?<a[^>]*>([^<]+)</a>#si, },
-      { regex => qr#<p>作(?:&nbsp, },|\s)*者：([^<]+)</p>#si, },
+      { regex => qr#<p>作(?:&nbsp;|\s)*者：([^<]+)</p>#si, },
+
       { regex => qr#作者：([^<]+?) 发布时间：#s, },
       { regex => qr#content="([^"]+?)最新著作#s, },
       { regex => qr#<title>[^<,]+?最新章节\(([^<,]+?)\),#si, },
@@ -353,7 +354,7 @@ sub guess_novel_item {
     last;
   }
 
-  my @grep_next_r = grep { $_->{content} =~ /(上|下)一(章|页|篇)/s and $_->{word_num} > 50 } @out_links;
+  my @grep_next_r = grep { $_->{content} =~ /(上|下)一(章|页|篇)(\w{0,20})$/s and $_->{word_num} > 50 } @out_links;
   return $no_next_r if ( $no_next_r->{word_num} > 50 or !@grep_next_r );
 
   return $grep_next_r[-1] || {};
@@ -481,6 +482,7 @@ sub update_url_list {
 sub format_abs_url {
     my ( $self, $url, $base_url ) = @_;
     return $url unless($base_url);
+    return $url unless($base_url=~/^https?:/);
     my $abs_url = URI->new_abs( $url, $base_url )->as_string;
 }
 
@@ -581,6 +583,7 @@ sub tidy_writer_book {
     s/^\s*作者-\s*//;
     s/小说全集//;
     s/作品全集//;
+    s/专栏//;
     s/^.*版权属于作者([^,]+)$/$1/;
     s/\s*最新章节\s*$//;
     s/全文阅读//;
