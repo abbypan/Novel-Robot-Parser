@@ -329,7 +329,8 @@ sub parse_novel_item {
 sub guess_novel_item {
   my ( $self, $h, %opt ) = @_;
 
-  $$h =~ s#<script[^>]+>[^<]+</script>##sg;
+  $$h =~ s#<!--.+?-->##sg;
+  $$h =~ s#<script[^>]*>[^<]*</script>##sg;
 
   my $tree = HTML::TreeBuilder->new();
   $tree->parse( $$h );
@@ -337,25 +338,31 @@ sub guess_novel_item {
   my @links = $tree->look_down( 'text', undef );
   for my $x ( @links ) {
     $x = { content => $x->as_HTML( '<>&' ) };
+    $self->calc_content_wordnum($x);
   }
 
-  my @out_links = sort { length( $b->{content} ) <=> length( $a->{content} ) } @links;
-  $self->calc_content_wordnum( $_ ) for @out_links;
+  #$self->calc_content_wordnum( $_ ) for @links;
+  my @out_links = sort {  $b->{word_num}  <=> $a->{word_num}  } @links;
 
   my $no_next_r;
   for my $r ( @out_links ) {
     next if ( $r->{content} =~ m#</(style|head|body|html)>#s );
-    next if ( $r->{content} =~ m#^<div id="footer">#s );
+    next if ( $r->{content} =~ m#^\s*<div id="footer">#s );
     next if ( $r->{content} =~ /(上|下)一(章|页|篇)/s );
     next if ( $r->{content} =~ m#</h(2|1)>#s );
+    next if ( $r->{content} =~ m#All rights reserved#s );
     next if ( $r->{content} =~ m#(.+?</a>){5,}#s );
 
     $no_next_r = $r;
     last;
   }
 
-  my @grep_next_r = grep { $_->{content} =~ /(上|下)一(章|页|篇)(\w{0,20})$/s and $_->{word_num} > 50 } @out_links;
-  return $no_next_r if ( $no_next_r->{word_num} > 50 or !@grep_next_r );
+  #my @grep_next_r = grep { $_->{content} =~ /(上|下)一(章|页|篇)\w{0,20}$/s and $_->{word_num} > 50 } @out_links;
+  my @grep_next_r = grep { $_->{content} =~ /(上|下)一(章|页|篇)/s and $_->{word_num} > 50 } @out_links;
+  
+  my $cc = $no_next_r->{content};
+  my $cc_n = $cc=~s/(\n|<p[^>]*>|<br[^>]*>)//sg;
+  return $no_next_r if ( ($cc_n>5 and $no_next_r->{word_num} > 50) or !@grep_next_r );
 
   return $grep_next_r[-1] || {};
 } ## end sub guess_novel_item

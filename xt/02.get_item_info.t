@@ -14,6 +14,37 @@ use utf8;
 
 my @check_site_conf = (
   { site            => 'default',
+    index_url       => 'http://www.ybdu.com/xiaoshuo/13/13448/',
+    chapter_url     => 'http://www.ybdu.com/xiaoshuo/13/13448/3626925.html',
+    book            => '死人经',
+    writer          => '冰临神下',
+    chapter_title   => '杀手',
+    chapter_content => '顶尖',
+  },
+  { site            => 'default',
+    index_url       => 'http://www.piaotian.com/html/0/738/',
+    chapter_url     => 'http://www.piaotian.com/html/0/738/360430.html',
+    book            => '宰执天下',
+    writer          => 'cuslaa',
+    chapter_content => '从出租车跳上下来就直奔检票口',
+  },
+  { site            => 'default',
+    index_url       => 'http://www.lwxs520.com/books/21/21457/index.html',
+    chapter_url     => 'http://www.lwxs520.com/books/21/21457/4862903.html',
+    book            => '天醒',
+    writer          => '蝴蝶蓝',
+    chapter_title   => '楔子',
+    chapter_content => '我们要去哪',
+  },
+  { site            => 'default',
+    index_url       => 'http://www.shunong.com/wx/8558/',
+    chapter_url     => 'http://www.shunong.com/wx/8558/267184.html',
+    book            => '青崖白鹿记',
+    writer          => '沈璎璎',
+    chapter_title   => '第1章',
+    chapter_content => '树入天台石路新',
+  },
+  { site            => 'default',
     index_url       => 'http://www.lkshu.com/book/5/5979/',
     chapter_url     => 'http://www.lkshu.com/book/5/5979/3256742.html',
     book            => '拔魔',
@@ -77,30 +108,14 @@ my @check_site_conf = (
     chapter_title   => '杀手',
     chapter_content => '顶尖',
   },
-  { site            => 'default',
-    index_url       => 'http://www.lwxs520.com/books/21/21457/index.html',
-    chapter_url     => 'http://www.lwxs520.com/books/21/21457/4862903.html',
-    book            => '天醒',
-    writer          => '蝴蝶蓝',
-    chapter_title   => '楔子',
-    chapter_content => '我们要去哪',
-  },
-  { site            => 'default',
-    index_url       => 'http://www.tadu.com/book/catalogue/394959',
-    chapter_url     => 'http://www.tadu.com/book/394959/26793462/',
-    book            => '凰图',
-    writer          => '寐语者',
-    chapter_title   => '章目-楔子',
-    chapter_content => '南秦',
-  },
-  { site            => 'default',
-    index_url       => 'http://www.ybdu.com/xiaoshuo/13/13448/',
-    chapter_url     => 'http://www.ybdu.com/xiaoshuo/13/13448/3626925.html',
-    book            => '死人经',
-    writer          => '冰临神下',
-    chapter_title   => '杀手',
-    chapter_content => '顶尖',
-  },
+  #{ site            => 'default',
+    #index_url       => 'http://www.tadu.com/book/catalogue/394959',
+    #chapter_url     => 'http://www.tadu.com/book/394959/26793462/',
+    #book            => '凰图',
+    #writer          => '寐语者',
+    #chapter_title   => '章目-楔子',
+    #chapter_content => '南秦',
+  #},
   { site            => 'default',
     index_url       => 'http://www.zhonghuawuxia.com/book/71',
     chapter_url     => 'http://www.zhonghuawuxia.com/chapter/2647',
@@ -108,14 +123,6 @@ my @check_site_conf = (
     writer          => '古龙',
     chapter_title   => '风雪',
     chapter_content => '怒雪威寒',
-  },
-  { site            => 'default',
-    index_url       => 'http://www.shunong.com/wx/8558/',
-    chapter_url     => 'http://www.shunong.com/wx/8558/267184.html',
-    book            => '青崖白鹿记',
-    writer          => '沈璎璎',
-    chapter_title   => '第1章',
-    chapter_content => '树入天台石路新',
   },
   { site            => 'ddshu',
     index_url       => 'http://www.ddshu.net/html/1920/opf.html',
@@ -152,7 +159,7 @@ my @check_site_conf = (
 );
 
 check_site($_) for @check_site_conf;
-#check_site( $check_site_conf[-1] );
+#check_site( $check_site_conf[0] );
 done_testing;
 
 sub check_site {
@@ -185,7 +192,7 @@ sub check_site {
     sub  => $xs->can( 'parse_novel_item' ),
   );
   is( $chapter_ref->{content} =~ /$r->{chapter_content}/ ? 1 : 0, 1, 'chapter_content' );
-  print join( ",", $index_ref->{book}, $index_ref->{writer}, $index_ref->{chapter_list}[0]{title} ), "\n";
+  print join( ",", $index_ref->{book}, $index_ref->{writer}, $index_ref->{floor_list}[0]{title} ), "\n";
 
   #print $chapter_ref->{content},"\n";
   print "---------\n\n";
