@@ -14,7 +14,7 @@ use Data::Dumper;
 
 ### {{{ data
 
-our $VERSION = 0.30;
+our $VERSION = 0.31;
 
 our %SITE_DOM_NAME = (
   'bbs.jjwxc.net'   => 'hjj',
@@ -340,8 +340,6 @@ sub guess_novel_item {
     $x = { content => $x->as_HTML( '<>&' ) };
     $self->calc_content_wordnum($x);
   }
-
-  #$self->calc_content_wordnum( $_ ) for @links;
   my @out_links = sort {  $b->{word_num}  <=> $a->{word_num}  } @links;
 
   my $no_next_r;
@@ -599,6 +597,7 @@ sub tidy_writer_book {
     s/章节目录//;
     s/^\s*《(.*)》\s*$/$1/;
     s/^\s+|\s+$//g;
+    s/\s+//g;
   }
   return $c;
 } ## end sub tidy_writer_book
