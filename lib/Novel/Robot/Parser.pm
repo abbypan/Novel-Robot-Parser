@@ -59,13 +59,25 @@ our %NULL_CHAPTER = (
 sub new {
   my ( $self, %opt ) = @_;
 
-  $opt{site} = $self->detect_site( $opt{site} );
+  $opt{site} = $self->detect_site( $opt{site});
 
   my $module = "Novel::Robot::Parser::$opt{site}";
   eval "require $module;";
 
   my $browser = Novel::Robot::Browser->new( %opt );
   bless { browser => $browser, %opt }, $module;
+}
+
+sub detect_domain {
+    my ( $self, $url ) = @_;
+    return $url unless ( $url =~ /^http/ );
+
+    my ( $dom ) = $url =~ m#^.*?\/\/(.+?)/#;
+
+    my $base_dom = $dom;
+    $base_dom=~s/^[^.]+\.//;
+    $base_dom = $base_dom=~/\./ ? $base_dom : $dom;
+    return ($dom, $base_dom);
 }
 
 sub detect_site {
