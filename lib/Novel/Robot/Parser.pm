@@ -68,6 +68,8 @@ sub new {
   bless { browser => $browser, %opt }, $module;
 }
 
+sub domain { }
+
 sub detect_domain {
     my ( $self, $url ) = @_;
     return $url unless ( $url =~ /^http/ );
