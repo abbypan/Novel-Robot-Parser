@@ -74,7 +74,7 @@ sub detect_domain {
     my ( $self, $url ) = @_;
     return $url unless ( $url =~ /^http/ );
 
-    my ( $dom ) = $url =~ m#^.*?\/\/(.+?)/#;
+    my ( $dom ) = $url =~ m#^.*?\/\/(.+?)(?:/|$)#;
 
     my $base_dom = $dom;
     $base_dom=~s/^[^.]+\.//;
@@ -329,7 +329,7 @@ sub guess_novel_list {
   return $res_arr || [];
 } ## end sub guess_novel_list
 
-sub scrape_novel_item { {} }
+sub scrape_novel_item { { content => { path=> '//div[@id="content"]' } } }
 
 sub parse_novel_item {
   my ( $self, $h, $r ) = @_;
