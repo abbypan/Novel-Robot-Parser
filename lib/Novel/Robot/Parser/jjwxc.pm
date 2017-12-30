@@ -61,7 +61,7 @@ sub parse_novel {
 sub parse_novel_item {
   my ( $self, $h ) = @_;
 
-  my ( $c ) = $$h =~ m#<h2[^>]+>.+?<li>(.+?)</li>#s;
+  my ( $c ) = $$h =~ m#<h2[^>]+>.+?<li[^>]*>(.+?)</li>#s;
 
   return { content => $c || '' };
 }
