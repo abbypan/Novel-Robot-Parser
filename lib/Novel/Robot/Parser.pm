@@ -621,6 +621,7 @@ sub tidy_content {
   for ( $c ) {
     last unless ( $c );
     s###sg;
+    s#　#\n#sg;
     s#\s{5,}#\n#sg;
     s#<script(\s+[^>]+\>|\>)[^<]*</script>##sg;
     s#\s*\<[^>]+?\>#\n#sg;
