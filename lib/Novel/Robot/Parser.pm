@@ -104,7 +104,7 @@ sub get_item_info {
   my $c = $self->{browser}->request_url( $i_url, $post_data );
   my $r = $self->extract_elements(
     \$c,
-    path => $self->can( "scrape_novel" )->(),
+    path => $self->scrape_novel(),
     sub  => $self->can( "parse_novel" ),
   );
   $r->{floor_list} = $self->parse_novel_list( \$c, $r );
@@ -137,14 +137,14 @@ sub get_novel_ref {
       info_sub  => sub {
         $self->extract_elements(
           @_,
-          path => $self->can( "scrape_novel" )->(),
+          path => $self->scrape_novel(),
           sub  => $self->can( "parse_novel" ),
         );
       },
       content_sub => sub {
         $self->extract_elements(
           @_,
-          path => $self->can( "scrape_novel_item" )->(),
+          path => $self->scrape_novel_item(),
           sub  => $self->can( "parse_novel_item" ),
         );
       },
@@ -434,7 +434,7 @@ sub get_iterate_data {
     info_sub => sub {
       $self->extract_elements(
         @_,
-        path => $self->can( "scrape_$class" )->(),
+        path => $self->can( "scrape_$class" )->($self),
         sub  => $self->can( "parse_$class" ),
       );
     },
