@@ -160,6 +160,9 @@ sub get_novel_ref {
   $self->update_floor_list( $r, %o );
   $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $index_url );
 
+  for my $k (qw/writer book/){
+      $r->{$_} = $o{$k} if(exists $o{$k});
+  }
   $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
   $r->{$_} = $self->tidy_string( $r->{$_} ) for qw/writer book/;
 
@@ -171,7 +174,15 @@ sub generate_novel_url {
   return ( $index_url, @args );
 }
 
-sub scrape_novel { {} }
+sub scrape_novel { 
+    my ( $self ) = @_;
+    my $r = {};
+    $r->{book}{path} = $self->{book_path} if(exists $self->{book_path});
+    $r->{book}{regex} = $self->{book_regex} if(exists $self->{book_regex});
+    $r->{writer}{path} = $self->{writer_path} if(exists $self->{writer_path});
+    $r->{writer}{regex} = $self->{writer_regex} if(exists $self->{writer_regex});
+    return $r;
+}
 
 sub parse_novel {
   my ( $self, $h, $r ) = @_;
@@ -218,7 +229,12 @@ sub parse_novel {
   return $r;
 } ## end sub parse_novel
 
-sub scrape_novel_list { }
+sub scrape_novel_list {
+    my ( $self ) = @_;
+    my $r = {};
+    $r->{path} = $self->{novel_list_path} if(exists $self->{novel_list_path});
+    return $r;
+}
 
 sub parse_novel_list {
   my ( $self, $h, $r ) = @_;
@@ -226,7 +242,7 @@ sub parse_novel_list {
   return $r->{floor_list} if ( exists $r->{floor_list} );
 
   my $path_r = $self->scrape_novel_list();
-  return $self->guess_novel_list( $h ) unless ( $path_r );
+  return $self->guess_novel_list( $h ) unless ( exists $path_r->{path} );
 
   my $parse_novel = scraper {
     process $path_r->{path},
@@ -329,7 +345,14 @@ sub guess_novel_list {
   return $res_arr || [];
 } ## end sub guess_novel_list
 
-sub scrape_novel_item { { content => { path=> '//div[@id="content"]' } } }
+sub scrape_novel_item { 
+    my ( $self ) = @_;
+    my $r = {};
+    $r->{content}{path} = $self->{content_path} if(exists $self->{content_path});
+    $r->{content}{regex} = $self->{content_regex} if(exists $self->{content_regex});
+    $r = { content => { path=> '//div[@id="content"]' } } unless(exists $r->{content});
+    return $r;
+}
 
 sub parse_novel_item {
   my ( $self, $h, $r ) = @_;
