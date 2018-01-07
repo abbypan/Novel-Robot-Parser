@@ -161,7 +161,7 @@ sub get_novel_ref {
   $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $index_url );
 
   for my $k (qw/writer book/){
-      $r->{$_} = $o{$k} if(exists $o{$k});
+      $r->{$k} = $o{$k} if(exists $o{$k});
   }
   $r->{$_} ||= $NULL_INDEX{$_} for keys( %NULL_INDEX );
   $r->{$_} = $self->tidy_string( $r->{$_} ) for qw/writer book/;
@@ -350,7 +350,7 @@ sub scrape_novel_item {
     my $r = {};
     $r->{content}{path} = $self->{content_path} if(exists $self->{content_path});
     $r->{content}{regex} = $self->{content_regex} if(exists $self->{content_regex});
-    $r = { content => { path=> '//div[@id="content"]' } } unless(exists $r->{content});
+    $r = { content => { path=> '//div[@id="content"]', extract=>'HTML' } } unless(exists $r->{content});
     return $r;
 }
 

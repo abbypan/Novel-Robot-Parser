@@ -26,7 +26,7 @@ sub parse_novel {
 }
 
 sub scrape_novel_list  { {
-path => '//div[@class="opf"]//a' , 
+        path => '//div[@class="opf"]//a' , 
     } }
 
 
