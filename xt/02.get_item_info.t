@@ -13,6 +13,14 @@ binmode( STDERR, ":encoding(console_out)" );
 use utf8;
 
 my @check_site_conf = (
+  { site            => 'jjwxc',
+    index_url       => 'http://www.jjwxc.net/onebook.php?novelid=217747',
+    chapter_url     => 'https://m.jjwxc.net/vip/217747/37',
+    writer          => '微笑的猫',
+    book            => '墙头马上',
+    chapter_title   => '赶工',
+    chapter_content => '放心',
+  },
   { site            => 'default',
     index_url       => 'http://www.ybdu.com/xiaoshuo/13/13448/',
     chapter_url     => 'http://www.ybdu.com/xiaoshuo/13/13448/3626925.html',
@@ -158,6 +166,7 @@ my @check_site_conf = (
   },
 );
 
+$#check_site_conf = 0;
 check_site($_) for @check_site_conf;
 #check_site( $check_site_conf[0] );
 done_testing;
@@ -169,6 +178,7 @@ sub check_site {
 
   my $index_ref = $xs->get_item_info( $r->{index_url} );
 
+  print $index_ref->{floor_list}[-1]{url},"\n";exit;
   #print Dumper($index_ref->{book});
   is( $index_ref->{book} =~ /$r->{book}/     ? 1 : 0, 1, "book" );
   is( $index_ref->{writer} =~ /$r->{writer}/ ? 1 : 0, 1, "writer" );

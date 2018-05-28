@@ -72,7 +72,7 @@ sub domain { }
 
 sub detect_domain {
     my ( $self, $url ) = @_;
-    return $url unless ( $url =~ /^http/ );
+    return ($url, $url) unless ( $url =~ /^http/ );
 
     my ( $dom ) = $url =~ m#^.*?\/\/(.+?)(?:/|$)#;
 

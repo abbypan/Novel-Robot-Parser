@@ -25,6 +25,8 @@ use Encode;
 
 sub base_url { 'http://www.jjwxc.net' }
 
+sub domain { 'jjwxc.net' }
+
 sub generate_novel_url {
   my ( $self, $index_url ) = @_;
   my ( $novelid ) = $index_url =~ m#novelid=(\d+)#;
