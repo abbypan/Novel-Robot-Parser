@@ -1,4 +1,4 @@
-# ABSTRACT: http://www.jjwxc.net
+# ABSTRACT: https://www.jjwxc.net
 
 =pod
 
@@ -23,7 +23,7 @@ use base 'Novel::Robot::Parser';
 use Web::Scraper;
 use Encode;
 
-sub base_url { 'http://www.jjwxc.net' }
+sub base_url { 'https://www.jjwxc.net' }
 
 sub domain { 'jjwxc.net' }
 

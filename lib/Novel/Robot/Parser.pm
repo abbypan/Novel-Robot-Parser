@@ -72,7 +72,7 @@ sub domain { }
 
 sub detect_domain {
     my ( $self, $url ) = @_;
-    return ($url, $url) unless ( $url =~ /^http/ );
+    return ($url, $url) unless ( $url =~ /^https?:/ );
 
     my ( $dom ) = $url =~ m#^.*?\/\/(.+?)(?:/|$)#;
 
@@ -84,7 +84,7 @@ sub detect_domain {
 
 sub detect_site {
   my ( $self, $url ) = @_;
-  return $url unless ( $url =~ /^http/ );
+  return $url unless ( $url =~ /^https?:/ );
 
   my ( $dom ) = $url =~ m#^.*?\/\/(.+?)/#;
   my $site = exists $SITE_DOM_NAME{$dom} ? $SITE_DOM_NAME{$dom} : 'default';
