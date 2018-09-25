@@ -22,6 +22,7 @@ our %SITE_DOM_NAME = (
   'tieba.baidu.com' => 'tieba',
 
   'www.bearead.com' => 'bearead',
+  'wwwj.bearead.com' => 'bearead',
   'www.ddshu.net'   => 'ddshu',
   'www.kanunu8.com' => 'kanunu8',
 );
