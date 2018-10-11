@@ -510,10 +510,14 @@ sub update_url_list {
   my ( $self, $arr, $base_url ) = @_;
 
   my $i = 0;
+  my %rem;
   for my $chap ( @$arr ) {
     $chap = { url => $chap || '' } if ( ref( $chap ) ne 'HASH' );
 
     $chap->{url} = $self->format_abs_url( $chap->{url}, $base_url );
+
+    next if(exists $rem{$chap->{url}});
+    $rem{$chap->{url}}=1;
 
     ++$i;
     $chap->{pid} //= $i; #page id
