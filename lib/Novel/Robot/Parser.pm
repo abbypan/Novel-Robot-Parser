@@ -653,7 +653,7 @@ sub tidy_content {
     s#\s{5,}#\n#sg;
     s#<script(\s+[^>]+\>|\>)[^<]*</script>##sg;
     s#\s*\<[^>]+?\>#\n#sg;
-    s{\n\n\n*}{\n}sg;
+    s{\n+}{\n}sg;
     s{\s*(\S.*?)\s*\n}{\n<p>$1</p>}sg;
     s#\s+上一章\s+.+?下一章.+$##s;
     s#[^\n]+加入书签[^\n]+##s;

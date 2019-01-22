@@ -11,6 +11,7 @@ sub base_url { 'https://wwwj.bearead.com' }
 
 sub generate_novel_url {
   my ( $self, $index_url ) = @_;
+  return $index_url if($index_url=~m#https://wwwj.bearead.com/book/b\d+$#);
   my ( $bid ) = $index_url =~ m#bid=([^&]+)#;
   return 'https://wwwj.bearead.com/book/'.$bid;
   #return ( 'https://www.bearead.com/api/book/detail', "bid=$bid" );
@@ -29,12 +30,7 @@ sub scrape_novel_list {
 sub scrape_novel_item { {
         #content => { regex=> '<div style="display: none;" class="article_main arc-no-select">(.+?)</div>' },
         content=>{ path => '//div[@class="article_main arc-no-select"]', 
-            #extract => 'HTML', 
-            sub => sub {
-                my ($c) = @_;
-            $c=~s#<[^>]*>$#\n#gs;
-            return $c;
-            }, 
+            extract => 'HTML', 
     }, 
 } }
 
