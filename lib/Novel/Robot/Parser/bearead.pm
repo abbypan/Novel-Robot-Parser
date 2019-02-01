@@ -29,8 +29,9 @@ sub scrape_novel_list {
 
 sub scrape_novel_item { {
         #content => { regex=> '<div style="display: none;" class="article_main arc-no-select">(.+?)</div>' },
-        content=>{ path => '//div[@class="article_main arc-no-select"]', 
-            extract => 'HTML', 
+        content=>{ 
+            path => '//div[@class="article_main arc-no-select"]', 
+            #extract => 'HTML', 
     }, 
 } }
 
