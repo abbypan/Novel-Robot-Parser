@@ -109,7 +109,7 @@ sub get_item_info {
     sub  => $self->can( "parse_novel" ),
   );
   $r->{floor_list} = $self->parse_novel_list( \$c, $r );
-  $r->{floor_num} = $self->update_url_list( $r->{floor_list}, $url );
+  ($r->{floor_list}, $r->{floor_num}) = $self->update_url_list( $r->{floor_list}, $url );
   return $r;
 }
 
@@ -158,6 +158,7 @@ sub get_novel_ref {
     $r->{floor_num}  = $max_floor_num || undef;
   } ## end else [ if ( $index_url !~ /^https?:/)]
 
+  ($r->{floor_list}, $r->{floor_num}) = $self->update_url_list( $r->{floor_list}, $index_url );
   $self->update_floor_list( $r, %o );
   $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $index_url );
 
@@ -243,6 +244,7 @@ sub parse_novel_list {
   return $r->{floor_list} if ( exists $r->{floor_list} );
 
   my $path_r = $self->scrape_novel_list();
+
   return $self->guess_novel_list( $h ) unless ( exists $path_r->{path} );
 
   my $parse_novel = scraper {
@@ -411,7 +413,7 @@ sub get_tiezi_ref {
 
   my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
 
-  $self->update_url_list( $floor_list, $url );
+  $floor_list = $self->update_url_list( $floor_list, $url );
 
   unshift @$floor_list, $topic if ( $topic->{content} );
   my %r = (
@@ -470,7 +472,7 @@ sub get_board_ref {
 
   my ( $topic, $item_list ) = $self->get_iterate_data( 'board', $url, %o );
 
-  $self->update_url_list( $item_list, $url );
+  $item_list = $self->update_url_list( $item_list, $url );
 
   return ( $topic, $item_list );
 }
@@ -495,7 +497,7 @@ sub get_query_ref {
 
   my ( $info, $item_list ) = $self->get_iterate_data( 'query', $url, %o, post_data => $post_data );
 
-  $self->update_url_list( $item_list, $url );
+  $item_list = $self->update_url_list( $item_list, $url );
 
   return ( $info, $item_list );
 }
@@ -511,6 +513,7 @@ sub update_url_list {
 
   my $i = 0;
   my %rem;
+  my @res;
   for my $chap ( @$arr ) {
     $chap = { url => $chap || '' } if ( ref( $chap ) ne 'HASH' );
 
@@ -522,8 +525,9 @@ sub update_url_list {
     ++$i;
     $chap->{pid} //= $i; #page id
     $chap->{id}  //= $i; #floor id
+    push @res, $chap;
   }
-  return $i;
+  return wantarray? (\@res, $i) : $i;
 }
 
 sub format_abs_url {
