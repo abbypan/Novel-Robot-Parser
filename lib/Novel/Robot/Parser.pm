@@ -155,10 +155,10 @@ sub get_novel_ref {
 
     $r->{url}        = $index_url;
     $r->{floor_list} = $floor_list || [];
-    $r->{floor_num}  = $max_floor_num || undef;
+    #$r->{floor_num}  = $max_floor_num || undef;
   } ## end else [ if ( $index_url !~ /^https?:/)]
 
-  ($r->{floor_list}, $r->{floor_num}) = $self->update_url_list( $r->{floor_list}, $index_url );
+  ( $r->{floor_list}, $r->{floor_num} ) = $self->update_url_list( $r->{floor_list}, $index_url );
   $self->update_floor_list( $r, %o );
   $r->{writer_url} = $self->format_abs_url( $r->{writer_url}, $index_url );
 
@@ -527,6 +527,7 @@ sub update_url_list {
     $chap->{id}  //= $i; #floor id
     push @res, $chap;
   }
+  $i = $arr->[-1]{id} if(exists $arr->[-1]{id} and $arr->[-1]{id}>$i);
   return wantarray? (\@res, $i) : $i;
 }
 
@@ -589,7 +590,7 @@ sub update_floor_list {
   my ( $self, $r, %o ) = @_;
 
   my $flist = $r->{floor_list};
-  $r->{floor_num} //= scalar( @$flist );
+  #$r->{floor_num} //= $flist->[-1]{id} // scalar( @$flist );
 
   $flist->[$_]{content} = $self->tidy_content( $flist->[$_]{content} ) for ( 0 .. $#$flist );
 
