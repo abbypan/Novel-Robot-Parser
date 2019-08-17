@@ -14,7 +14,7 @@ use Data::Dumper;
 
 ### {{{ data
 
-our $VERSION = 0.31;
+our $VERSION = 0.32;
 
 our %SITE_DOM_NAME = (
   'bbs.jjwxc.net'   => 'hjj',
@@ -517,10 +517,12 @@ sub update_url_list {
   for my $chap ( @$arr ) {
     $chap = { url => $chap || '' } if ( ref( $chap ) ne 'HASH' );
 
-    $chap->{url} = $self->format_abs_url( $chap->{url}, $base_url );
+    if($chap->{url}){
+        $chap->{url} = $self->format_abs_url( $chap->{url}, $base_url );
 
-    next if(exists $rem{$chap->{url}});
-    $rem{$chap->{url}}=1;
+        next if(exists $rem{$chap->{url}});
+        $rem{$chap->{url}}=1;
+    }
 
     ++$i;
     $chap->{pid} //= $i; #page id
