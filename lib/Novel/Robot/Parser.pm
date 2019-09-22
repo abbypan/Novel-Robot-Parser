@@ -103,6 +103,7 @@ sub get_item_info {
   my ( $self,  $url )       = @_;
   my ( $i_url, $post_data ) = $self->generate_novel_url( $url );
   my $c = $self->{browser}->request_url( $i_url, $post_data );
+
   my $r = $self->extract_elements(
     \$c,
     path => $self->scrape_novel(),
@@ -529,7 +530,7 @@ sub update_url_list {
     $chap->{id}  //= $i; #floor id
     push @res, $chap;
   }
-  $i = $arr->[-1]{id} if(exists $arr->[-1]{id} and $arr->[-1]{id}>$i);
+  $i = $arr->[-1]{id} if($#$arr>=0 and exists $arr->[-1]{id} and $arr->[-1]{id}>$i);
   return wantarray? (\@res, $i) : $i;
 }
 
