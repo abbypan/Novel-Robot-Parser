@@ -354,7 +354,8 @@ sub scrape_novel_item {
     my $r = {};
     $r->{content}{path} = $self->{content_path} if(exists $self->{content_path});
     $r->{content}{regex} = $self->{content_regex} if(exists $self->{content_regex});
-    $r = { content => { path=> '//div[@id="content"]', extract=>'HTML' } } unless(exists $r->{content});
+    $r = { content => { path=> '//div[@id="content"]' } } unless(exists $r->{content});
+    $r->{content}{extract} ||= 'HTML' if(exists $r->{content}{path});
     return $r;
 }
 
