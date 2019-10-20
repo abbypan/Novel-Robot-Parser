@@ -89,6 +89,7 @@ sub detect_site {
   if( $url and $url =~ /^https?:/ ){
       my ( $dom ) = $url =~ m#^.*?\/\/(.+?)/#;
       return $SITE_DOM_NAME{$dom} if(exists $SITE_DOM_NAME{$dom});
+      return 'default';
   }
 
   return $url // 'default';
