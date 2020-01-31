@@ -21,7 +21,7 @@ sub parse_novel {
   my %t;
   for ( $$h ) {
     ( $t{title} )   = m{<td bgcolor="\#E8F3FF"><div [^>]+?style="float: left;">\s*主题：(.+?)\s*<font color="\#999999" size="-1">}s;
-    ( $t{content} ) = m{<td class="read"><div id="topic">(.*?)</div>\s*</td>\s*</tr>\s*</table>}s;
+    ( $t{content} ) = m{<td class="read"><div id="topic" >(.*?)</div>\s*</td>\s*</tr>\s*</table>}s;
     $t{content} ||= '';
     $t{content} =~ s#</?font[^>]+>##sg;
     ( $t{writer}, $t{time} ) =
@@ -39,19 +39,21 @@ sub parse_novel_item {
   my ( $self, $h ) = @_;
 
   my @floor;
-  my @cc = $$h =~ m#(<div id="topic">.*?</div>.*?<td class="authorname">.*?</tr>)#gis;
+  my @cc = $$h =~ m#(<td[^>]*?class="read"[^>]*?>.*?<td class="authorname">.*?</tr>)#gis;
+  #print $#cc;
+  exit;
   for my $cell (@cc) {
     next unless ( $cell );
 
     my %fl;
 
     ( $fl{writer}, $fl{time} ) =
-      $cell =~ m#☆☆☆</font>\s*(.*?)\s*</b><font color="?99CC00"?>于</font>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})留言#s;
+      $cell =~ m#☆☆☆</font>\s*(.*?)\s*<font color="99CC00">于</font>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})留言#s;
     $fl{writer} =~ s/<\/?(font|b).*?>//gsi;
     $fl{writer} =~ s/^-*//;
     $fl{writer} ||= 'unknown';
 
-    ($fl{content})=$cell=~m#<div id="topic">(.*?)</div>#s;
+    ($fl{content})=$cell=~m#<td[^>]*?class="read"[^>]*?>(.*?)<td class="authorname">#s;
     for ( $fl{content} ) {
       s#本帖尚未审核,若发布24小时后仍未审核通过会被屏蔽##s;
       s#</?font[^>]*>##isg;

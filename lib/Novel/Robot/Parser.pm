@@ -135,7 +135,7 @@ sub get_novel_ref {
   } else {
     my ( $i_url, $post_data ) = $self->generate_novel_url( $index_url );
 
-    ( $r, $floor_list, $max_floor_num ) = $self->{browser}->request_urls(
+    ( $r, $floor_list) = $self->{browser}->request_url_whole(
       $i_url,
       post_data => $post_data,
       info_sub  => sub {
@@ -145,14 +145,14 @@ sub get_novel_ref {
           sub  => $self->can( "parse_novel" ),
         );
       },
-      content_sub => sub {
+      item_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
+      item_sub => sub {
         $self->extract_elements(
           @_,
           path => $self->scrape_novel_item(),
           sub  => $self->can( "parse_novel_item" ),
         );
       },
-      url_list_sub => sub { $self->can( "parse_novel_list" )->( $self, @_ ) },
       %o,
     );
 
@@ -415,7 +415,29 @@ sub guess_novel_item {
 sub get_tiezi_ref {
   my ( $self, $url, %o ) = @_;
 
-  my ( $topic, $floor_list ) = $self->get_iterate_data( 'novel', $url, %o );
+  my $class = 'novel';
+  my ( $topic,  $floor_list ) = $self->{browser}->request_url_whole(
+    $url,
+
+    #post_data     => $o{post_data},
+    info_sub => sub {
+      $self->extract_elements(
+        @_,
+        path => $self->can( "scrape_$class" )->($self),
+        sub  => $self->can( "parse_$class" ),
+      );
+    },
+    item_list_sub  => sub { $self->can( "parse_${class}_item" )->( $self, @_ ) },
+    page_list_sub => sub { $self->can( "parse_${class}_list" )->( $self, @_ ) },
+
+    #min_page_num  => $o{"min_page_num"},
+    #max_page_num  => $o{"max_page_num"},
+    stop_sub => sub {
+      my ( $info, $data_list, $i ) = @_;
+      $self->{browser}->is_list_overflow( $data_list, $o{"max_item_num"} );
+    },
+    %o,
+  );
 
   $floor_list = $self->update_url_list( $floor_list, $url );
 
@@ -434,7 +456,7 @@ sub get_tiezi_ref {
 
 sub get_iterate_data {
   my ( $self, $class, $url, %o ) = @_;
-  my ( $title, $item_list ) = $self->{browser}->request_urls_iter(
+  my ( $title, $item_list ) = $self->{browser}->request_url_whole(
     $url,
 
     #post_data     => $o{post_data},
@@ -445,8 +467,8 @@ sub get_iterate_data {
         sub  => $self->can( "parse_$class" ),
       );
     },
-    content_sub  => sub { $self->can( "parse_${class}_item" )->( $self, @_ ) },
-    url_list_sub => sub { $self->can( "parse_${class}_list" )->( $self, @_ ) },
+    item_sub  => sub { $self->can( "parse_${class}_item" )->( $self, @_ ) },
+    item_list_sub => sub { $self->can( "parse_${class}_list" )->( $self, @_ ) },
 
     #min_page_num  => $o{"min_page_num"},
     #max_page_num  => $o{"max_page_num"},
@@ -457,6 +479,7 @@ sub get_iterate_data {
     %o,
   );
 } ## end sub get_iterate_data
+
 ### }}}
 
 ### {{{ board
@@ -534,7 +557,7 @@ sub update_url_list {
     push @res, $chap;
   }
   $i = $arr->[-1]{id} if($#$arr>=0 and exists $arr->[-1]{id} and $arr->[-1]{id}>$i);
-  return wantarray? (\@res, $i) : $i;
+  return wantarray? (\@res, $i) : \@res;
 }
 
 sub format_abs_url {

@@ -50,20 +50,27 @@ sub extract_content {
   return \@chap_tidy;
 } ## end sub extract_content
 
-sub gen_next_url {
+sub gen_next_search_url {
   my ( $self, $start_u, $i, $h ) = @_;
   return "$start_u&page=$i";
 }
 
+sub gen_next_tag_url {
+  my ( $self, $start_u, $i, $h ) = @_;
+  return "$start_u?page=$i";
+}
+
 sub extract_item {
-  my ( $self, $r ) = @_;
-  my $c = $self->{browser}->request_url( $r->{url} );
-  $r->{content} = $self->scrape_element_try(\$c, [
+  my ( $self, $c ) = @_;
+  #my $c = $self->{browser}->request_url( $r->{url} );
+  my $r = {};
+  $r->{content} = $self->scrape_element_try($c, [
           { path =>  '//div[starts-with(@class,"m-post")]', 'extract' => 'HTML' },
           { path =>  '//div[@class="txtcont"]',  'extract' => 'HTML' },
           { path =>  '//div[@class="content"]',  'extract' => 'HTML' },
           { path =>  '//div[@class="postdesc"]', 'extract' => 'HTML' },
           { path =>  '//div[@class="article"]',  'extract' => 'HTML' },
+          { path =>  '//div[@class="post-ctc"]',  'extract' => 'HTML' },
       ]);
   return $r;
 }
@@ -74,19 +81,36 @@ sub get_tiezi_ref {
     my $base_url = "http://$opt{writer}.lofter.com";
     my $b = uc( unpack( "H*", encode( "utf8", $opt{book} ) ) );
     $b =~ s/(..)/%$1/g;
-    my $url = "$base_url/search/?q=$b";
 
-    my ( $info, $floor_list ) = $self->{browser}->request_urls_iter(
-        $url,
+    my %iter_opt = (
         verbose              => 1,
         %opt, 
-        reverse_content_list => 1,
+        reverse_item_list => 1,
         info_sub             => sub { { writer => $opt{writer}, book => $opt{book}, title => $opt{book} } },
-        content_sub => sub { $self->extract_content( $opt{book}, @_ ) },
+        item_list_sub => sub { $self->extract_content( $opt{book}, @_ ) },
         stop_sub    => sub { return; },
-        next_url_sub => sub { $self->gen_next_url( @_ ) },
         item_sub     => sub { $self->extract_item( @_ ) },
     );
+
+    my $url = "$base_url/search/?q=$b";
+
+    my ( $info, $floor_list ) = $self->{browser}->request_url_whole(
+        $url,
+        %iter_opt, 
+        next_page_sub => sub { $self->gen_next_search_url( @_ ) },
+    );
+
+    my $tag_url = "$base_url/tag/$b";
+    my ( $tag_info, $tag_floor_list ) = $self->{browser}->request_url_whole(
+        $tag_url,
+        %iter_opt, 
+        next_page_sub => sub { $self->gen_next_tag_url( @_ ) },
+    );
+    if($#$tag_floor_list>$#$floor_list){
+        $url = $tag_url;
+        $info = $tag_info;
+        $floor_list = $tag_floor_list;
+    }
 
     $info->{url}        = $url;
     $info->{floor_list} = $floor_list;
