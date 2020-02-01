@@ -89,34 +89,42 @@ sub get_tiezi_ref {
         info_sub             => sub { { writer => $opt{writer}, book => $opt{book}, title => $opt{book} } },
         item_list_sub => sub { $self->extract_content( $opt{book}, @_ ) },
         stop_sub    => sub { return; },
-        item_sub     => sub { $self->extract_item( @_ ) },
+        #item_sub     => sub { $self->extract_item( @_ ) },
     );
 
     my $url = "$base_url/search/?q=$b";
-
+    my $next_search_sub = sub { $self->gen_next_search_url( @_ ) };
     my ( $info, $floor_list ) = $self->{browser}->request_url_whole(
         $url,
         %iter_opt, 
-        next_page_sub => sub { $self->gen_next_search_url( @_ ) },
+        next_page_sub => $next_search_sub, 
     );
 
     my $tag_url = "$base_url/tag/$b";
+    my $next_tag_sub =  sub { $self->gen_next_tag_url( @_ ) };
     my ( $tag_info, $tag_floor_list ) = $self->{browser}->request_url_whole(
         $tag_url,
         %iter_opt, 
-        next_page_sub => sub { $self->gen_next_tag_url( @_ ) },
+        next_page_sub => $next_tag_sub,
     );
-    if($#$tag_floor_list>$#$floor_list){
-        $url = $tag_url;
-        $info = $tag_info;
-        $floor_list = $tag_floor_list;
-    }
+    
+    my ($final_url, $next_page_sub, $final_item_list) = $#$tag_floor_list>$#$floor_list ?
+    ($tag_url, $next_tag_sub, $tag_floor_list) : ($url, $next_search_sub, $floor_list);
 
-    $info->{url}        = $url;
-    $info->{floor_list} = $floor_list;
-    $self->update_floor_list($info);
+    my ( $final_info, $final_floor_list ) = $self->{browser}->request_url_whole(
+        $final_url,
+        %iter_opt, 
+        item_list => $final_item_list, 
+        next_page_sub => $next_page_sub,
+        item_sub     => sub { $self->extract_item( @_ ) },
+        reverse_item_list => 0, 
+    );
+
+    $final_info->{url}        = $final_url;
+    $final_info->{floor_list} = $final_floor_list;
+    $self->update_floor_list($final_info);
     #print "last_chapter_id : $info->{floor_list}[-1]{id}\n";
-    return $info;
+    return $final_info;
 } ## end sub get_tiezi_ref
 
 1;
